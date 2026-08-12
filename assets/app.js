@@ -143,3 +143,39 @@ function initCarousel(root){
   buildDots(); render(); start();
 }
 (function(){ document.querySelectorAll('[data-carousel]').forEach(initCarousel); })();
+
+/* ---------- hero particle network ---------- */
+(function(){
+  var c=document.getElementById('heroCanvas'); if(!c) return;
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  var ctx=c.getContext('2d'), pts=[], W,H, raf;
+  function size(){ var r=c.parentElement.getBoundingClientRect(); W=c.width=r.width; H=c.height=r.height; var n=Math.min(64,Math.round(W*H/26000)); pts=[]; for(var i=0;i<n;i++){pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35});} }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,1.6,0,6.28);ctx.fillStyle='rgba(140,233,255,.75)';ctx.fill();}
+    for(var a=0;a<pts.length;a++)for(var b=a+1;b<pts.length;b++){var dx=pts[a].x-pts[b].x,dy=pts[a].y-pts[b].y,d=dx*dx+dy*dy;
+      if(d<17000){ctx.beginPath();ctx.moveTo(pts[a].x,pts[a].y);ctx.lineTo(pts[b].x,pts[b].y);ctx.strokeStyle='rgba(34,195,230,'+(1-d/17000)*.32+')';ctx.lineWidth=1;ctx.stroke();}}
+    raf=requestAnimationFrame(draw);
+  }
+  size(); draw(); window.addEventListener('resize',function(){cancelAnimationFrame(raf);size();draw();});
+})();
+
+/* ---------- contact form -> WhatsApp ---------- */
+(function(){
+  var box=document.getElementById('quoteForm'); if(!box) return;
+  var btn=box.querySelector('[data-send]'); if(!btn) return;
+  btn.addEventListener('click',function(){
+    var v=function(sel){var el=box.querySelector(sel);return el?el.value.trim():'';};
+    var lang=document.documentElement.lang==='en'?'en':'fr';
+    var L=lang==='en'
+      ?{h:'Quote request',n:'Name',c:'Company',m:'Need'}
+      :{h:'Demande de devis',n:'Nom',c:'Societe',m:'Besoin'};
+    var txt=L.h+' - Roots & Co%0A'
+      +L.n+': '+v('[name=name]')+'%0A'
+      +'Email: '+v('[name=email]')+'%0A'
+      +L.c+': '+v('[name=company]')+'%0A'
+      +L.m+': '+v('[name=need]');
+    window.open('https://wa.me/22893078787?text='+txt,'_blank');
+  });
+})();
