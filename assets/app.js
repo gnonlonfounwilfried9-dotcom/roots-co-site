@@ -272,7 +272,7 @@ function initCarousel(root){
   if('speechSynthesis' in window){ pickVoice(); try{speechSynthesis.onvoiceschanged=pickVoice;}catch(_){} }
   function speak(text){ try{ if(window.speechSynthesis && text){ speechSynthesis.cancel();
     var u=new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,'').replace(/&[^;]+;/g,' ').replace(/@/g,' arobase ').replace(/\.ws/g,' point ws'));
-    pickVoice(); if(voice)u.voice=voice; u.lang=EN()?'en-US':'fr-FR'; u.rate=0.97; u.pitch=1.12; speechSynthesis.speak(u);
+    pickVoice(); if(voice)u.voice=voice; u.lang=EN()?'en-US':'fr-FR'; u.rate=0.9; u.pitch=1.12; speechSynthesis.speak(u);
   } }catch(_){} }
   setTimeout(function(){ show(EN()?"Hello, I am Lina, your Roots & Co assistant. Hover a section and I explain what you can do. Click on an empty area to open my shortcuts, or click Listen to hear me.":"Bonjour, je suis Lina, votre assistante Roots & Co. Survolez une section et je vous explique ce que vous pouvez y faire. Cliquez dans une zone vide pour ouvrir mes raccourcis, ou sur Ecouter pour m'entendre."); },1800);
   var lastSec=null;
@@ -282,10 +282,10 @@ function initCarousel(root){
   /* follow the cursor (never blocks: #rooty is pointer-events:none) */
   if(!touch){
     var x=innerWidth-160,y=innerHeight-170,tx=x,ty=y;
-    document.addEventListener('mousemove',function(ev){ if(paused)return; tx=ev.clientX+16; ty=ev.clientY+16; });
-    (function loop(){ x+=(tx-x)*.2; y+=(ty-y)*.2;
+    document.addEventListener('mousemove',function(ev){ if(paused)return; tx=ev.clientX+28; ty=ev.clientY+24; });
+    (function loop(){ x+=(tx-x)*.15; y+=(ty-y)*.15;
       var mx=Math.max(6,Math.min(innerWidth-84,x)), my=Math.max(70,Math.min(innerHeight-84,y));
-      el.style.transform='translate3d('+mx.toFixed(1)+'px,'+my.toFixed(1)+'px,0)'; requestAnimationFrame(loop); })();
+      el.style.setProperty('transform','translate3d('+mx.toFixed(1)+'px,'+my.toFixed(1)+'px,0)','important'); requestAnimationFrame(loop); })();
     var freeze=function(){ paused=true; clearTimeout(pauseT); pauseT=setTimeout(function(){paused=false;},5200); };
     document.addEventListener('click',function(ev){
       if(ev.target.closest('.rooty-panel')) return;
