@@ -89,14 +89,14 @@ document.documentElement.classList.add('js');
 /* ---------- rotating hero words ---------- */
 (function(){
   var el=document.querySelector('.rot'); if(!el) return;
-  var W={fr:(el.dataset.fr||'').split('|'), en:(el.dataset.en||'').split('|')}, lang='fr', i=0;
-  window.__setHeroWords=function(l){lang=l;};
-  function tick(){
-    var arr=(W[lang]&&W[lang].length)?W[lang]:W.fr;
-    el.style.opacity=0; el.style.transform='translateY(10px)';
-    setTimeout(function(){el.textContent=arr[i%arr.length]; el.style.opacity=1; el.style.transform='none'; i++;},550);
-  }
-  tick(); setInterval(tick,3000);
+  var fr=(el.getAttribute('data-words-fr')||'').split('|');
+  var en=(el.getAttribute('data-words-en')||'').split('|');
+  var i=0;
+  function arr(){ return (document.documentElement.lang==='en' && en.length)?en:fr; }
+  function tick(){ var a=arr(); el.style.opacity='0'; el.style.transform='translateY(12px)';
+    setTimeout(function(){ el.textContent=a[i%a.length]; el.style.opacity='1'; el.style.transform='none'; i++; },600); }
+  el.textContent=fr[0]||el.textContent;
+  setTimeout(tick,1800); setInterval(tick,3400);
 })();
 
 /* ---------- parallax ---------- */
@@ -180,46 +180,111 @@ function initCarousel(root){
   });
 })();
 
-/* ---------- Rooty avatar ---------- */
+/* ---------- Lina assistant ---------- */
 (function(){
   var el=document.getElementById('rooty'); if(!el) return;
   var bubble=el.querySelector('.rooty-bubble'), panel=el.querySelector('.rooty-panel');
-  var touch=matchMedia('(hover:none)').matches;
-  var current='';
-  var hideT=null;
+  var pupils=el.querySelectorAll('.pupil');
+  var current='', hideT=null, NAME='Lina';
   function EN(){ return document.documentElement.lang==='en'; }
-  function show(text,label){
-    current=text;
-    bubble.innerHTML=(label?'<b>'+label+'</b>':'')+text;
+  function norm(t){ return (t||'').toLowerCase().normalize('NFD').replace(/[^ -~]/g,'').replace(/[^a-z ]/g,'').replace(/ +/g,' ').trim(); }
+  var RAW=[
+   ['Ingenierie informatique et negoce international',
+    "Bienvenue chez Roots & Co. Nous reunissons deux metiers, l'informatique d'entreprise et l'import-export de materiel. Un seul partenaire, du conseil a la livraison. Cliquez sur Demander un devis et nous vous recontactons vite.",
+    "Welcome to Roots & Co. We combine two trades, corporate IT and equipment import-export. One partner, from advice to delivery. Click Request a quote and we will get back to you fast."],
+   ['Deux poles',
+    "Roots repose sur deux poles. A gauche l'informatique, materiel, serveurs, securite, infogerance. A droite l'import-export, sourcing, dedouanement, livraison. Cliquez sur le pole qui vous concerne.",
+    "Roots stands on two divisions. On the left IT, hardware, servers, security, managed services. On the right import-export, sourcing, customs, delivery. Click the division that fits you."],
+   ['Pourquoi Roots',
+    "Ce qui nous distingue, un seul interlocuteur pour tout, un support local qui repond vite au Togo et au Benin, et un reseau international en France et aux Etats-Unis pour sourcer partout.",
+    "What sets us apart, one contact for everything, fast local support in Togo and Benin, and an international network in France and the United States to source anywhere."],
+   ['Nos services',
+    "Nos expertises informatiques, materiel, maintenance, cybersecurite, infogerance, reseaux, videosurveillance, ERP Odoo et ingenierie. Survolez une carte pour le detail, ou ouvrez la page Informatique.",
+    "Our IT expertise, hardware, maintenance, cybersecurity, managed IT, networks, video surveillance, Odoo ERP and engineering. Hover a card for details, or open the IT page."],
+   ['Materiel',
+    "Un apercu de nos ordinateurs professionnels avec les prix. Faites defiler le carrousel avec les fleches, puis ouvrez Voir tout le catalogue pour la gamme complete.",
+    "A preview of our professional laptops with prices. Scroll the carousel with the arrows, then open See the full catalogue for the full range."],
+   ['Notre expertise, en chiffres',
+    "Nos chiffres cles et notre couverture par domaine, plus de vingt ans d'expertise, quatre pays, et la maitrise du materiel, de la securite, de l'infogerance et de la logistique.",
+    "Our key figures and coverage by area, over twenty years of expertise, four countries, and command of hardware, security, managed IT and logistics."],
+   ['A qui nous nous adressons',
+    "Nous equipons de nombreux secteurs, banques et finance, ONG et institutions, administrations, education, PME et commerces, sante. Chaque secteur a ses exigences, nous les connaissons.",
+    "We equip many sectors, banking and finance, NGOs and institutions, public administrations, education, SMEs and retail, healthcare. Each sector has its needs, and we know them."],
+   ['Temoignages',
+    "Quelques retours clients, pour l'instant illustratifs et a valider. Ils montrent notre reactivite et notre accompagnement de bout en bout. De vrais temoignages viendront.",
+    "A few client quotes, for now illustrative and to be validated. They show our responsiveness and end to end support. Real testimonials will come."],
+   ['Partenaires officiels',
+    "Nous sommes agrees par les leaders du secteur, Dell, HP, Lenovo, Sophos, Odoo, Microsoft, Synology. Passez la souris sur les logos, ils defilent en continu.",
+    "We are certified by the industry leaders, Dell, HP, Lenovo, Sophos, Odoo, Microsoft, Synology. Hover the logos, they scroll continuously."],
+   ['Nos implantations',
+    "Nous sommes presents dans quatre pays, Lome le siege, Cotonou, la France et les Etats-Unis. Local pour vous livrer vite, international pour sourcer partout.",
+    "We are present in four countries, Lome the headquarters, Cotonou, France and the United States. Local to deliver fast, international to source anywhere."],
+   ['Comment ca marche',
+    "Le parcours de votre commande a l'import, en quatre etapes, sourcing, import, dedouanement, livraison. Vous n'avez qu'un seul interlocuteur, du debut a la fin.",
+    "Your import order journey in four steps, sourcing, import, customs clearance, delivery. You have a single contact from start to finish."],
+   ['Contact',
+    "Pour un devis, remplissez le formulaire, votre demande s'ouvre directement dans WhatsApp, preremplie. Vous pouvez aussi nous appeler ou ecrire a sales@roots.ws.",
+    "For a quote, fill in the form, your request opens directly in WhatsApp, prefilled. You can also call us or email sales@roots.ws."],
+   ['Pole numero un',
+    "Le pole Informatique, une seule equipe pilote tout votre systeme d'information, du materiel et des serveurs a la securite, l'infogerance et l'ERP.",
+    "The IT division, one team runs your entire information system, from hardware and servers to security, managed services and ERP."],
+   ['Pole numero deux',
+    "Le pole Import-export, nous sourcons du materiel dans le monde entier et vous le livrons, dedouane et installe, dans toute la sous-region.",
+    "The import-export division, we source equipment worldwide and deliver it, cleared and installed, across the sub region."],
+   ['Catalogue materiel',
+    "Notre catalogue d'ordinateurs professionnels, norme CE et garantie 12 mois, en stock en France, au Togo et au Benin. Les prix sont affiches.",
+    "Our catalogue of professional computers, CE standard and 12 month warranty, in stock in France, Togo and Benin. Prices are shown."],
+   ["L'entreprise",
+    "L'histoire de Roots, creee en 2002 en France puis en 2009 au Togo, devenue un acteur present sur trois continents.",
+    "The Roots story, created in 2002 in France then in 2009 in Togo, now present on three continents."],
+   ['Actualites et conseils',
+    "Notre rubrique conseils sur la securite, le materiel et l'import. La section sera bientot alimentee avec de vrais articles.",
+    "Our advice section on security, hardware and import. It will soon be filled with real articles."]
+  ];
+  var SAY={}; RAW.forEach(function(r){ SAY[norm(r[0])]={fr:r[1],en:r[2]}; });
+  var KW=[
+   ['dell',"Roots est partenaire officiel agree Dell. Nous fournissons, installons et maintenons ordinateurs, serveurs et stations de travail Dell, avec garantie et service apres-vente local. Cliquez sur Voir le materiel Dell.",
+    "Roots is an official authorized Dell partner. We supply, install and maintain Dell computers, servers and workstations, with warranty and local after sales service. Click See Dell hardware."],
+   ['serveur',"Un point fort de Roots, la vente et l'installation de serveurs, ideales pour les banques et grands comptes, avec renouvellement tous les deux ans pour rester sous garantie. Demandez un devis serveur.",
+    "A Roots strength, server sales and installation, ideal for banks and large accounts, with renewal every two years to stay under warranty. Ask for a server quote."]
+  ];
+  function explain(sec){
+    var k=sec.querySelector('.kicker'), h=sec.querySelector('.stitle')||sec.querySelector('h1')||sec.querySelector('h2');
+    var kt=k?norm(k.textContent):'', ht=h?norm(h.textContent):'';
+    if(SAY[kt]) return SAY[kt];
+    if(SAY[ht]) return SAY[ht];
+    var blob=kt+' '+ht;
+    for(var j=0;j<KW.length;j++){ if(blob.indexOf(KW[j][0])>=0) return {fr:KW[j][1],en:KW[j][2]}; }
+    var lead=sec.querySelector('.slead')||sec.querySelector('.phero p')||sec.querySelector('.hero p.sub');
+    var t=lead?lead.textContent.trim():(h?h.textContent.trim():'');
+    return {fr:t,en:t};
+  }
+  function show(text,label){ current=text; bubble.innerHTML='<b>'+(label||NAME)+'</b>'+text;
     bubble.classList.add('show'); panel.classList.remove('show');
-    clearTimeout(hideT); hideT=setTimeout(function(){bubble.classList.remove('show');},5600);
-  }
-  setTimeout(function(){ show(EN()?"Hi, I'm Rooty. Hover a section and I explain it. Click me to hear it or open shortcuts.":"Bonjour, je suis Rooty. Survolez une section et je l'explique. Cliquez-moi pour l'ecouter ou ouvrir les raccourcis.",'Rooty'); },1000);
+    clearTimeout(hideT); hideT=setTimeout(function(){bubble.classList.remove('show');},10000); }
+  setTimeout(function(){ show(EN()?"Hello, I am Lina, your Roots & Co assistant. Hover a section and I explain what you can do there. Click me to hear it aloud or open shortcuts.":"Bonjour, je suis Lina, votre assistante Roots & Co. Survolez une section et je vous explique ce que vous pouvez y faire. Cliquez-moi pour l'ecouter ou ouvrir les raccourcis."); },1800);
+  var lastSec=null;
   document.querySelectorAll('section').forEach(function(sec){
-    sec.addEventListener('mouseenter',function(){
-      var lead=sec.querySelector('.slead')||sec.querySelector('.phero p')||sec.querySelector('.hero p.sub');
-      var tit=sec.querySelector('.stitle')||sec.querySelector('h1');
-      var t=lead?lead.textContent.trim():(tit?tit.textContent.trim():'');
-      var lab=tit?tit.textContent.trim():'';
-      if(t) show(t,lab.slice(0,46));
-    });
+    sec.addEventListener('mouseenter',function(){ if(sec===lastSec)return; lastSec=sec; var e=explain(sec); if(e&&(e.fr||e.en)) show(EN()?e.en:e.fr); });
   });
-  if(!touch){
-    var x=innerWidth-140,y=innerHeight-160,tx=x,ty=y,paused=false;
-    document.addEventListener('mousemove',function(e){ if(!paused){ tx=e.clientX+32; ty=e.clientY+28; } });
-    el.addEventListener('mouseenter',function(){paused=true;});
-    el.addEventListener('mouseleave',function(){paused=false;});
-    (function loop(){ x+=(tx-x)*.13; y+=(ty-y)*.13;
-      var mx=Math.max(6,Math.min(innerWidth-70,x)), my=Math.max(70,Math.min(innerHeight-70,y));
-      el.style.transform='translate3d('+mx.toFixed(1)+'px,'+my.toFixed(1)+'px,0)';
-      requestAnimationFrame(loop); })();
-  }
+  document.addEventListener('mousemove',function(ev){
+    var r=el.getBoundingClientRect(); var cx=r.left+r.width/2, cy=r.top+r.height*0.42;
+    var dx=ev.clientX-cx, dy=ev.clientY-cy, d=Math.hypot(dx,dy)||1, m=Math.min(2.6,d/70);
+    var px=(dx/d*m).toFixed(1), py=(dy/d*m).toFixed(1);
+    pupils.forEach(function(pp){ pp.style.transform='translate('+px+'px,'+py+'px)'; });
+  });
+  var voice=null;
+  function pickVoice(){ try{ var vs=speechSynthesis.getVoices()||[]; var lg=EN()?'en':'fr';
+      var pool=vs.filter(function(v){return v.lang&&v.lang.toLowerCase().indexOf(lg)===0;});
+      voice=pool.filter(function(v){return /(hortense|julie|amelie|audrey|marie|celine|female|femme|google)/i.test(v.name);})[0]||pool[0]||null;
+    }catch(_){} }
+  if('speechSynthesis' in window){ pickVoice(); try{speechSynthesis.onvoiceschanged=pickVoice;}catch(_){} }
   el.addEventListener('click',function(e){
     if(e.target.closest('.rooty-panel')) return;
     try{ if(window.speechSynthesis && current){ speechSynthesis.cancel();
       var u=new SpeechSynthesisUtterance(current.replace(/<[^>]+>/g,'').replace(/&[^;]+;/g,' '));
-      u.lang=EN()?'en-US':'fr-FR'; u.rate=1; speechSynthesis.speak(u);} }catch(_){}
-    var open=panel.classList.contains('show');
-    panel.classList.toggle('show',!open); bubble.classList.remove('show');
+      pickVoice(); if(voice)u.voice=voice; u.lang=EN()?'en-US':'fr-FR'; u.rate=0.97; u.pitch=1.12; speechSynthesis.speak(u);
+    } }catch(_){}
+    var open=panel.classList.contains('show'); panel.classList.toggle('show',!open); bubble.classList.remove('show');
   });
 })();
