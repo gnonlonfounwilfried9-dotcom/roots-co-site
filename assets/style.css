@@ -509,3 +509,13 @@ html.js [data-reveal].is-in{opacity:1;transform:none;}
 @keyframes lwLegR{0%,100%{transform:rotate(-15deg)}50%{transform:rotate(15deg)}}
 .lina-walk .lina-waves{top:78px;right:-8px;bottom:auto;}
 @media(prefers-reduced-motion:reduce){.lina-walk,.lw-arm,.lw-leg{animation:none!important;}}
+
+/* ===== Lina presenter video (blog recap) ===== */
+.lina-video{position:relative;width:min(300px,82vw);margin:0 auto;border-radius:26px;overflow:hidden;border:4px solid var(--cyan);box-shadow:0 26px 54px rgba(8,20,38,.34);background:#0c2848;}
+.lina-video video{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;}
+.vid-sound{position:absolute;bottom:14px;right:14px;width:46px;height:46px;border-radius:50%;background:rgba(7,18,34,.72);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.28);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.3s;z-index:2;}
+.vid-sound:hover{background:var(--cyan);transform:scale(1.06);}
+.vid-sound svg{width:20px;height:20px;}
+.vid-sound .on{display:none;}
+.vid-sound.snd .off{display:none;}
+.vid-sound.snd .on{display:block;}

@@ -299,6 +299,10 @@ function initCarousel(root){
   }
   var lb=el.querySelector('[data-listen]');
   if(lb) lb.addEventListener('click',function(e){ e.preventDefault(); speak(current); });
+  var vid=document.getElementById('linaVid');
+  var sndBtn=document.querySelector('[data-vidsound]');
+  function playVid(){ if(!vid) return false; vid.muted=false; try{vid.currentTime=0;}catch(_){}; if(vid.play)vid.play(); if(sndBtn)sndBtn.classList.add('snd'); return true; }
+  if(sndBtn&&vid) sndBtn.addEventListener('click',function(){ vid.muted=!vid.muted; sndBtn.classList.toggle('snd',!vid.muted); if(!vid.muted&&vid.play)vid.play(); });
   var rb=document.querySelector('[data-recap]');
-  if(rb) rb.addEventListener('click',function(e){ e.preventDefault(); var t=document.querySelector('.recap-say'); if(t){ speak(t.textContent); show(t.textContent,'Lina'); } });
+  if(rb) rb.addEventListener('click',function(e){ e.preventDefault(); if(!playVid()){ var t=document.querySelector('.recap-say'); if(t){ speak(t.textContent); show(t.textContent,'Lina'); } } });
 })();
