@@ -184,8 +184,8 @@ function initCarousel(root){
 (function(){
   var el=document.getElementById('rooty'); if(!el) return;
   var bubble=el.querySelector('.rooty-bubble'), panel=el.querySelector('.rooty-panel');
-  var pupils=el.querySelectorAll('.pupil');
-  var current='', hideT=null, NAME='Lina';
+  var current='', hideT=null, NAME='Lina', paused=false, pauseT=null;
+  var touch=matchMedia('(hover:none)').matches;
   function EN(){ return document.documentElement.lang==='en'; }
   function norm(t){ return (t||'').toLowerCase().normalize('NFD').replace(/[^ -~]/g,'').replace(/[^a-z ]/g,'').replace(/ +/g,' ').trim(); }
   var RAW=[
@@ -239,7 +239,10 @@ function initCarousel(root){
     "The Roots story, created in 2002 in France then in 2009 in Togo, now present on three continents."],
    ['Actualites et conseils',
     "Notre rubrique conseils sur la securite, le materiel et l'import. La section sera bientot alimentee avec de vrais articles.",
-    "Our advice section on security, hardware and import. It will soon be filled with real articles."]
+    "Our advice section on security, hardware and import. It will soon be filled with real articles."],
+   ['Lina sums it up',
+    "Voici mon recap. Cliquez sur Ecouter le recap pour que je vous resume tout Roots & Co de vive voix.",
+    "Here is my recap. Click Play the recap and I will sum up all of Roots & Co out loud."]
   ];
   var SAY={}; RAW.forEach(function(r){ SAY[norm(r[0])]={fr:r[1],en:r[2]}; });
   var KW=[
@@ -260,31 +263,42 @@ function initCarousel(root){
     return {fr:t,en:t};
   }
   function show(text,label){ current=text; bubble.innerHTML='<b>'+(label||NAME)+'</b>'+text;
-    bubble.classList.add('show'); panel.classList.remove('show');
-    clearTimeout(hideT); hideT=setTimeout(function(){bubble.classList.remove('show');},10000); }
-  setTimeout(function(){ show(EN()?"Hello, I am Lina, your Roots & Co assistant. Hover a section and I explain what you can do there. Click me to hear it aloud or open shortcuts.":"Bonjour, je suis Lina, votre assistante Roots & Co. Survolez une section et je vous explique ce que vous pouvez y faire. Cliquez-moi pour l'ecouter ou ouvrir les raccourcis."); },1800);
-  var lastSec=null;
-  document.querySelectorAll('section').forEach(function(sec){
-    sec.addEventListener('mouseenter',function(){ if(sec===lastSec)return; lastSec=sec; var e=explain(sec); if(e&&(e.fr||e.en)) show(EN()?e.en:e.fr); });
-  });
-  document.addEventListener('mousemove',function(ev){
-    var r=el.getBoundingClientRect(); var cx=r.left+r.width/2, cy=r.top+r.height*0.42;
-    var dx=ev.clientX-cx, dy=ev.clientY-cy, d=Math.hypot(dx,dy)||1, m=Math.min(2.6,d/70);
-    var px=(dx/d*m).toFixed(1), py=(dy/d*m).toFixed(1);
-    pupils.forEach(function(pp){ pp.style.transform='translate('+px+'px,'+py+'px)'; });
-  });
+    bubble.classList.add('show'); clearTimeout(hideT); hideT=setTimeout(function(){bubble.classList.remove('show');},11000); }
   var voice=null;
   function pickVoice(){ try{ var vs=speechSynthesis.getVoices()||[]; var lg=EN()?'en':'fr';
       var pool=vs.filter(function(v){return v.lang&&v.lang.toLowerCase().indexOf(lg)===0;});
       voice=pool.filter(function(v){return /(hortense|julie|amelie|audrey|marie|celine|female|femme|google)/i.test(v.name);})[0]||pool[0]||null;
     }catch(_){} }
   if('speechSynthesis' in window){ pickVoice(); try{speechSynthesis.onvoiceschanged=pickVoice;}catch(_){} }
-  el.addEventListener('click',function(e){
-    if(e.target.closest('.rooty-panel')) return;
-    try{ if(window.speechSynthesis && current){ speechSynthesis.cancel();
-      var u=new SpeechSynthesisUtterance(current.replace(/<[^>]+>/g,'').replace(/&[^;]+;/g,' '));
-      pickVoice(); if(voice)u.voice=voice; u.lang=EN()?'en-US':'fr-FR'; u.rate=0.97; u.pitch=1.12; speechSynthesis.speak(u);
-    } }catch(_){}
-    var open=panel.classList.contains('show'); panel.classList.toggle('show',!open); bubble.classList.remove('show');
+  function speak(text){ try{ if(window.speechSynthesis && text){ speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,'').replace(/&[^;]+;/g,' ').replace(/@/g,' arobase ').replace(/\.ws/g,' point ws'));
+    pickVoice(); if(voice)u.voice=voice; u.lang=EN()?'en-US':'fr-FR'; u.rate=0.97; u.pitch=1.12; speechSynthesis.speak(u);
+  } }catch(_){} }
+  setTimeout(function(){ show(EN()?"Hello, I am Lina, your Roots & Co assistant. Hover a section and I explain what you can do. Click on an empty area to open my shortcuts, or click Listen to hear me.":"Bonjour, je suis Lina, votre assistante Roots & Co. Survolez une section et je vous explique ce que vous pouvez y faire. Cliquez dans une zone vide pour ouvrir mes raccourcis, ou sur Ecouter pour m'entendre."); },1800);
+  var lastSec=null;
+  document.querySelectorAll('section').forEach(function(sec){
+    sec.addEventListener('mouseenter',function(){ if(sec===lastSec)return; lastSec=sec; var e=explain(sec); if(e&&(e.fr||e.en)) show(EN()?e.en:e.fr); });
   });
+  /* follow the cursor (never blocks: #rooty is pointer-events:none) */
+  if(!touch){
+    var x=innerWidth-160,y=innerHeight-170,tx=x,ty=y;
+    document.addEventListener('mousemove',function(ev){ if(paused)return; tx=ev.clientX+30; ty=ev.clientY+26; });
+    (function loop(){ x+=(tx-x)*.11; y+=(ty-y)*.11;
+      var mx=Math.max(6,Math.min(innerWidth-84,x)), my=Math.max(70,Math.min(innerHeight-84,y));
+      el.style.transform='translate3d('+mx.toFixed(1)+'px,'+my.toFixed(1)+'px,0)'; requestAnimationFrame(loop); })();
+    var freeze=function(){ paused=true; clearTimeout(pauseT); pauseT=setTimeout(function(){paused=false;},5200); };
+    document.addEventListener('click',function(ev){
+      if(ev.target.closest('.rooty-panel')) return;
+      if(ev.target.closest('a,button,input,textarea,select,label,[role=button]')) return;
+      var open=panel.classList.contains('show');
+      panel.classList.toggle('show',!open); bubble.classList.remove('show');
+      if(!open){ speak(current); freeze(); } else { paused=false; }
+    });
+  } else {
+    el.addEventListener('click',function(){ var open=panel.classList.contains('show'); panel.classList.toggle('show',!open); if(!open){ speak(current); } });
+  }
+  var lb=el.querySelector('[data-listen]');
+  if(lb) lb.addEventListener('click',function(e){ e.preventDefault(); speak(current); });
+  var rb=document.querySelector('[data-recap]');
+  if(rb) rb.addEventListener('click',function(e){ e.preventDefault(); var t=document.querySelector('.recap-say'); if(t){ speak(t.textContent); show(t.textContent,'Lina'); } });
 })();
