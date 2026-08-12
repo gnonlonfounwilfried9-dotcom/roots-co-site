@@ -179,3 +179,47 @@ function initCarousel(root){
     window.open('https://wa.me/22893078787?text='+txt,'_blank');
   });
 })();
+
+/* ---------- Rooty avatar ---------- */
+(function(){
+  var el=document.getElementById('rooty'); if(!el) return;
+  var bubble=el.querySelector('.rooty-bubble'), panel=el.querySelector('.rooty-panel');
+  var touch=matchMedia('(hover:none)').matches;
+  var current='';
+  var hideT=null;
+  function EN(){ return document.documentElement.lang==='en'; }
+  function show(text,label){
+    current=text;
+    bubble.innerHTML=(label?'<b>'+label+'</b>':'')+text;
+    bubble.classList.add('show'); panel.classList.remove('show');
+    clearTimeout(hideT); hideT=setTimeout(function(){bubble.classList.remove('show');},5600);
+  }
+  setTimeout(function(){ show(EN()?"Hi, I'm Rooty. Hover a section and I explain it. Click me to hear it or open shortcuts.":"Bonjour, je suis Rooty. Survolez une section et je l'explique. Cliquez-moi pour l'ecouter ou ouvrir les raccourcis.",'Rooty'); },1000);
+  document.querySelectorAll('section').forEach(function(sec){
+    sec.addEventListener('mouseenter',function(){
+      var lead=sec.querySelector('.slead')||sec.querySelector('.phero p')||sec.querySelector('.hero p.sub');
+      var tit=sec.querySelector('.stitle')||sec.querySelector('h1');
+      var t=lead?lead.textContent.trim():(tit?tit.textContent.trim():'');
+      var lab=tit?tit.textContent.trim():'';
+      if(t) show(t,lab.slice(0,46));
+    });
+  });
+  if(!touch){
+    var x=innerWidth-140,y=innerHeight-160,tx=x,ty=y,paused=false;
+    document.addEventListener('mousemove',function(e){ if(!paused){ tx=e.clientX+32; ty=e.clientY+28; } });
+    el.addEventListener('mouseenter',function(){paused=true;});
+    el.addEventListener('mouseleave',function(){paused=false;});
+    (function loop(){ x+=(tx-x)*.13; y+=(ty-y)*.13;
+      var mx=Math.max(6,Math.min(innerWidth-70,x)), my=Math.max(70,Math.min(innerHeight-70,y));
+      el.style.transform='translate3d('+mx.toFixed(1)+'px,'+my.toFixed(1)+'px,0)';
+      requestAnimationFrame(loop); })();
+  }
+  el.addEventListener('click',function(e){
+    if(e.target.closest('.rooty-panel')) return;
+    try{ if(window.speechSynthesis && current){ speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(current.replace(/<[^>]+>/g,'').replace(/&[^;]+;/g,' '));
+      u.lang=EN()?'en-US':'fr-FR'; u.rate=1; speechSynthesis.speak(u);} }catch(_){}
+    var open=panel.classList.contains('show');
+    panel.classList.toggle('show',!open); bubble.classList.remove('show');
+  });
+})();
