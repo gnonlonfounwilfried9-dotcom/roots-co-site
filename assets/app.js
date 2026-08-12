@@ -282,8 +282,8 @@ function initCarousel(root){
   /* follow the cursor (never blocks: #rooty is pointer-events:none) */
   if(!touch){
     var x=innerWidth-160,y=innerHeight-170,tx=x,ty=y;
-    document.addEventListener('mousemove',function(ev){ if(paused)return; tx=ev.clientX+30; ty=ev.clientY+26; });
-    (function loop(){ x+=(tx-x)*.11; y+=(ty-y)*.11;
+    document.addEventListener('mousemove',function(ev){ if(paused)return; tx=ev.clientX+16; ty=ev.clientY+16; });
+    (function loop(){ x+=(tx-x)*.2; y+=(ty-y)*.2;
       var mx=Math.max(6,Math.min(innerWidth-84,x)), my=Math.max(70,Math.min(innerHeight-84,y));
       el.style.transform='translate3d('+mx.toFixed(1)+'px,'+my.toFixed(1)+'px,0)'; requestAnimationFrame(loop); })();
     var freeze=function(){ paused=true; clearTimeout(pauseT); pauseT=setTimeout(function(){paused=false;},5200); };

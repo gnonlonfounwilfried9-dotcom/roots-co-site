@@ -478,3 +478,12 @@ html.js [data-reveal].is-in{opacity:1;transform:none;}
 .recap-say{display:none;}
 [data-recap] svg{width:18px;height:18px;}
 @media(max-width:980px){.recap{grid-template-columns:1fr;gap:26px;}.lina-full{height:320px;}}
+
+/* ===== Lina blog : walking + talking ===== */
+.lina-stage{position:relative;display:inline-block;animation:walk 3.4s ease-in-out infinite;transform-origin:bottom center;}
+@keyframes walk{0%,100%{transform:translateY(0) rotate(-1.6deg)}50%{transform:translateY(-13px) rotate(1.6deg)}}
+.lina-photo{width:min(300px,72vw);border-radius:26px;border:4px solid var(--cyan);box-shadow:0 26px 52px rgba(8,20,38,.32);display:block;}
+.lina-waves{position:absolute;right:-16px;bottom:38px;display:flex;align-items:flex-end;gap:4px;height:38px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:9px 13px;box-shadow:var(--shadow-s);}
+.lina-waves span{width:4px;height:8px;background:var(--cyan);border-radius:3px;animation:talk 1s ease-in-out infinite;}
+.lina-waves span:nth-child(2){animation-delay:.14s}.lina-waves span:nth-child(3){animation-delay:.28s}.lina-waves span:nth-child(4){animation-delay:.42s}.lina-waves span:nth-child(5){animation-delay:.56s}
+@keyframes talk{0%,100%{height:7px}50%{height:26px}}
