@@ -519,3 +519,6 @@ html.js [data-reveal].is-in{opacity:1;transform:none;}
 .vid-sound .on{display:none;}
 .vid-sound.snd .off{display:none;}
 .vid-sound.snd .on{display:block;}
+
+/* Lina video : cut-out look (studio bg removed) */
+.lina-video{border:none!important;background:transparent!important;box-shadow:0 30px 60px rgba(8,20,38,.22)!important;animation:lwbob 4.6s ease-in-out infinite;}
