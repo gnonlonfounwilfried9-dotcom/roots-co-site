@@ -149,11 +149,15 @@ if (nextBtn) nextBtn.addEventListener('click', function () {
 var backBtn = document.getElementById('cartBack');
 if (backBtn) backBtn.addEventListener('click', function () { goStep(1); });
 
-var payS = document.getElementById('cfPay');
-if (payS) payS.addEventListener('change', function () {
+var payGroup = document.getElementById('cfPayGroup');
+if (payGroup) payGroup.addEventListener('change', function (e) {
   var h = document.getElementById('cfPayHint');
-  if (h) h.hidden = (this.value !== 'Carte bancaire');
+  if (h) h.hidden = (e.target.value !== 'Carte bancaire');
 });
+function radioVal(name) {
+  var r = document.querySelector('input[name="' + name + '"]:checked');
+  return r ? r.value : '';
+}
 
 function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
 
@@ -195,8 +199,8 @@ function collect() {
   L.push('Ville : ' + city);
   L.push('');
   L.push('LIVRAISON ET REGLEMENT');
-  L.push('Livraison : ' + val('cfShip'));
-  L.push('Reglement souhaite : ' + val('cfPay'));
+  L.push('Livraison : ' + radioVal('cfShip'));
+  L.push('Reglement souhaite : ' + radioVal('cfPay'));
   if (note) { L.push(''); L.push('PRECISIONS'); L.push(note); }
   L.push('');
   L.push('Merci de me confirmer la disponibilite, le delai et les frais de livraison.');

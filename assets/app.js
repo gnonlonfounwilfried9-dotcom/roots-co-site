@@ -20,13 +20,13 @@ document.documentElement.classList.add('js');
     document.querySelectorAll('[data-en]').forEach(function(el){el.textContent = l==='en'?el.getAttribute('data-en'):el.getAttribute('data-fr');});
     document.querySelectorAll('[data-en-ph]').forEach(function(el){el.placeholder = l==='en'?el.getAttribute('data-en-ph'):el.getAttribute('data-fr-ph');});
     document.documentElement.lang=l;
-    document.querySelectorAll('#lang button').forEach(function(b){b.classList.toggle('on', b.dataset.l===l);});
+    document.querySelectorAll('.lang button').forEach(function(b){b.classList.toggle('on', b.dataset.l===l);});
     try{localStorage.setItem('rootsco_lang', l);}catch(e){}
     if(window.__setHeroWords) window.__setHeroWords(l);
   }
   window.__setLang=setLang;
   var saved='fr'; try{saved=localStorage.getItem('rootsco_lang')||'fr';}catch(e){}
-  document.querySelectorAll('#lang button').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.l);});});
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.l);});});
   window.addEventListener('DOMContentLoaded',function(){ if(saved==='en') setLang('en'); });
 })();
 
@@ -57,6 +57,8 @@ document.documentElement.classList.add('js');
   document.querySelectorAll('#navlinks a').forEach(function(a){
     if((a.getAttribute('href')||'')===path) a.classList.add('active');
   });
+  var home=document.querySelector('.home-link');
+  if(home && (path==='index.html'||path==='')) home.classList.add('active');
 })();
 
 /* ---------- reveal ---------- */

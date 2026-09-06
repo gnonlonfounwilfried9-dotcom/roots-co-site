@@ -1,33 +1,32 @@
-/* ROOTS - menus deroulants du bandeau */
+/* ROOTS - tiroir de menu (gauche), remplace les anciens menus deroulants */
 (function () {
-  var drops = document.querySelectorAll('.nd');
-  function closeAll(except) {
-    for (var i = 0; i < drops.length; i++) {
-      if (drops[i] !== except) {
-        drops[i].classList.remove('open');
-        var b = drops[i].querySelector('.nd-t');
-        if (b) b.setAttribute('aria-expanded', 'false');
-      }
-    }
+  var btn = document.getElementById('menuBtn');
+  var drawer = document.getElementById('drawer');
+  var veil = document.getElementById('drawerVeil');
+  var closeBtn = document.getElementById('drawerClose');
+  if (!btn || !drawer) return;
+
+  function open() {
+    drawer.classList.add('open');
+    if (veil) veil.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
   }
-  for (var i = 0; i < drops.length; i++) {
-    (function (d) {
-      var btn = d.querySelector('.nd-t');
-      if (!btn) return;
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var open = d.classList.contains('open');
-        closeAll(d);
-        d.classList.toggle('open', !open);
-        btn.setAttribute('aria-expanded', String(!open));
-      });
-    })(drops[i]);
+  function close() {
+    drawer.classList.remove('open');
+    if (veil) veil.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
   }
-  document.addEventListener('click', function (e) {
-    if (!e.target.closest('.nd')) closeAll(null);
+  btn.addEventListener('click', function () {
+    drawer.classList.contains('open') ? close() : open();
+  });
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  if (veil) veil.addEventListener('click', close);
+  drawer.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', close);
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closeAll(null);
+    if (e.key === 'Escape') close();
   });
 })();
