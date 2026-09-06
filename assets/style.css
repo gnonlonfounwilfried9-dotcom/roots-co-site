@@ -1176,3 +1176,49 @@ header.nav.scrolled .nd.nd-on .nd-t,body.nohero .nd.nd-on .nd-t{color:var(--teal
   .bxmodal-in{padding:24px 20px 20px;}
   .bxzoom{opacity:1;transform:none;}
 }
+
+/* ================================================================
+   TYPOGRAPHIE v2 - Bricolage Grotesque (titres) + Instrument Sans (texte)
+   Les .woff2 locaux Sora/Inter restent en secours si le CDN est bloque.
+   ================================================================ */
+:root{
+  --head:'Bricolage Grotesque','Sora',"Segoe UI",sans-serif;
+  --sans:'Instrument Sans','Inter',"Segoe UI",Roboto,Arial,sans-serif;
+}
+body{font-size:16.5px;line-height:1.68;letter-spacing:-.006em;}
+h1,h2,h3,h4,h5,.stitle,.pnr-head h1,.bxxof,.num{font-family:var(--head);}
+
+/* echelle : titres plus grands, plus serres, plus d'air autour */
+h1,.stitle,.pnr-head h1{letter-spacing:-.032em;line-height:1.04;font-weight:700;}
+h2.stitle{letter-spacing:-.028em;line-height:1.08;}
+h3{letter-spacing:-.018em;line-height:1.24;font-weight:600;}
+h4,h5{letter-spacing:-.012em;font-weight:600;}
+.stitle{font-size:clamp(31px,4.6vw,54px);}
+.stitle.small{font-size:clamp(24px,2.8vw,34px);letter-spacing:-.026em;}
+.pnr-head h1{font-size:clamp(34px,5vw,58px);}
+.pghero h1.stitle,.bxhero h1.stitle{font-size:clamp(33px,4.8vw,56px);}
+
+/* etiquettes : plus fines, plus espacees, moins criardes */
+.kicker{font-family:var(--head);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;}
+.bxref,.pgbadge,.pnr-badge,.bxcat,.rc-tag,.pnr-others h4,.bxmodal h4{letter-spacing:.13em;}
+
+/* lecture : mesure limitee, interlignage genereux */
+.slead,.pnr-intro,.pgbody p,.pnr-item p,.pnr-why p,.bxsteps p,.bxdell-g p,.rfbody p,.pgdom-h p{
+  max-width:66ch;}
+.slead{font-size:16.5px;line-height:1.72;}
+p{text-wrap:pretty;}
+h1,h2,h3,.stitle{text-wrap:balance;}
+
+/* boutons et navigation : un cran plus affirmes */
+.btn{font-family:var(--head);font-weight:600;letter-spacing:-.005em;}
+.nav-links > a,.nd-t{font-weight:500;letter-spacing:-.008em;}
+.nd-m strong{font-weight:600;}
+
+/* chiffres : tabulaires et serres, ca fait tout de suite plus soigne */
+.bxxof,.num,.pgfacts strong,.pnr-facts strong,.cart-tot strong{
+  font-variant-numeric:tabular-nums;letter-spacing:-.03em;}
+.bxxof{font-size:27px;font-weight:700;}
+
+/* densite : moins de gris, plus de contraste sur le corps de texte */
+:root{--body:#4a5b74;}
+:root[data-theme="dark"]{--body:#adc0d6;}
