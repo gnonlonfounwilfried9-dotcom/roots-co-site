@@ -40,6 +40,7 @@ function render() {
 
 function open_() {
   var p = document.getElementById('cartPanel'), v = document.getElementById('cartVeil');
+  var ch = document.getElementById('rcPanel'); if (ch) ch.classList.remove('show');
   if (p) p.classList.add('show'); if (v) v.classList.add('show');
 }
 function close_() {

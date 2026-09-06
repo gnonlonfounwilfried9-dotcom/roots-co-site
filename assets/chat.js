@@ -157,6 +157,8 @@ function quick() {
 document.getElementById('rcBtn').onclick = function () {
   panel.classList.toggle('show');
   if (panel.classList.contains('show')) {
+    var cp = document.getElementById('cartPanel'), cv = document.getElementById('cartVeil');
+    if (cp) cp.classList.remove('show'); if (cv) cv.classList.remove('show');
     if (!msgs.dataset.init) {
       msgs.dataset.init = '1';
       add("Bonjour, je suis l assistant ROOTS. Je reponds sur nos solutions, la boutique, les prix en FCFA, la livraison, la garantie et les devis. Choisissez un sujet ou ecrivez votre question.", 'bot');

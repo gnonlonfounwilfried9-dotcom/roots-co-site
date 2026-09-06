@@ -1002,3 +1002,5 @@ footer .logo img{height:38px;}
   .rwtile{height:76px;padding:12px;}
   .rfgrid{grid-template-columns:1fr;}
 }
+/* le bandeau doit rester opaque pour que le logo reste lisible */
+header.nav.scrolled,body.nohero header.nav{background-color:var(--nav-bg);background-image:none;}
