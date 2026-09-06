@@ -977,3 +977,28 @@ footer .logo img{height:38px;}
 .pglogo img,.pnr-logo img,.pnr-strip img{mix-blend-mode:multiply;}
 :root[data-theme="dark"] .pglogo,:root[data-theme="dark"] .pnr-logo,
 :root[data-theme="dark"] .pnr-strip a{background:#fff;}
+
+/* ================= REFERENCES (refonte) ================= */
+.refwall2{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:14px;margin-top:44px;}
+.rwtile{background:#fff;border:1px solid var(--line);border-radius:14px;height:96px;
+  display:flex;align-items:center;justify-content:center;padding:16px 20px;
+  box-shadow:var(--shadow-s);transition:transform .3s var(--ease),border-color .3s;}
+.rwtile:hover{transform:translateY(-4px);border-color:var(--cyan);}
+.rwtile img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply;}
+.rfdom{margin-bottom:50px;}
+.rfdom:last-child{margin-bottom:0;}
+.rfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;}
+.rfcard{display:flex;gap:18px;align-items:flex-start;background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow-s);
+  transition:transform .35s var(--ease),box-shadow .35s;}
+.rfcard:hover{transform:translateY(-4px);box-shadow:var(--shadow);}
+.rflogo{flex:0 0 92px;width:92px;height:66px;background:#fff;border:1px solid var(--line);border-radius:11px;
+  display:flex;align-items:center;justify-content:center;padding:9px;}
+.rflogo img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply;}
+.rfbody h3{font-size:16.5px;line-height:1.32;margin-bottom:7px;color:var(--ink);}
+.rfbody p{font-size:13.8px;line-height:1.6;color:var(--body);}
+@media(max-width:600px){
+  .refwall2{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;}
+  .rwtile{height:76px;padding:12px;}
+  .rfgrid{grid-template-columns:1fr;}
+}
