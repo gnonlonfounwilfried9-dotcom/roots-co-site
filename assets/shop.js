@@ -1,6 +1,7 @@
-/* ROOTS - boutique : panier, filtres, recherche, tri, fiche detaillee */
+/* ROOTS - boutique : panier, filtres, recherche, tri, fiche detaillee, commande */
 (function () {
-var K = 'roots_cart', XOF = 655.957, WA = '22901995652';
+var K = 'roots_cart', XOF = 655.957, WA = '22901995652', MAIL = 'sales@roots.ws';
+var NL = String.fromCharCode(10);
 
 function get() { try { return JSON.parse(localStorage.getItem(K)) || []; } catch (e) { return []; } }
 function set(c) { try { localStorage.setItem(K, JSON.stringify(c)); } catch (e) {} render(); }
@@ -33,6 +34,8 @@ function render() {
   });
   var ct = document.getElementById('cartTotal'); if (ct) ct.textContent = eur(t);
   var cf = document.getElementById('cartTotalF'); if (cf) cf.textContent = fcfa(t);
+  var nb = document.getElementById('cartNext');
+  if (nb) nb.disabled = !c.length;
 }
 function openCart() {
   var p = document.getElementById('cartPanel'), v = document.getElementById('cartVeil');
@@ -50,6 +53,7 @@ function addBtn(btn, silent) {
   else c.push({ ref: r, name: btn.dataset.name, ttc: parseFloat(btn.dataset.ttc), img: btn.dataset.img || '', q: 1 });
   set(c);
   if (!silent) {
+    goStep(1);
     openCart();
     btn.classList.add('added');
     setTimeout(function () { btn.classList.remove('added'); }, 900);
@@ -83,7 +87,7 @@ if (modal) {
   modalAdd.addEventListener('click', function () {
     if (!currentRef) return;
     var b = document.querySelector('.sadd[data-ref="' + currentRef + '"]');
-    if (b) { addBtn(b, true); closeDetail(); openCart(); }
+    if (b) { addBtn(b, true); closeDetail(); goStep(1); openCart(); }
   });
 }
 
@@ -94,10 +98,10 @@ document.addEventListener('click', function (e) {
   var pk = e.target.closest('.bxpackadd');
   if (pk) {
     pk.dataset.refs.split('|').forEach(function (r) {
-      var b = document.querySelector('.sadd[data-ref="' + r + '"]');
-      if (b) addBtn(b, true);
+      var bb = document.querySelector('.sadd[data-ref="' + r + '"]');
+      if (bb) addBtn(bb, true);
     });
-    openCart();
+    goStep(1); openCart();
     pk.textContent = 'Pack ajouté';
     setTimeout(function () { pk.textContent = 'Ajouter le pack'; }, 1400);
     return;
@@ -112,26 +116,110 @@ document.addEventListener('click', function (e) {
   if (x) { var cx = get(); cx.splice(+x.dataset.x, 1); set(cx); return; }
 });
 
-var b = document.getElementById('cartBtn'); if (b) b.addEventListener('click', openCart);
+var btnCart = document.getElementById('cartBtn');
+if (btnCart) btnCart.addEventListener('click', openCart);
 var cl = document.getElementById('cartClose'); if (cl) cl.addEventListener('click', closeCart);
 var vl = document.getElementById('cartVeil'); if (vl) vl.addEventListener('click', closeCart);
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') { closeCart(); closeDetail(); }
 });
 
+/* ---------------- commande en deux etapes ---------------- */
+var step1 = document.getElementById('cartStep1');
+var step2 = document.getElementById('cartStep2');
+var sendBox = document.getElementById('cartSend');
+var nextBtn = document.getElementById('cartNext');
+var cartTitle = document.getElementById('cartTitle');
+
+function goStep(n) {
+  if (!step2) return;
+  step1.hidden = (n === 2);
+  step2.hidden = (n === 1);
+  if (nextBtn) nextBtn.hidden = (n === 2);
+  if (sendBox) sendBox.hidden = (n === 1);
+  if (cartTitle) cartTitle.textContent = (n === 2) ? 'Vos coordonnées' : 'Votre panier';
+  var pan = document.getElementById('cartPanel');
+  if (pan) pan.scrollTop = 0;
+}
+if (nextBtn) nextBtn.addEventListener('click', function () {
+  if (!get().length) return;
+  goStep(2);
+  var f = document.getElementById('cfName'); if (f) f.focus();
+});
+var backBtn = document.getElementById('cartBack');
+if (backBtn) backBtn.addEventListener('click', function () { goStep(1); });
+
+var payS = document.getElementById('cfPay');
+if (payS) payS.addEventListener('change', function () {
+  var h = document.getElementById('cfPayHint');
+  if (h) h.hidden = (this.value !== 'Carte bancaire');
+});
+
+function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
+
+function collect() {
+  var err = document.getElementById('cfErr');
+  var name = val('cfName'), tel = val('cfTel'), mail = val('cfMail'), city = val('cfCity');
+  var miss = [];
+  if (!name) miss.push('votre nom');
+  if (!tel) miss.push('un téléphone');
+  if (!mail || mail.indexOf('@') < 1 || mail.lastIndexOf('.') < mail.indexOf('@')) miss.push('une adresse e-mail valide');
+  if (!city) miss.push('votre ville');
+  if (miss.length) {
+    if (err) { err.hidden = false; err.textContent = 'Il manque ' + miss.join(', ') + '.'; }
+    return null;
+  }
+  if (err) err.hidden = true;
+
+  var c = get();
+  if (!c.length) return null;
+  var t = 0, lines = [];
+  c.forEach(function (it) {
+    t += it.q * it.ttc;
+    lines.push('- ' + it.q + ' x ' + it.name + ' (' + it.ref + ') : ' + fcfa(it.q * it.ttc));
+  });
+
+  var org = val('cfOrg'), note = val('cfNote');
+  var L = [];
+  L.push('Bonjour ROOTS, je souhaite passer commande.');
+  L.push('');
+  L.push('COMMANDE');
+  L = L.concat(lines);
+  L.push('Total TTC : ' + fcfa(t) + ' (soit ' + eur(t) + ')');
+  L.push('');
+  L.push('COORDONNEES');
+  L.push('Nom : ' + name);
+  if (org) L.push('Entreprise : ' + org);
+  L.push('Telephone : ' + tel);
+  L.push('E-mail : ' + mail);
+  L.push('Ville : ' + city);
+  L.push('');
+  L.push('LIVRAISON ET REGLEMENT');
+  L.push('Livraison : ' + val('cfShip'));
+  L.push('Reglement souhaite : ' + val('cfPay'));
+  if (note) { L.push(''); L.push('PRECISIONS'); L.push(note); }
+  L.push('');
+  L.push('Merci de me confirmer la disponibilite, le delai et les frais de livraison.');
+
+  var cp = document.getElementById('cfCopy');
+  return { txt: L.join(NL), mail: mail, copy: cp ? cp.checked : false, total: t };
+}
+
 var od = document.getElementById('cartOrder');
 if (od) od.addEventListener('click', function () {
-  var c = get();
-  if (!c.length) { openCart(); return; }
-  var t = 0;
-  var l = c.map(function (it) {
-    t += it.q * it.ttc;
-    return '- ' + it.q + ' x ' + it.name + ' (' + it.ref + ') : ' + fcfa(it.q * it.ttc);
-  }).join('\n');
-  var msg = 'Bonjour ROOTS, je souhaite commander :\n' + l +
-    '\n\nTotal TTC : ' + fcfa(t) + ' (soit ' + eur(t) + ')' +
-    '\nMerci de me confirmer le delai et les frais de livraison.';
-  window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(msg), '_blank');
+  var d = collect();
+  if (!d) return;
+  window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(d.txt), '_blank');
+});
+var om = document.getElementById('cartMail');
+if (om) om.addEventListener('click', function () {
+  var d = collect();
+  if (!d) return;
+  var url = 'mailto:' + MAIL
+    + '?subject=' + encodeURIComponent('Commande depuis le site ROOTS')
+    + (d.copy ? '&cc=' + encodeURIComponent(d.mail) : '')
+    + '&body=' + encodeURIComponent(d.txt);
+  window.location.href = url;
 });
 
 /* ---------------- filtres, recherche, tri ---------------- */
@@ -179,4 +267,5 @@ var so = document.getElementById('bxsort');
 if (so) so.addEventListener('change', function () { sortBy(this.value); });
 
 render();
+goStep(1);
 })();

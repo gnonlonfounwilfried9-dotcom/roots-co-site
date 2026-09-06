@@ -1,6 +1,6 @@
 /* ROOTS - Assistant du site.
    Deux modes :
-   - mode local (par defaut) : recherche dans window.ROOTS_KB (118 fiches).
+   - mode local (par defaut) : recherche dans window.ROOTS_KB.
    - mode modele : si window.ROOTS_CHAT_API contient l'URL d'un relais, la question
      est envoyee a Claude avec la base de connaissances en contexte. En cas d'erreur,
      on retombe automatiquement sur le mode local. Voir worker/README.md.
@@ -56,7 +56,7 @@ el.innerHTML = ''
 + '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.5 9.5 0 0 1-2.8-.4L3 21l1.6-4.7A8.3 8.3 0 0 1 3.6 11.5a8.4 8.4 0 0 1 9-8.4 8.4 8.4 0 0 1 8.4 8.4z"/></svg></button>'
 + '<div class="rc-panel" id="rcPanel" role="dialog" aria-label="Assistant ROOTS">'
 + '<div class="rc-head"><div><strong>Assistant ROOTS</strong>'
-+ '<span class="rc-sub"><i class="rc-dot"></i>' + KB.length + ' fiches consultables</span></div>'
++ '<span class="rc-sub"><i class="rc-dot"></i>En ligne, réponse immédiate</span></div>'
 + '<div class="rc-hbtns"><button id="rcHome" title="Menu" aria-label="Menu">'
 + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>'
 + '<button id="rcClose" aria-label="Fermer">&times;</button></div></div>'
@@ -106,9 +106,9 @@ function setQuick(items) {
 /* ---------------- menus ---------------- */
 function showHome(first) {
   if (first) {
-    add('Bonjour, je suis l’assistant ROOTS. J’ai <b>' + KB.length + ' fiches</b> sous la main : nos savoir-faire, '
-      + 'les 22 produits Dell avec leurs prix en FCFA, nos quinze partenaires, 30 conseils de sécurité '
-      + 'informatique et toutes les informations pratiques. Écrivez votre question, ou choisissez un thème.', 'bot');
+    add('Bonjour, et bienvenue chez ROOTS.<br><br>Posez-moi votre question, simplement. '
+      + 'Nos solutions et nos prix, bien sûr, mais aussi un conseil informatique, un dépannage, '
+      + 'une question de sécurité. Je suis là pour ça.', 'bot');
   }
   var h = '<div class="rc-menu">';
   MENUS.forEach(function (m) {
@@ -119,8 +119,9 @@ function showHome(first) {
   add(h, 'bot');
   setQuick([
     ['Quel ordinateur choisir ?', function () { ask('quel ordinateur choisir'); }],
-    ['Vos prix en FCFA', function () { ask('prix fcfa'); }],
-    ['Livraison au Togo et au Bénin', function () { ask('livraison delai'); }],
+    ['Mon PC est lent', function () { ask('ordinateur lent'); }],
+    ['Vos prix', function () { ask('prix fcfa'); }],
+    ['Livraison Togo et Bénin', function () { ask('livraison delai'); }],
     ['Demander un devis', function () { ask('devis'); }]
   ]);
 }
@@ -153,16 +154,19 @@ function answerEntry(e) {
             ['Demander un devis', function () { ask('devis'); }]]);
 }
 function notFound(q) {
-  add('Je n’ai pas de fiche précise sur ce point, mais un conseiller ROOTS peut vous répondre directement, '
-    + 'en général dans l’heure.'
-    + links([['Écrire sur WhatsApp', WA], ['Formulaire de contact', 'contact.html'], ['Voir les thèmes', '?menu:info']]), 'bot');
+  // jamais de message d'echec : on ouvre la conversation au lieu de la fermer
+  add('Dites-m’en un peu plus et je creuse avec vous. En attendant, voici par où on peut commencer, '
+    + 'et si vous préférez en parler de vive voix, un conseiller ROOTS vous répond sur WhatsApp.'
+    + links([['Parcourir les thèmes', '?menu:general'], ['Écrire sur WhatsApp', WA]]), 'bot');
+  setQuick([['← Menu', function () { showHome(false); }],
+            ['Parler à un conseiller', function () { window.open(WA, '_blank'); }]]);
 }
 function localAnswer(q) {
   var r = search(q);
   if (!r.length) { notFound(q); return; }
-  if (r.length === 1 || r[0].s >= r[1].s * 1.6 || r[0].s >= 12) { answerEntry(r[0].e); return; }
-  var top = r.slice(0, 5);
-  var h = 'Plusieurs fiches correspondent à votre question. Laquelle vous intéresse ?<div class="rc-list">';
+  if (r.length === 1 || r[0].s >= r[1].s * 1.25 || r[0].s >= 9) { answerEntry(r[0].e); return; }
+  var top = r.slice(0, 4);
+  var h = 'Sur quoi voulez-vous que je parte ?<div class="rc-list">';
   top.forEach(function (x) { h += '<a href="#" data-id="' + x.e.id + '">' + x.e.t + '</a>'; });
   h += '</div>';
   add(h, 'bot');
