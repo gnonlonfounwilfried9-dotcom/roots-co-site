@@ -57,8 +57,10 @@ document.documentElement.classList.add('js');
   document.querySelectorAll('#navlinks a').forEach(function(a){
     if((a.getAttribute('href')||'')===path) a.classList.add('active');
   });
-  var home=document.querySelector('.home-link');
-  if(home && (path==='index.html'||path==='')) home.classList.add('active');
+  document.querySelectorAll('.home-link').forEach(function(a){
+    var href=(a.getAttribute('href')||'');
+    if(href===path || (path==='' && href==='index.html')) a.classList.add('active');
+  });
 })();
 
 /* ---------- reveal ---------- */

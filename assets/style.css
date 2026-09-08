@@ -1045,7 +1045,9 @@ header.nav.scrolled,body.nohero header.nav{background-color:var(--nav-bg);backgr
 
 /* ================= ACCUEIL + MENU (tiroir a gauche) ================= */
 .home-link{font-family:var(--head);font-size:14.5px;font-weight:600;padding:9px 16px;
-  border-radius:11px;color:rgba(255,255,255,.92);transition:background .25s,color .25s;margin-right:auto;}
+  border-radius:11px;color:rgba(255,255,255,.92);transition:background .25s,color .25s;white-space:nowrap;}
+.nav-in{justify-content:flex-start;}
+.nav-right{margin-left:auto;}
 .home-link:hover{background:rgba(255,255,255,.12);color:#fff;}
 .home-link.active{color:var(--cyan);}
 header.nav.scrolled .home-link,body.nohero header.nav .home-link{color:var(--body);}
@@ -1297,6 +1299,10 @@ h1,h2,h3,.stitle{text-wrap:balance;}
 
 /* ================= NAV MOBILE : eviter le debordement ================= */
 .drawer-mobrow{display:none;}
+@media(max-width:900px){
+  /* sur petit ecran, seul Accueil reste dans la barre, le reste vit dans le tiroir */
+  .home-link ~ .home-link{display:none;}
+}
 @media(max-width:680px){
   .nav-in{gap:8px;}
   .home-link{padding:9px 10px;font-size:13.5px;}
@@ -1316,3 +1322,8 @@ h1,h2,h3,.stitle{text-wrap:balance;}
 .drawer-mobrow .lang button.on{color:#fff;}
 .drawer-mobrow .themebtn{border-color:var(--line);color:var(--ink);}
 .drawer-mobrow .themebtn:hover{background:var(--surface);}
+
+/* assistant : le champ pour ecrire ne doit jamais pouvoir etre pousse hors de vue */
+.rc-msgs{min-height:0;}
+.rc-quick{max-height:92px;overflow-y:auto;scrollbar-width:thin;}
+.rc-form{flex:none;}
