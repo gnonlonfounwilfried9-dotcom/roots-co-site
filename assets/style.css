@@ -1017,7 +1017,7 @@ header.nav.scrolled,body.nohero header.nav{background-color:var(--nav-bg);backgr
 
 /* ================= ASSISTANT v2 ================= */
 .rc-hbtns{display:flex;gap:8px;align-items:center;}
-.rc-panel{height:560px;max-height:76vh;}
+.rc-panel{height:560px;max-height:min(76vh,calc(100vh - 258px));}
 .rc-m.bot{max-width:94%;}
 .rc-tag{display:inline-block;font-family:var(--head);font-size:9.5px;font-weight:700;letter-spacing:.09em;
   text-transform:uppercase;color:#fff;background:linear-gradient(120deg,var(--cyan),var(--teal));
@@ -1266,12 +1266,13 @@ h1,h2,h3,.stitle{text-wrap:balance;}
 .btn-ghost2{background:transparent;border:1px solid transparent;color:var(--muted);font-size:13px;}
 .btn-ghost2:hover{color:var(--ink);}
 @media(max-width:420px){.cf-2{grid-template-columns:1fr;}}
-/* panier : deux etapes qui defilent proprement */
+/* panier : tout defile ensemble, rien de fige ni de coupe */
 [hidden]{display:none!important;}
-.cartpanel{overflow:hidden;}
-.cart-step{flex:1;min-height:0;overflow-y:auto;padding:16px 24px;scrollbar-width:thin;}
+.cartpanel{overflow-y:auto;scrollbar-width:thin;}
+.cart-head{position:sticky;top:0;background:var(--bg);z-index:2;flex:none;}
+.cart-step{flex:none;overflow:visible;padding:16px 24px;}
 .cart-items{flex:none;overflow:visible;padding:0;}
-.cart-foot{flex:none;}
+.cart-foot{flex:none;position:relative;background:var(--bg);}
 #cartSend{gap:10px;}
 #cartNext:disabled{opacity:.45;cursor:not-allowed;}
 
