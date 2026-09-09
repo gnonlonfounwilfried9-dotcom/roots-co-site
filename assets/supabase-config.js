@@ -5,6 +5,6 @@
    Tant que ces deux valeurs sont vides, la boutique continue de fonctionner
    normalement (WhatsApp / e-mail), simplement sans enregistrement au tableau de bord. */
 window.ROOTS_SUPABASE = {
-  url: "",
-  anonKey: ""
+  url: "https://uqhrlgrryjlqoqpkrixv.supabase.co",
+  anonKey: "sb_publishable_kwoQ1rQo2nrmPW85WiwRtQ_A32t8Ks8"
 };
