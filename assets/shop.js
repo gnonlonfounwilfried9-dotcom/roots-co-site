@@ -149,14 +149,70 @@ if (nextBtn) nextBtn.addEventListener('click', function () {
 var backBtn = document.getElementById('cartBack');
 if (backBtn) backBtn.addEventListener('click', function () { goStep(1); });
 
-var payGroup = document.getElementById('cfPayGroup');
-if (payGroup) payGroup.addEventListener('change', function (e) {
-  var h = document.getElementById('cfPayHint');
-  if (h) h.hidden = (e.target.value !== 'Carte bancaire');
-});
 function radioVal(name) {
   var r = document.querySelector('input[name="' + name + '"]:checked');
   return r ? r.value : '';
+}
+
+/* ------- livraison et paiement : chaque choix ouvre ce qu'il faut remplir ------- */
+var shipGroup = document.getElementById('cfShipGroup');
+var shipDetail = document.getElementById('cfShipDetail');
+var payGroup = document.getElementById('cfPayGroup');
+var payDetail = document.getElementById('cfPayDetail');
+
+var SHIP_FIELDS = {
+  'Retrait a Lome (Togo)': '<div class="cf-detail-note">Indiquez si possible le jour et l&rsquo;heure qui vous '
+    + 'conviennent pour le retrait, sinon nous vous proposons un cr&eacute;neau &agrave; la confirmation.</div>'
+    + '<div class="cf-row"><label>Cr&eacute;neau souhait&eacute; <span>(facultatif)</span>'
+    + '<input type="text" id="cfSlot" placeholder="Ex. jeudi apr&egrave;s-midi"></label></div>',
+  'Retrait a Cotonou (Benin)': '<div class="cf-detail-note">Indiquez si possible le jour et l&rsquo;heure qui '
+    + 'vous conviennent pour le retrait, sinon nous vous proposons un cr&eacute;neau &agrave; la confirmation.</div>'
+    + '<div class="cf-row"><label>Cr&eacute;neau souhait&eacute; <span>(facultatif)</span>'
+    + '<input type="text" id="cfSlot" placeholder="Ex. jeudi apr&egrave;s-midi"></label></div>',
+  'Livraison au Togo': '<div class="cf-row"><label>Adresse pr&eacute;cise <b>*</b>'
+    + '<input type="text" id="cfAddr" required placeholder="Quartier, rue, point de rep&egrave;re"></label></div>',
+  'Livraison au Benin': '<div class="cf-row"><label>Adresse pr&eacute;cise <b>*</b>'
+    + '<input type="text" id="cfAddr" required placeholder="Quartier, rue, point de rep&egrave;re"></label></div>',
+  'Livraison sous-region': '<div class="cf-row"><label>Pays et adresse pr&eacute;cise <b>*</b>'
+    + '<input type="text" id="cfAddr" required placeholder="Pays, ville, quartier, rue"></label></div>',
+  'Livraison en France': '<div class="cf-2">'
+    + '<label>Adresse <b>*</b><input type="text" id="cfAddrStreet" required placeholder="Num&eacute;ro et rue"></label>'
+    + '<label>Code postal et ville <b>*</b><input type="text" id="cfAddrCity" required placeholder="Ex. 75011 Paris"></label>'
+    + '</div>',
+  'A definir avec le conseiller': '<div class="cf-detail-note">Un conseiller vous contacte pour d&eacute;finir '
+    + 'le lieu et le d&eacute;lai exacts avec vous.</div>'
+};
+
+var PAY_FIELDS = {
+  'Virement bancaire': '<div class="cf-detail-note">Nos coordonn&eacute;es bancaires (RIB) vous sont '
+    + 'transmises avec la facture pro forma, d&egrave;s confirmation de la commande.</div>'
+    + '<div class="cf-row"><label>Nom de la banque de votre entreprise <span>(facultatif)</span>'
+    + '<input type="text" id="cfBankName" placeholder="Utile pour pr&eacute;parer la facture"></label></div>',
+  'Mobile Money': '<div class="cf-2">'
+    + '<label>Op&eacute;rateur <b>*</b><select id="cfMMOp" required>'
+    + '<option value="">Choisir&hellip;</option><option>Flooz (Moov)</option><option>T-Money (Togocom)</option>'
+    + '<option>MTN MoMo</option><option>Autre</option></select></label>'
+    + '<label>Num&eacute;ro Mobile Money <b>*</b><input type="tel" id="cfMMNum" required placeholder="+228 ou +229"></label>'
+    + '</div>',
+  'Carte bancaire': '<div class="cf-detail-note">Nous vous envoyons un <b>lien de paiement s&eacute;curis&eacute;</b> '
+    + 'par e-mail apr&egrave;s confirmation de la commande. Aucune donn&eacute;e bancaire n&rsquo;est saisie sur ce site.</div>',
+  'Especes a la livraison': '<div class="cf-detail-note">Merci de pr&eacute;parer le montant exact en FCFA, '
+    + 'r&eacute;glable &agrave; la r&eacute;ception ou au retrait.</div>'
+};
+
+function renderDetail(box, map, value) {
+  if (!box) return;
+  var html = map[value] || '';
+  box.innerHTML = html;
+  box.hidden = !html;
+}
+if (shipGroup) {
+  shipGroup.addEventListener('change', function (e) { renderDetail(shipDetail, SHIP_FIELDS, e.target.value); });
+  renderDetail(shipDetail, SHIP_FIELDS, radioVal('cfShip'));
+}
+if (payGroup) {
+  payGroup.addEventListener('change', function (e) { renderDetail(payDetail, PAY_FIELDS, e.target.value); });
+  renderDetail(payDetail, PAY_FIELDS, radioVal('cfPay'));
 }
 
 function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
@@ -164,11 +220,22 @@ function val(id) { var e = document.getElementById(id); return e ? e.value.trim(
 function collect() {
   var err = document.getElementById('cfErr');
   var name = val('cfName'), tel = val('cfTel'), mail = val('cfMail'), city = val('cfCity');
+  var ship = radioVal('cfShip'), pay = radioVal('cfPay');
   var miss = [];
   if (!name) miss.push('votre nom');
   if (!tel) miss.push('un téléphone');
   if (!mail || mail.indexOf('@') < 1 || mail.lastIndexOf('.') < mail.indexOf('@')) miss.push('une adresse e-mail valide');
   if (!city) miss.push('votre ville');
+  // chaque mode de livraison ou de paiement choisi doit vraiment etre rempli, pas juste coche
+  if (['Livraison au Togo', 'Livraison au Benin', 'Livraison sous-region'].indexOf(ship) > -1 && !val('cfAddr')) {
+    miss.push('votre adresse précise de livraison');
+  }
+  if (ship === 'Livraison en France' && (!val('cfAddrStreet') || !val('cfAddrCity'))) {
+    miss.push('votre adresse complète en France');
+  }
+  if (pay === 'Mobile Money' && (!val('cfMMOp') || !val('cfMMNum'))) {
+    miss.push('l’opérateur et le numéro Mobile Money');
+  }
   if (miss.length) {
     if (err) { err.hidden = false; err.textContent = 'Il manque ' + miss.join(', ') + '.'; }
     return null;
@@ -199,8 +266,13 @@ function collect() {
   L.push('Ville : ' + city);
   L.push('');
   L.push('LIVRAISON ET REGLEMENT');
-  L.push('Livraison : ' + radioVal('cfShip'));
-  L.push('Reglement souhaite : ' + radioVal('cfPay'));
+  L.push('Livraison : ' + ship);
+  if (val('cfAddr')) L.push('Adresse : ' + val('cfAddr'));
+  if (val('cfAddrStreet') || val('cfAddrCity')) L.push('Adresse : ' + val('cfAddrStreet') + ', ' + val('cfAddrCity'));
+  if (val('cfSlot')) L.push('Creneau souhaite : ' + val('cfSlot'));
+  L.push('Reglement souhaite : ' + pay);
+  if (val('cfMMOp') || val('cfMMNum')) L.push('Mobile Money : ' + val('cfMMOp') + ' ' + val('cfMMNum'));
+  if (val('cfBankName')) L.push('Banque de l’entreprise : ' + val('cfBankName'));
   if (note) { L.push(''); L.push('PRECISIONS'); L.push(note); }
   L.push('');
   L.push('Merci de me confirmer la disponibilite, le delai et les frais de livraison.');

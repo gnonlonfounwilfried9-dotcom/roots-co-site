@@ -1018,16 +1018,19 @@ header.nav.scrolled,body.nohero header.nav{background-color:var(--nav-bg);backgr
 .rc-tag{display:inline-block;font-family:var(--head);font-size:9.5px;font-weight:700;letter-spacing:.09em;
   text-transform:uppercase;color:#fff;background:linear-gradient(120deg,var(--cyan),var(--teal));
   padding:3px 9px;border-radius:20px;margin-bottom:8px;}
-.rc-menu{display:grid;gap:8px;margin-top:12px;}
-.rc-menu a{display:block;background:var(--card);border:1px solid var(--line);border-radius:13px;
-  padding:11px 14px;transition:.2s;}
+/* deux colonnes : la liste de six categories tenait sur six lignes empilees et a elle
+   seule poussait tout le reste hors de vue dans le petit espace du panneau de chat */
+.rc-menu{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px;}
+.rc-menu a{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:9px 10px;transition:.2s;}
 .rc-menu a:hover{border-color:var(--cyan);transform:translateX(3px);}
-.rc-menu strong{display:flex;align-items:center;gap:8px;font-family:var(--head);font-size:14px;
-  font-weight:700;color:var(--ink);}
-.rc-menu em{font-style:normal;font-size:10.5px;font-weight:700;color:var(--teal);background:var(--tint);
-  border-radius:20px;padding:2px 8px;}
+.rc-menu strong{display:flex;align-items:center;gap:6px;font-family:var(--head);font-size:12.5px;
+  font-weight:700;color:var(--ink);line-height:1.25;}
+.rc-menu em{font-style:normal;font-size:9.5px;font-weight:700;color:var(--teal);background:var(--tint);
+  border-radius:20px;padding:2px 7px;flex:none;}
 :root[data-theme="dark"] .rc-menu em{color:var(--cyan);background:var(--surface2);}
-.rc-menu span{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.45;}
+.rc-menu span{display:block;font-size:10.8px;color:var(--muted);margin-top:3px;line-height:1.35;}
+@media(max-width:400px){.rc-menu{grid-template-columns:1fr;}}
 .rc-list{display:flex;flex-direction:column;gap:5px;margin-top:11px;max-height:280px;overflow-y:auto;
   padding-right:4px;scrollbar-width:thin;}
 .rc-list a{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;
@@ -1260,6 +1263,16 @@ h1,h2,h3,.stitle{text-wrap:balance;}
 .cf-err{margin-top:12px;padding:10px 13px;border-radius:11px;background:rgba(226,96,60,.1);
   border:1px solid rgba(226,96,60,.32);color:#c94b28;font-size:13px;line-height:1.5;}
 :root[data-theme="dark"] .cf-err{color:#f0a189;}
+/* champs qui apparaissent selon la livraison ou le paiement choisi : une case cochee
+   sans rien a remplir derriere ne sert a rien, chaque choix ouvre ce qu'il faut */
+.cf-detail{margin-top:10px;}
+.cf-detail:empty{margin-top:0;}
+.cf-detail-note{font-size:11.8px;line-height:1.5;color:var(--muted);padding:10px 13px;
+  background:var(--card);border:1px solid var(--line);border-radius:11px;}
+.cf-detail-note b{color:var(--teal);}
+:root[data-theme="dark"] .cf-detail-note b{color:var(--cyan);}
+.cf-detail .cf-2,.cf-detail .cf-row{margin-bottom:0;}
+.cf-detail .cf-row+.cf-row,.cf-detail .cf-2+.cf-row,.cf-detail .cf-row+.cf-2{margin-top:11px;}
 #cartSend{display:flex;flex-direction:column;}
 .btn-ghost2{background:transparent;border:1px solid transparent;color:var(--muted);font-size:13px;}
 .btn-ghost2:hover{color:var(--ink);}
@@ -1326,7 +1339,20 @@ h1,h2,h3,.stitle{text-wrap:balance;}
 .drawer-mobrow .themebtn{border-color:var(--line);color:var(--ink);}
 .drawer-mobrow .themebtn:hover{background:var(--surface);}
 
-/* assistant : le champ pour ecrire ne doit jamais pouvoir etre pousse hors de vue */
-.rc-msgs{min-height:0;}
-.rc-quick{max-height:92px;overflow-y:auto;scrollbar-width:thin;}
+/* assistant : le champ pour ecrire ne doit jamais pouvoir etre pousse hors de vue,
+   et les suggestions ne doivent plus manger la place des messages : une seule ligne
+   qui defile horizontalement plutot que d'empiler plusieurs rangees de pastilles */
+.rc-msgs{min-height:0;position:relative;}
+.rc-msgs::after{content:"";position:sticky;display:block;left:0;right:0;bottom:-1px;height:22px;
+  margin-top:-22px;background:linear-gradient(180deg,transparent,var(--surface));pointer-events:none;}
+.rc-quick{flex:none;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;max-height:none;
+  scrollbar-width:thin;-webkit-overflow-scrolling:touch;}
+.rc-quick button{flex:none;white-space:nowrap;}
 .rc-form{flex:none;}
+/* le bouton rond qui ouvre le chat se cache pendant que le panneau est ouvert : le
+   panneau peut alors descendre plus bas et gagner de la hauteur pour les messages.
+   top et bottom fixes (au lieu d'une hauteur devinee) : l'espace pour les messages
+   suit naturellement la hauteur reelle de l'ecran, jamais ecrase, jamais hors champ */
+body:has(.rc-panel.show) #rcBtn{opacity:0;pointer-events:none;}
+.rc-panel{top:84px;bottom:96px;height:auto;max-height:none;}
+@media(max-width:600px){.rc-panel{top:76px;bottom:84px;}}
