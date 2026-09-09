@@ -217,19 +217,34 @@ var PAY_FIELDS = {
     + 'r&eacute;glable &agrave; la r&eacute;ception ou au retrait.</div>'
 };
 
-function renderDetail(box, map, value) {
+function renderDetail(box, map, value, userTriggered) {
   if (!box) return;
   var html = map[value] || '';
   box.innerHTML = html;
   box.hidden = !html;
+  // un clic sur une pastille doit se voir : on amene la nouvelle case a l'ecran et on
+  // la fait clignoter brievement, sinon elle apparait hors champ et semble ne rien faire
+  if (userTriggered && html) {
+    box.classList.remove('cf-detail-flash');
+    void box.offsetWidth;
+    box.classList.add('cf-detail-flash');
+    // calcul direct et immediat (pas de scrollIntoView ni de comportement "smooth" async,
+    // trop peu fiables dans un panneau qui defile lui-meme) : on amene la case a l'ecran
+    // tout de suite, sinon elle apparait hors champ et le clic semble ne rien faire
+    var panel = document.getElementById('cartPanel');
+    if (panel) {
+      var delta = box.getBoundingClientRect().top - panel.getBoundingClientRect().top;
+      panel.scrollTop = panel.scrollTop + delta - 18;
+    }
+  }
 }
 if (shipGroup) {
-  shipGroup.addEventListener('change', function (e) { renderDetail(shipDetail, SHIP_FIELDS, e.target.value); });
-  renderDetail(shipDetail, SHIP_FIELDS, radioVal('cfShip'));
+  shipGroup.addEventListener('change', function (e) { renderDetail(shipDetail, SHIP_FIELDS, e.target.value, true); });
+  renderDetail(shipDetail, SHIP_FIELDS, radioVal('cfShip'), false);
 }
 if (payGroup) {
-  payGroup.addEventListener('change', function (e) { renderDetail(payDetail, PAY_FIELDS, e.target.value); });
-  renderDetail(payDetail, PAY_FIELDS, radioVal('cfPay'));
+  payGroup.addEventListener('change', function (e) { renderDetail(payDetail, PAY_FIELDS, e.target.value, true); });
+  renderDetail(payDetail, PAY_FIELDS, radioVal('cfPay'), false);
 }
 
 function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
