@@ -1383,8 +1383,13 @@ body:has(.rc-panel.show) #rcBtn{opacity:0;pointer-events:none;}
   box-shadow:0 6px 20px rgba(10,30,60,.12);}
 .adm-top .logo{flex:none;}
 .adm-top .logo img{height:26px;}
+/* la barre du tableau de bord est toujours sombre : le logo doit rester blanc,
+   meme si la regle generale ".nohero" impose le logo bleu sur les pages sans hero */
+.adm-top .logo .lw{display:block!important;}
+.adm-top .logo .lb{display:none!important;}
 .adm-title{font-family:var(--head);font-weight:700;font-size:15px;color:#fff;flex:1;}
-.adm-logout{margin-left:auto;}
+.adm-logout{margin-left:auto;border-color:rgba(255,255,255,.4);color:#fff;}
+.adm-logout:hover{background:rgba(255,255,255,.12);color:#fff;}
 .adm-main{max-width:1080px;margin:0 auto;padding:34px 26px 60px;}
 
 .adm-login{display:flex;justify-content:center;padding-top:40px;}
