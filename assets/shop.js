@@ -358,16 +358,50 @@ function collect() {
   return { txt: L.join(NL), mail: mail, copy: cp ? cp.checked : false, total: t };
 }
 
+/* ------- enregistrement au tableau de bord (en plus de WhatsApp/e-mail, pas a la place) ------- */
+function buildRecord(d) {
+  var c = get();
+  return {
+    status: 'nouveau',
+    customer_name: val('cfName'),
+    customer_org: val('cfOrg') || null,
+    customer_tel: val('cfTel'),
+    customer_mail: val('cfMail'),
+    customer_city: val('cfCity'),
+    ship_method: radioVal('cfShip'),
+    ship_address: shipAddressLine() || null,
+    ship_slot: val('cfSlot') || null,
+    pay_method: radioVal('cfPay'),
+    pay_detail: (val('cfMMOp') || val('cfMMNum')) ? (val('cfMMOp') + ' ' + val('cfMMNum')).trim() : (val('cfBankName') || null),
+    items: c.map(function (it) { return { ref: it.ref, name: it.name, qty: it.q, unit_ttc_eur: it.ttc }; }),
+    total_fcfa: Math.round(d.total * XOF),
+    total_eur: Math.round(d.total * 100) / 100,
+    note: val('cfNote') || null
+  };
+}
+function submitOrder(record) {
+  var cfg = window.ROOTS_SUPABASE;
+  if (!cfg || !cfg.url || !cfg.anonKey || !window.supabase) return;
+  try {
+    var sb = window.supabase.createClient(cfg.url, cfg.anonKey);
+    sb.from('orders').insert(record).then(function (res) {
+      if (res.error) { try { console.warn('ROOTS: commande non enregistree au tableau de bord', res.error.message); } catch (e) {} }
+    });
+  } catch (e) { try { console.warn('ROOTS: tableau de bord indisponible', e); } catch (e2) {} }
+}
+
 var od = document.getElementById('cartOrder');
 if (od) od.addEventListener('click', function () {
   var d = collect();
   if (!d) return;
+  submitOrder(buildRecord(d));
   window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(d.txt), '_blank');
 });
 var om = document.getElementById('cartMail');
 if (om) om.addEventListener('click', function () {
   var d = collect();
   if (!d) return;
+  submitOrder(buildRecord(d));
   var url = 'mailto:' + MAIL
     + '?subject=' + encodeURIComponent('Commande depuis le site ROOTS')
     + (d.copy ? '&cc=' + encodeURIComponent(d.mail) : '')

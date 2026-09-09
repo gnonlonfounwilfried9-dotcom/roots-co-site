@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tableau de bord &middot; Roots &amp; Co</title>
+<link rel="stylesheet" href="assets/style.css?v=202609091351">
+</head>
+<body class="nohero admin-body">
+
+<header class="adm-top">
+  <a href="index.html" class="logo"><img class="lb" src="assets/img/roots-blue.png" alt="ROOTS"></a>
+  <span class="adm-title">Tableau de bord commandes</span>
+  <button class="btn btn-line adm-logout" id="admLogout" hidden>Se d&eacute;connecter</button>
+</header>
+
+<main class="adm-main">
+
+  <section class="adm-login" id="admLogin">
+    <div class="adm-login-card">
+      <span class="kicker">Acc&egrave;s administrateur</span>
+      <h1 class="stitle">Connexion</h1>
+      <p class="slead">R&eacute;serv&eacute; &agrave; l&rsquo;&eacute;quipe ROOTS. Connectez-vous avec le compte cr&eacute;&eacute;
+      dans Supabase pour voir les commandes de la boutique.</p>
+      <form id="admForm" novalidate>
+        <div class="cf-row"><label>Adresse e-mail <b>*</b>
+          <input type="email" id="admMail" required autocomplete="username" placeholder="vous@roots.ws"></label></div>
+        <div class="cf-row"><label>Mot de passe <b>*</b>
+          <input type="password" id="admPass" required autocomplete="current-password"></label></div>
+        <p class="cf-err" id="admErr" hidden></p>
+        <button class="btn btn-primary adm-login-btn" type="submit">Se connecter</button>
+      </form>
+      <p class="adm-hint" id="admConfigHint" hidden>Le tableau de bord n&rsquo;est pas encore configur&eacute;
+      (assets/supabase-config.js). Une fois le projet Supabase pr&ecirc;t, renseignez l&rsquo;URL et la cl&eacute; publique
+      dans ce fichier.</p>
+    </div>
+  </section>
+
+  <section class="adm-dash" id="admDash" hidden>
+
+    <div class="adm-stats">
+      <div class="adm-stat"><b id="stAll">0</b><span>Commandes</span></div>
+      <div class="adm-stat"><b id="stNew">0</b><span>Nouvelles</span></div>
+      <div class="adm-stat"><b id="stProg">0</b><span>En cours</span></div>
+      <div class="adm-stat"><b id="stDone">0</b><span>Livr&eacute;es</span></div>
+      <div class="adm-stat adm-stat-wide"><b id="stTotal">0 FCFA</b><span>Chiffre d&rsquo;affaires (commandes non annul&eacute;es)</span></div>
+    </div>
+
+    <div class="adm-bar">
+      <div class="adm-filters" id="admFilters">
+        <button class="adm-filter on" data-f="all">Toutes</button>
+        <button class="adm-filter" data-f="nouveau">Nouvelles</button>
+        <button class="adm-filter" data-f="confirme">Confirm&eacute;es</button>
+        <button class="adm-filter" data-f="en_livraison">En livraison</button>
+        <button class="adm-filter" data-f="livre">Livr&eacute;es</button>
+        <button class="adm-filter" data-f="annule">Annul&eacute;es</button>
+      </div>
+      <input type="search" id="admSearch" class="adm-search" placeholder="Chercher un nom, une ville, une r&eacute;f&eacute;rence&hellip;">
+      <button class="btn btn-line adm-refresh" id="admRefresh">Actualiser</button>
+    </div>
+
+    <p class="adm-empty" id="admEmpty" hidden>Aucune commande pour ce filtre.</p>
+    <div class="adm-list" id="admList"></div>
+
+  </section>
+
+</main>
+
+<template id="admRowTpl">
+  <article class="adm-row">
+    <div class="adm-row-head">
+      <div class="adm-row-who">
+        <strong class="adm-name"></strong>
+        <span class="adm-city"></span>
+        <span class="adm-date"></span>
+      </div>
+      <div class="adm-row-amt">
+        <strong class="adm-amt"></strong>
+        <select class="adm-status">
+          <option value="nouveau">Nouvelle</option>
+          <option value="confirme">Confirm&eacute;e</option>
+          <option value="en_livraison">En livraison</option>
+          <option value="livre">Livr&eacute;e</option>
+          <option value="annule">Annul&eacute;e</option>
+        </select>
+      </div>
+      <button class="adm-toggle" type="button" aria-label="D&eacute;tails">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </div>
+    <div class="adm-row-body" hidden>
+      <div class="adm-row-g">
+        <div><h5>Articles</h5><div class="adm-items"></div></div>
+        <div><h5>Contact</h5><p class="adm-contact"></p></div>
+        <div><h5>Livraison</h5><p class="adm-ship"></p></div>
+        <div><h5>Paiement</h5><p class="adm-pay"></p></div>
+      </div>
+      <p class="adm-note" hidden></p>
+    </div>
+  </article>
+</template>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="assets/supabase-config.js?v=202609091351"></script>
+<script src="assets/admin.js?v=202609091351"></script>
+</body>
+</html>
