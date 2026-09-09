@@ -384,8 +384,14 @@ function submitOrder(record) {
   if (!cfg || !cfg.url || !cfg.anonKey || !window.supabase) return;
   try {
     var sb = window.supabase.createClient(cfg.url, cfg.anonKey);
-    sb.from('orders').insert(record).then(function (res) {
-      if (res.error) { try { console.warn('ROOTS: commande non enregistree au tableau de bord', res.error.message); } catch (e) {} }
+    // si un client est connecte a son espace (compte.html) dans ce navigateur, la
+    // commande est rattachee a son compte pour apparaitre dans son historique
+    sb.auth.getSession().then(function (s) {
+      var uid = s.data && s.data.session ? s.data.session.user.id : null;
+      if (uid) record.user_id = uid;
+      sb.from('orders').insert(record).then(function (res) {
+        if (res.error) { try { console.warn('ROOTS: commande non enregistree au tableau de bord', res.error.message); } catch (e) {} }
+      });
     });
   } catch (e) { try { console.warn('ROOTS: tableau de bord indisponible', e); } catch (e2) {} }
 }

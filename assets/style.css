@@ -1081,6 +1081,11 @@ header.nav.scrolled .menubtn:hover,body.nohero .menubtn:hover{background:var(--t
   border-radius:14px;padding:15px 18px;margin-bottom:18px;}
 .drawer-main strong{display:block;font-family:var(--head);font-size:16.5px;font-weight:700;color:#fff;}
 .drawer-main span{display:block;font-size:12.5px;color:rgba(255,255,255,.85);margin-top:3px;}
+/* Mon compte : meme famille que Boutique mais en discret, pas deux gros CTA empiles */
+.drawer-main2{background:var(--card);border:1px solid var(--line);color:var(--ink)!important;
+  padding:11px 16px;margin-top:-10px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.drawer-main2 strong{color:var(--ink);font-size:13.5px;}
+.drawer-main2 span{color:var(--muted);font-size:11px;}
 .drawer-group{margin-bottom:8px;}
 .drawer-gt{display:block;font-family:var(--head);font-size:11px;font-weight:700;letter-spacing:.11em;
   text-transform:uppercase;color:var(--muted);padding:14px 12px 6px;}
@@ -1443,3 +1448,37 @@ body:has(.rc-panel.show) #rcBtn{opacity:0;pointer-events:none;}
   border-radius:10px;padding:10px 12px;}
 @media(max-width:640px){.adm-row-g{grid-template-columns:1fr 1fr;}
   .adm-row-head{flex-wrap:wrap;}.adm-row-amt{align-items:flex-start;}}
+
+/* ================= ESPACE CLIENT (compte.html) ================= */
+.acct-wrap{padding:60px 0 40px;}
+.acct-card{max-width:440px;margin:0 auto;background:var(--card);border:1px solid var(--line);
+  border-radius:20px;padding:8px 30px 30px;box-shadow:var(--shadow-s);}
+.acct-tabs{display:flex;gap:4px;margin:18px 0 8px;background:var(--surface);border-radius:30px;padding:4px;}
+.acct-tab{flex:1;font-family:var(--head);font-size:12.5px;font-weight:700;padding:9px 10px;border-radius:26px;
+  background:transparent;border:none;color:var(--muted);cursor:pointer;transition:.2s;}
+.acct-tab.on{background:var(--navy);color:#fff;}
+:root[data-theme="dark"] .acct-tab.on{background:var(--cyan);color:#04212f;}
+.acct-form .stitle{font-size:22px;margin:6px 0 8px;}
+.acct-form .slead{font-size:13.5px;margin-bottom:16px;}
+.acct-submit{width:100%;justify-content:center;margin-top:6px;}
+.acct-msg{margin-top:14px;font-size:12.5px;color:var(--teal);background:var(--tint);border-radius:11px;
+  padding:11px 14px;line-height:1.5;}
+:root[data-theme="dark"] .acct-msg{color:var(--cyan);}
+
+.acct-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  margin-bottom:24px;}
+.acct-head .stitle{font-size:26px;}
+.acct-head span#acctName{color:var(--teal);}
+:root[data-theme="dark"] .acct-head span#acctName{color:var(--cyan);}
+.acct-empty{color:var(--muted);font-size:14px;text-align:center;padding:40px 0;}
+.acct-empty a{color:var(--teal);font-weight:600;}
+.acct-list{display:flex;flex-direction:column;gap:10px;max-width:760px;}
+.acct-badge{font-family:var(--head);font-size:11px;font-weight:700;border-radius:20px;padding:5px 11px;
+  background:var(--surface);color:var(--body);}
+.acct-badge.st-nouveau{background:rgba(34,195,230,.14);color:var(--teal);}
+.acct-badge.st-confirme{background:rgba(15,146,184,.12);color:var(--teal);}
+.acct-badge.st-en_livraison{background:rgba(230,164,34,.14);color:#a3720f;}
+.acct-badge.st-livre{background:rgba(46,175,110,.14);color:#1f8354;}
+.acct-badge.st-annule{background:rgba(226,96,60,.12);color:#c94b28;}
+:root[data-theme="dark"] .acct-badge.st-nouveau,
+:root[data-theme="dark"] .acct-badge.st-confirme{color:var(--cyan);}
