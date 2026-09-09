@@ -124,20 +124,28 @@ document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') { closeCart(); closeDetail(); }
 });
 
-/* ---------------- commande en deux etapes ---------------- */
+/* ---------------- commande en trois etapes : panier, coordonnees, verification ---------------- */
+/* comme sur les sites marchands habituels, on ne montre "envoyer" qu'apres un ecran
+   recapitulatif complet ; entre les deux, on peut toujours revenir modifier un champ */
 var step1 = document.getElementById('cartStep1');
 var step2 = document.getElementById('cartStep2');
+var step3 = document.getElementById('cartStep3');
 var sendBox = document.getElementById('cartSend');
 var nextBtn = document.getElementById('cartNext');
+var reviewBtn = document.getElementById('cartReview');
 var cartTitle = document.getElementById('cartTitle');
 
 function goStep(n) {
   if (!step2) return;
-  step1.hidden = (n === 2);
-  step2.hidden = (n === 1);
-  if (nextBtn) nextBtn.hidden = (n === 2);
-  if (sendBox) sendBox.hidden = (n === 1);
-  if (cartTitle) cartTitle.textContent = (n === 2) ? 'Vos coordonnées' : 'Votre panier';
+  step1.hidden = (n !== 1);
+  step2.hidden = (n !== 2);
+  if (step3) step3.hidden = (n !== 3);
+  if (nextBtn) nextBtn.hidden = (n !== 1);
+  if (reviewBtn) reviewBtn.hidden = (n !== 2);
+  if (sendBox) sendBox.hidden = (n !== 3);
+  if (backBtn) backBtn.hidden = (n !== 2);
+  if (backBtn2) backBtn2.hidden = (n !== 3);
+  if (cartTitle) cartTitle.textContent = (n === 3) ? 'Vérifiez et envoyez' : (n === 2) ? 'Vos coordonnées' : 'Votre panier';
   var pan = document.getElementById('cartPanel');
   if (pan) pan.scrollTop = 0;
 }
@@ -148,6 +156,13 @@ if (nextBtn) nextBtn.addEventListener('click', function () {
 });
 var backBtn = document.getElementById('cartBack');
 if (backBtn) backBtn.addEventListener('click', function () { goStep(1); });
+var backBtn2 = document.getElementById('cartBack2');
+if (backBtn2) backBtn2.addEventListener('click', function () { goStep(2); });
+if (reviewBtn) reviewBtn.addEventListener('click', function () {
+  if (!validateForm()) return;
+  renderRecap();
+  goStep(3);
+});
 
 function radioVal(name) {
   var r = document.querySelector('input[name="' + name + '"]:checked');
@@ -175,10 +190,12 @@ var SHIP_FIELDS = {
     + '<input type="text" id="cfAddr" required placeholder="Quartier, rue, point de rep&egrave;re"></label></div>',
   'Livraison sous-region': '<div class="cf-row"><label>Pays et adresse pr&eacute;cise <b>*</b>'
     + '<input type="text" id="cfAddr" required placeholder="Pays, ville, quartier, rue"></label></div>',
-  'Livraison en France': '<div class="cf-2">'
-    + '<label>Adresse <b>*</b><input type="text" id="cfAddrStreet" required placeholder="Num&eacute;ro et rue"></label>'
-    + '<label>Code postal et ville <b>*</b><input type="text" id="cfAddrCity" required placeholder="Ex. 75011 Paris"></label>'
-    + '</div>',
+  'Livraison en France': '<div class="cf-row"><label>Adresse <b>*</b>'
+    + '<input type="text" id="cfAddrStreet" required placeholder="Num&eacute;ro et rue"></label></div>'
+    + '<div class="cf-row"><label>Complement d&rsquo;adresse <span>(facultatif)</span>'
+    + '<input type="text" id="cfAddrExtra" placeholder="B&acirc;timent, &eacute;tage, digicode&hellip;"></label></div>'
+    + '<div class="cf-row"><label>Code postal et ville <b>*</b>'
+    + '<input type="text" id="cfAddrCity" required placeholder="Ex. 75011 Paris"></label></div>',
   'A definir avec le conseiller': '<div class="cf-detail-note">Un conseiller vous contacte pour d&eacute;finir '
     + 'le lieu et le d&eacute;lai exacts avec vous.</div>'
 };
@@ -217,7 +234,7 @@ if (payGroup) {
 
 function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
 
-function collect() {
+function validateForm() {
   var err = document.getElementById('cfErr');
   var name = val('cfName'), tel = val('cfTel'), mail = val('cfMail'), city = val('cfCity');
   var ship = radioVal('cfShip'), pay = radioVal('cfPay');
@@ -236,11 +253,72 @@ function collect() {
   if (pay === 'Mobile Money' && (!val('cfMMOp') || !val('cfMMNum'))) {
     miss.push('l’opérateur et le numéro Mobile Money');
   }
+  if (!get().length) miss.push('au moins un article dans le panier');
   if (miss.length) {
     if (err) { err.hidden = false; err.textContent = 'Il manque ' + miss.join(', ') + '.'; }
-    return null;
+    return false;
   }
   if (err) err.hidden = true;
+  return true;
+}
+
+function shipAddressLine() {
+  if (val('cfAddr')) return val('cfAddr');
+  if (val('cfAddrStreet') || val('cfAddrCity')) {
+    var parts = [val('cfAddrStreet')];
+    if (val('cfAddrExtra')) parts.push(val('cfAddrExtra'));
+    parts.push(val('cfAddrCity'));
+    return parts.filter(Boolean).join(', ');
+  }
+  return '';
+}
+
+/* recapitulatif visuel avant envoi, comme une page de verification de commande */
+function renderRecap() {
+  var box = document.getElementById('cfRecap');
+  if (!box) return;
+  var c = get(), t = 0, rows = '';
+  c.forEach(function (it) { t += it.q * it.ttc; });
+  var name = val('cfName'), org = val('cfOrg'), tel = val('cfTel'), mail = val('cfMail'), city = val('cfCity');
+  var ship = radioVal('cfShip'), pay = radioVal('cfPay'), addr = shipAddressLine(), note = val('cfNote');
+
+  function block(title, lines) {
+    return '<div class="cf-rec-b"><h4>' + title + '</h4>' + lines.map(function (l) {
+      return '<p><span>' + l[0] + '</span><b>' + l[1] + '</b></p>';
+    }).join('') + '</div>';
+  }
+
+  var items = c.map(function (it) {
+    return '<p><span>' + it.q + ' &times; ' + it.name + '</span><b>' + fcfa(it.q * it.ttc) + '</b></p>';
+  }).join('');
+  rows += '<div class="cf-rec-b"><h4>Articles</h4>' + items
+    + '<p class="cf-rec-tot"><span>Total TTC</span><b>' + fcfa(t) + ' &middot; ' + eur(t) + '</b></p></div>';
+
+  var contactLines = [['Nom', name]];
+  if (org) contactLines.push(['Entreprise', org]);
+  contactLines.push(['T&eacute;l&eacute;phone', tel], ['E-mail', mail], ['Ville', city]);
+  rows += block('Coordonn&eacute;es', contactLines);
+
+  var shipLines = [['Livraison', ship]];
+  if (addr) shipLines.push(['Adresse', addr]);
+  if (val('cfSlot')) shipLines.push(['Cr&eacute;neau', val('cfSlot')]);
+  shipLines.push(['Frais', 'Chiffr&eacute;s sur devis, communiqu&eacute;s avant tout paiement']);
+  rows += block('Livraison', shipLines);
+
+  var payLines = [['R&egrave;glement', pay]];
+  if (val('cfMMOp') || val('cfMMNum')) payLines.push(['Mobile Money', val('cfMMOp') + ' ' + val('cfMMNum')]);
+  if (val('cfBankName')) payLines.push(['Banque', val('cfBankName')]);
+  rows += block('Paiement', payLines);
+
+  if (note) rows += block('Pr&eacute;cisions', [['Note', note]]);
+
+  box.innerHTML = rows;
+}
+
+function collect() {
+  if (!validateForm()) return null;
+  var name = val('cfName'), tel = val('cfTel'), mail = val('cfMail'), city = val('cfCity');
+  var ship = radioVal('cfShip'), pay = radioVal('cfPay');
 
   var c = get();
   if (!c.length) return null;
@@ -267,8 +345,7 @@ function collect() {
   L.push('');
   L.push('LIVRAISON ET REGLEMENT');
   L.push('Livraison : ' + ship);
-  if (val('cfAddr')) L.push('Adresse : ' + val('cfAddr'));
-  if (val('cfAddrStreet') || val('cfAddrCity')) L.push('Adresse : ' + val('cfAddrStreet') + ', ' + val('cfAddrCity'));
+  if (shipAddressLine()) L.push('Adresse : ' + shipAddressLine());
   if (val('cfSlot')) L.push('Creneau souhaite : ' + val('cfSlot'));
   L.push('Reglement souhaite : ' + pay);
   if (val('cfMMOp') || val('cfMMNum')) L.push('Mobile Money : ' + val('cfMMOp') + ' ' + val('cfMMNum'));
