@@ -820,7 +820,9 @@ footer .logo img{height:38px;}
 .bxxof{display:block;font-family:var(--head);font-size:25px;font-weight:800;color:var(--ink);letter-spacing:-.01em;line-height:1.2;}
 .bxxof span{font-size:14px;font-weight:700;color:var(--teal);margin-left:3px;}
 :root[data-theme="dark"] .bxxof span{color:var(--cyan);}
-.bxeur{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;}
+.bxht{display:block;font-family:var(--head);font-size:13px;font-weight:600;color:var(--body);margin-top:3px;}
+.bxht em{font-style:normal;font-weight:700;color:var(--muted);font-size:11px;letter-spacing:.04em;margin-left:2px;}
+.bxeur{display:block;font-size:12px;color:var(--muted);margin-top:2px;}
 .bxeur i{font-style:normal;opacity:.5;margin:0 4px;}
 .bxfoot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;}
 .bxstock{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--body);}
