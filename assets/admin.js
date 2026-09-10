@@ -162,6 +162,7 @@
   var panels = {
     commandes: document.getElementById('panelCommandes'),
     produits: document.getElementById('panelProduits'),
+    clients: document.getElementById('panelClients'),
     analyse: document.getElementById('panelAnalyse')
   };
   var editor = document.getElementById('prodEditor');
@@ -174,8 +175,10 @@
     var t = b.dataset.tab;
     Object.keys(panels).forEach(function (k) { if (panels[k]) panels[k].hidden = (k !== t); });
     if (editor) editor.hidden = true;
+    var cd = document.getElementById('cliDetail'); if (cd) cd.hidden = true;
     if (t === 'produits' && !prodLoaded) loadProducts();
     if (t === 'analyse') { if (!anLoaded) loadAnalyse(); else renderAnalyse(); }
+    if (t === 'clients') { closeCli(); buildClients(); }
   });
 
   /* ================= produits ================= */
@@ -339,6 +342,108 @@
       closeEditor();
       loadProducts();
     });
+  });
+
+  /* ================= clients ================= */
+  var CLIENTS = [], csearch = '';
+  var cliList = document.getElementById('clList');
+  var cliEmpty = document.getElementById('clEmpty');
+  var cliDetail = document.getElementById('cliDetail');
+  var panelClients = document.getElementById('panelClients');
+
+  function segment(nb, total) {
+    if (nb >= 5 || total >= 2000000) return 'vip';
+    if (nb >= 2) return 'regulier';
+    return 'nouveau';
+  }
+  var SEG_LABEL = { vip: 'VIP', regulier: 'Régulier', nouveau: 'Nouveau' };
+
+  function buildClients() {
+    var by = {};
+    ALL.forEach(function (o) {
+      var k = (o.customer_mail || o.customer_tel || o.id).toLowerCase();
+      if (!by[k]) by[k] = { key: k, name: o.customer_name, org: o.customer_org, tel: o.customer_tel,
+        mail: o.customer_mail, city: o.customer_city, orders: [], total: 0, first: o.created_at, last: o.created_at };
+      var c = by[k];
+      c.orders.push(o);
+      if (o.status !== 'annule') c.total += (o.total_fcfa || 0);
+      if (o.created_at < c.first) c.first = o.created_at;
+      if (o.created_at > c.last) { c.last = o.created_at; c.name = o.customer_name; c.org = o.customer_org; c.city = o.customer_city; c.tel = o.customer_tel; }
+    });
+    CLIENTS = Object.keys(by).map(function (k) {
+      var c = by[k]; c.nb = c.orders.length; c.seg = segment(c.nb, c.total); return c;
+    }).sort(function (a, b) { return b.total - a.total; });
+    document.getElementById('clAll').textContent = CLIENTS.length;
+    document.getElementById('clVip').textContent = CLIENTS.filter(function (c) { return c.seg === 'vip'; }).length;
+    document.getElementById('clReg').textContent = CLIENTS.filter(function (c) { return c.seg === 'regulier'; }).length;
+    document.getElementById('clNew').textContent = CLIENTS.filter(function (c) { return c.seg === 'nouveau'; }).length;
+    renderClients();
+  }
+  function renderClients() {
+    var rows = CLIENTS.filter(function (c) {
+      if (!csearch) return true;
+      return ((c.name || '') + ' ' + (c.org || '') + ' ' + (c.mail || '') + ' ' + (c.city || '')).toLowerCase().indexOf(csearch) > -1;
+    });
+    cliList.innerHTML = '';
+    cliEmpty.hidden = rows.length > 0;
+    rows.forEach(function (c) {
+      var d = document.createElement('article');
+      d.className = 'adm-cli';
+      d.innerHTML =
+        '<div class="adm-cli-main"><strong>' + (c.name || 'Client') + (c.org ? ' · ' + c.org : '') + '</strong>' +
+          '<span class="adm-cli-meta">' + (c.city || '') + (c.mail ? ' · ' + c.mail : '') + '</span></div>' +
+        '<span class="adm-cli-seg seg-' + c.seg + '">' + SEG_LABEL[c.seg] + '</span>' +
+        '<div class="adm-cli-num"><b>' + fcfa(c.total) + '</b><span>' + c.nb + (c.nb > 1 ? ' commandes' : ' commande') + '</span></div>';
+      d.addEventListener('click', function () { openCli(c); });
+      cliList.appendChild(d);
+    });
+  }
+  var clSearchBox = document.getElementById('clSearch');
+  if (clSearchBox) clSearchBox.addEventListener('input', function () { csearch = clSearchBox.value.trim().toLowerCase(); renderClients(); });
+
+  function openCli(c) {
+    document.getElementById('cliName').textContent = (c.name || 'Client') + (c.org ? ' · ' + c.org : '');
+    document.getElementById('cliMeta').innerHTML =
+      [c.tel, c.mail, c.city].filter(Boolean).join(' · ') +
+      '<br>' + SEG_LABEL[c.seg] + ' · ' + c.nb + (c.nb > 1 ? ' commandes' : ' commande') +
+      ' · ' + fcfa(c.total) + ' au total · depuis le ' + fmtDate(c.first).split(' ·')[0];
+    var box = document.getElementById('cliOrders');
+    box.innerHTML = '';
+    c.orders.slice().sort(function (a, b) { return b.created_at.localeCompare(a.created_at); }).forEach(function (o) {
+      var el = document.createElement('div');
+      el.className = 'cli-ord';
+      el.innerHTML =
+        '<div><strong>' + fmtDate(o.created_at) + '</strong>' +
+        '<span class="cli-ord-items">' + (o.items || []).map(function (it) { return it.qty + ' × ' + it.name; }).join(', ') + '</span></div>' +
+        '<div class="cli-ord-r"><span class="acct-badge st-' + o.status + '">' + (STATUS_LABEL[o.status] || o.status) + '</span>' +
+        '<b>' + fcfa(o.total_fcfa) + '</b></div>';
+      box.appendChild(el);
+    });
+    panelClients.hidden = true;
+    cliDetail.hidden = false;
+    cliDetail.scrollIntoView({ block: 'start' });
+  }
+  function closeCli() { if (cliDetail) cliDetail.hidden = true; if (panelClients) panelClients.hidden = false; }
+  var cliBack = document.getElementById('cliBack');
+  if (cliBack) cliBack.addEventListener('click', closeCli);
+
+  var clExport = document.getElementById('clExport');
+  if (clExport) clExport.addEventListener('click', function () {
+    var head = ['Nom', 'Entreprise', 'E-mail', 'Telephone', 'Ville', 'Commandes', 'Total FCFA', 'Segment', 'Premiere commande', 'Derniere commande'];
+    var lines = [head.join(';')];
+    CLIENTS.forEach(function (c) {
+      lines.push([
+        c.name || '', c.org || '', c.mail || '', c.tel || '', c.city || '',
+        c.nb, c.total, SEG_LABEL[c.seg],
+        (c.first || '').slice(0, 10), (c.last || '').slice(0, 10)
+      ].map(function (x) { return '"' + String(x).replace(/"/g, '""') + '"'; }).join(';'));
+    });
+    var blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'clients-roots-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
   });
 
   /* ================= analyse ================= */

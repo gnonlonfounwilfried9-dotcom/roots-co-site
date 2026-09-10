@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Tableau de bord &middot; Roots &amp; Co</title>
-<link rel="stylesheet" href="assets/style.css?v=202609101818">
+<link rel="stylesheet" href="assets/style.css?v=202609101827">
 </head>
 <body class="nohero admin-body">
 
@@ -42,6 +42,7 @@
     <div class="adm-tabs" id="admTabs">
       <button class="adm-tab on" data-tab="commandes" type="button">Commandes</button>
       <button class="adm-tab" data-tab="produits" type="button">Produits</button>
+      <button class="adm-tab" data-tab="clients" type="button">Clients</button>
       <button class="adm-tab" data-tab="analyse" type="button">Analyse</button>
     </div>
 
@@ -86,6 +87,30 @@
       Collez <code>assets/catalog.sql</code> dans Supabase, SQL Editor, puis actualisez.</p>
       <p class="adm-empty" id="prodEmpty" hidden>Aucun produit.</p>
       <div class="adm-prod-list" id="prodList"></div>
+    </div>
+
+    <div class="adm-panel" id="panelClients" hidden>
+      <div class="adm-stats">
+        <div class="adm-stat"><b id="clAll">0</b><span>Clients</span></div>
+        <div class="adm-stat"><b id="clVip">0</b><span>VIP</span></div>
+        <div class="adm-stat"><b id="clReg">0</b><span>R&eacute;guliers</span></div>
+        <div class="adm-stat"><b id="clNew">0</b><span>Nouveaux</span></div>
+      </div>
+      <div class="adm-bar">
+        <input type="search" id="clSearch" class="adm-search" placeholder="Chercher un client, une ville, un e-mail&hellip;">
+        <button class="btn btn-line adm-refresh" id="clExport" type="button">Exporter en CSV</button>
+      </div>
+      <p class="adm-empty" id="clEmpty" hidden>Aucun client pour l&rsquo;instant.</p>
+      <div class="adm-cli-list" id="clList"></div>
+    </div>
+
+    <div class="cli-detail" id="cliDetail" hidden>
+      <div class="prod-editor-head">
+        <h2 class="stitle" id="cliName">Client</h2>
+        <button type="button" class="btn btn-line" id="cliBack">Retour</button>
+      </div>
+      <p class="cli-meta" id="cliMeta"></p>
+      <div class="adm-list" id="cliOrders"></div>
     </div>
 
     <div class="adm-panel" id="panelAnalyse" hidden>
@@ -186,7 +211,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="assets/supabase-config.js?v=202609101818"></script>
-<script src="assets/admin.js?v=202609101818"></script>
+<script src="assets/supabase-config.js?v=202609101827"></script>
+<script src="assets/admin.js?v=202609101827"></script>
 </body>
 </html>

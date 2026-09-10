@@ -1449,6 +1449,37 @@ body:has(.rc-panel.show) #rcBtn{opacity:0;pointer-events:none;}
 .adm-tab.on{color:var(--teal);border-bottom-color:var(--teal);}
 :root[data-theme="dark"] .adm-tab.on{color:var(--cyan);border-bottom-color:var(--cyan);}
 
+/* clients */
+.adm-cli-list{display:flex;flex-direction:column;gap:8px;}
+.adm-cli{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;cursor:pointer;
+  background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 16px;transition:border-color .2s;}
+.adm-cli:hover{border-color:var(--cyan);}
+.adm-cli-main strong{display:block;font-size:14px;color:var(--ink);}
+.adm-cli-meta{font-size:11.5px;color:var(--muted);}
+.adm-cli-seg{font-family:var(--head);font-size:10.5px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;border-radius:20px;padding:4px 10px;white-space:nowrap;}
+.adm-cli-seg.seg-vip{background:rgba(230,164,34,.16);color:#a3720f;}
+.adm-cli-seg.seg-regulier{background:rgba(34,195,230,.14);color:var(--teal);}
+.adm-cli-seg.seg-nouveau{background:var(--surface);color:var(--muted);}
+:root[data-theme="dark"] .adm-cli-seg.seg-regulier{color:var(--cyan);}
+.adm-cli-num{text-align:right;}
+.adm-cli-num b{font-family:var(--head);font-size:14px;color:var(--ink);display:block;}
+.adm-cli-num span{font-size:10.5px;color:var(--muted);}
+@media(max-width:640px){
+  .adm-cli{grid-template-columns:1fr auto;}
+  .adm-cli-num{grid-column:2;}
+  .adm-cli-seg{grid-column:1;grid-row:2;justify-self:start;}
+}
+.cli-detail{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:760px;}
+.cli-meta{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px;}
+.cli-ord{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:12px 0;border-top:1px solid var(--line);}
+.cli-ord:first-child{border-top:0;}
+.cli-ord strong{display:block;font-size:12.5px;color:var(--ink);}
+.cli-ord-items{font-size:11.5px;color:var(--muted);}
+.cli-ord-r{display:flex;align-items:center;gap:12px;white-space:nowrap;}
+.cli-ord-r b{font-family:var(--head);font-size:13px;color:var(--ink);}
+
 /* analyse : graphiques */
 .adm-charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .adm-chart{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:16px 18px;}
