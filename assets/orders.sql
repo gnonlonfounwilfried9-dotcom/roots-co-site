@@ -37,6 +37,7 @@ drop policy if exists "Le site peut enregistrer une commande" on public.orders;
 drop policy if exists "Un client connecte peut enregistrer sa commande" on public.orders;
 drop policy if exists "Chacun voit ses commandes, l'administrateur les voit toutes" on public.orders;
 drop policy if exists "L'administrateur met a jour le statut" on public.orders;
+drop policy if exists "L'administrateur supprime une commande" on public.orders;
 drop policy if exists "Personne ne consulte la table admins directement" on public.admins;
 
 create policy "Le site peut enregistrer une commande"
@@ -59,6 +60,11 @@ create policy "L'administrateur met a jour le statut"
   to authenticated
   using (exists (select 1 from public.admins where admins.user_id = auth.uid()))
   with check (exists (select 1 from public.admins where admins.user_id = auth.uid()));
+
+create policy "L'administrateur supprime une commande"
+  on public.orders for delete
+  to authenticated
+  using (exists (select 1 from public.admins where admins.user_id = auth.uid()));
 
 create policy "Personne ne consulte la table admins directement"
   on public.admins for select

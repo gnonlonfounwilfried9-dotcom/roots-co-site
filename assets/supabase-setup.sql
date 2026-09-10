@@ -1,7 +1,7 @@
 -- ROOTS & Co : installation complete de la base.
 -- A COLLER EN UNE SEULE FOIS dans Supabase : menu de gauche, SQL Editor, New query, Run.
 -- Relancable sans risque. ATTENTION : la partie 2 recharge les 22 produits d'origine.
--- Pour une simple mise a jour ciblee, lancez les fichiers assets/*.sql separement.
+-- Pour une mise a jour ciblee, lancez plutot les fichiers assets/*.sql separement.
 
 -- ========== 1. COMMANDES, ESPACE CLIENT, TABLEAU DE BORD ==========
 
@@ -44,6 +44,7 @@ drop policy if exists "Le site peut enregistrer une commande" on public.orders;
 drop policy if exists "Un client connecte peut enregistrer sa commande" on public.orders;
 drop policy if exists "Chacun voit ses commandes, l'administrateur les voit toutes" on public.orders;
 drop policy if exists "L'administrateur met a jour le statut" on public.orders;
+drop policy if exists "L'administrateur supprime une commande" on public.orders;
 drop policy if exists "Personne ne consulte la table admins directement" on public.admins;
 
 create policy "Le site peut enregistrer une commande"
@@ -66,6 +67,11 @@ create policy "L'administrateur met a jour le statut"
   to authenticated
   using (exists (select 1 from public.admins where admins.user_id = auth.uid()))
   with check (exists (select 1 from public.admins where admins.user_id = auth.uid()));
+
+create policy "L'administrateur supprime une commande"
+  on public.orders for delete
+  to authenticated
+  using (exists (select 1 from public.admins where admins.user_id = auth.uid()));
 
 create policy "Personne ne consulte la table admins directement"
   on public.admins for select
@@ -365,4 +371,35 @@ insert into public.zones_livraison (nom, pays, tarif_fcfa, delai, rang) values
   ('Livraison sous-region', 'CEDEAO', 0, 'Sur devis', 5),
   ('Livraison France', 'France', 0, 'Sur devis', 6)
 on conflict do nothing;
+
+
+
+-- ========== 6. RGPD, SUPPRESSION DES DONNEES ==========
+
+-- ROOTS & Co : RGPD, suppression des donnees a la demande du client.
+-- Relancable sans risque. SQL Editor, New query, coller, Run.
+
+-- Le client peut, depuis son espace, effacer toutes ses commandes et son compte.
+create or replace function public.supprimer_mon_compte()
+returns void
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare uid uuid := auth.uid();
+begin
+  if uid is null then
+    raise exception 'Aucun compte connecte';
+  end if;
+  -- on garde une trace comptable anonyme : la commande reste, sans donnees personnelles
+  update public.orders
+     set customer_name = 'Client supprime', customer_org = null, customer_tel = 'supprime',
+         customer_mail = 'supprime', customer_city = 'supprime', ship_address = null,
+         ship_slot = null, pay_detail = null, note = null, user_id = null
+   where user_id = uid;
+  delete from auth.users where id = uid;
+end $$;
+
+revoke all on function public.supprimer_mon_compte() from public, anon;
+grant execute on function public.supprimer_mon_compte() to authenticated;
 

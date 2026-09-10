@@ -126,6 +126,22 @@
     });
   }
 
+  /* suppression du compte et des donnees (RGPD) */
+  var delBtn = document.getElementById('acctDelete');
+  var delMsg = document.getElementById('acctDelMsg');
+  if (delBtn) delBtn.addEventListener('click', function () {
+    if (!window.confirm('Supprimer votre compte et toutes vos coordonnées ? Cette action est définitive.')) return;
+    delBtn.disabled = true;
+    sb.rpc('supprimer_mon_compte').then(function (r) {
+      if (r.error) {
+        delBtn.disabled = false;
+        if (delMsg) { delMsg.hidden = false; delMsg.textContent = 'Suppression impossible : ' + r.error.message; }
+        return;
+      }
+      sb.auth.signOut().then(function () { location.href = 'index.html'; });
+    });
+  });
+
   /* pour la boutique : expose l'utilisateur connecte, si il y en a un */
   window.ROOTS_GET_SESSION = function () { return sb.auth.getSession(); };
 })();

@@ -5,15 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Tableau de bord &middot; Roots &amp; Co</title>
-<link rel="stylesheet" href="assets/style.css?v=202609101848">
+<link rel="stylesheet" href="assets/style.css?v=202609101921">
+<script>try{if((localStorage.getItem('rootsco_theme')||'light')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
 </head>
 <body class="nohero admin-body">
 
 <header class="adm-top">
   <a href="index.html" class="logo"><img class="lw" src="assets/img/roots-white.png" alt="ROOTS"><img class="lb" src="assets/img/roots-blue.png" alt="ROOTS"></a>
   <span class="adm-title">Tableau de bord commandes</span>
+  <button class="adm-theme" id="admTheme" type="button" aria-label="Th&egrave;me clair ou sombre" title="Th&egrave;me clair ou sombre">
+    <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></svg>
+    <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.5 6.5 0 0 0 21 12.8Z"/></svg>
+  </button>
   <button class="btn btn-line adm-logout" id="admLogout" hidden>Se d&eacute;connecter</button>
 </header>
+<script>
+document.getElementById('admTheme').addEventListener('click',function(){
+  var d=document.documentElement.getAttribute('data-theme')==='dark';
+  if(d)document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme','dark');
+  try{localStorage.setItem('rootsco_theme',d?'light':'dark');}catch(e){}
+});
+</script>
 
 <main class="adm-main">
 
@@ -82,8 +94,12 @@
       <div class="adm-bar">
         <input type="search" id="prodSearch" class="adm-search" placeholder="Chercher un produit, une r&eacute;f&eacute;rence&hellip;">
         <button class="btn btn-primary" id="prodNew" type="button">Nouveau produit</button>
+        <button class="btn btn-line" id="prodImport" type="button">Importer un fichier</button>
+        <button class="btn btn-line" id="prodTemplate" type="button">Mod&egrave;le CSV</button>
         <button class="btn btn-line adm-refresh" id="prodRefresh" type="button">Actualiser</button>
+        <input type="file" id="prodFile" accept=".csv,text/csv" hidden>
       </div>
+      <p class="adm-hint" id="prodImportMsg" hidden></p>
       <p class="adm-hint" id="prodConfigHint" hidden>La table catalogue n&rsquo;existe pas encore.
       Collez <code>assets/catalog.sql</code> dans Supabase, SQL Editor, puis actualisez.</p>
       <p class="adm-empty" id="prodEmpty" hidden>Aucun produit.</p>
@@ -276,13 +292,17 @@
         <div><h5>Paiement</h5><p class="adm-pay"></p></div>
       </div>
       <p class="adm-note" hidden></p>
+      <div class="adm-row-foot">
+        <span class="adm-ref"></span>
+        <button class="adm-del" type="button">Supprimer cette commande</button>
+      </div>
     </div>
   </article>
 </template>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="assets/supabase-config.js?v=202609101848"></script>
-<script src="assets/admin.js?v=202609101848"></script>
+<script src="assets/supabase-config.js?v=202609101921"></script>
+<script src="assets/admin.js?v=202609101921"></script>
 </body>
 </html>

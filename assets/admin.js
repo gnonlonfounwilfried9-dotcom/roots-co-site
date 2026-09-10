@@ -120,6 +120,17 @@
       node.querySelector('.adm-pay').innerHTML = o.pay_method + (o.pay_detail ? '<br>' + o.pay_detail : '');
       var noteEl = node.querySelector('.adm-note');
       if (o.note) { noteEl.hidden = false; noteEl.textContent = o.note; }
+      var refEl = node.querySelector('.adm-ref');
+      if (refEl) refEl.textContent = o.ref ? 'Référence ' + o.ref : '';
+      var delBtn = node.querySelector('.adm-del');
+      if (delBtn) delBtn.addEventListener('click', function () {
+        if (!window.confirm('Supprimer définitivement la commande de ' + o.customer_name + ' ? Cette action est irréversible.')) return;
+        sb.from('orders').delete().eq('id', o.id).then(function (r) {
+          if (r.error) { window.alert('Suppression impossible : ' + r.error.message); return; }
+          logAction('commande supprimee', o.ref || o.id);
+          loadOrders();
+        });
+      });
 
       var toggle = node.querySelector('.adm-toggle');
       var body = node.querySelector('.adm-row-body');
@@ -334,6 +345,83 @@
       loadProducts();
     });
   });
+
+  /* ---- import de catalogue par fichier CSV (export Excel) ---- */
+  var prodImportMsg = document.getElementById('prodImportMsg');
+  var prodFile = document.getElementById('prodFile');
+  var tplBtn = document.getElementById('prodTemplate');
+  if (tplBtn) tplBtn.addEventListener('click', function () {
+    var csv = 'ref;nom;categorie;prix_ttc_fcfa;stock;spec;actif\r\n'
+      + 'DC16250;Dell 16;portables;695695;10;16 pouces, Core i5, 16 Go, 512 Go SSD;oui\r\n'
+      + 'NOUVEAU-REF;Nom du produit;accessoires;15000;5;Description courte;oui\r\n';
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
+    a.download = 'modele-catalogue-roots.csv';
+    a.click();
+  });
+  var importBtn = document.getElementById('prodImport');
+  if (importBtn) importBtn.addEventListener('click', function () { prodFile.value = ''; prodFile.click(); });
+  if (prodFile) prodFile.addEventListener('change', function () {
+    var f = prodFile.files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () { parseAndImport(String(reader.result)); };
+    reader.readAsText(f, 'utf-8');
+  });
+
+  function splitCsvLine(line, sep) {
+    var out = [], cur = '', q = false;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (q) { if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
+      else { if (c === '"') q = true; else if (c === sep) { out.push(cur); cur = ''; } else cur += c; }
+    }
+    out.push(cur);
+    return out;
+  }
+  function parseAndImport(text) {
+    text = text.replace(/^﻿/, '');
+    var lines = text.split(/\r?\n/).filter(function (l) { return l.trim(); });
+    if (lines.length < 2) { showImport('Fichier vide ou sans ligne de données.', true); return; }
+    var sep = (lines[0].indexOf(';') > -1) ? ';' : ',';
+    var head = splitCsvLine(lines[0], sep).map(function (h) { return h.trim().toLowerCase(); });
+    var iRef = head.indexOf('ref'), iNom = head.indexOf('nom'), iPrix = head.indexOf('prix_ttc_fcfa');
+    if (iRef < 0 || iNom < 0 || iPrix < 0) { showImport('Colonnes ref, nom et prix_ttc_fcfa obligatoires. Utilisez le modèle CSV.', true); return; }
+    var iCat = head.indexOf('categorie'), iStock = head.indexOf('stock'), iSpec = head.indexOf('spec'), iActif = head.indexOf('actif');
+    var catIds = CATS.map(function (c) { return c.id; });
+    var recs = [], skipped = 0;
+    for (var l = 1; l < lines.length; l++) {
+      var cells = splitCsvLine(lines[l], sep);
+      var ref = (cells[iRef] || '').trim();
+      var prix = parseInt(String(cells[iPrix] || '').replace(/[^\d]/g, ''), 10);
+      if (!ref || !prix) { skipped++; continue; }
+      var cat = iCat > -1 ? (cells[iCat] || '').trim().toLowerCase() : 'divers';
+      if (catIds.indexOf(cat) < 0) cat = 'divers';
+      var rec = {
+        ref: ref, nom_fr: (cells[iNom] || ref).trim(), categorie_id: cat,
+        prix_ttc_fcfa: prix, prix_ht_fcfa: Math.round(prix / 1.18),
+        images: ['assets/produits/' + ref + '.png'], maj_le: new Date().toISOString()
+      };
+      if (iStock > -1 && cells[iStock] !== '') rec.stock = parseInt(cells[iStock], 10) || 0;
+      if (iSpec > -1 && (cells[iSpec] || '').trim()) rec.spec_fr = cells[iSpec].trim();
+      if (iActif > -1) rec.actif = /oui|1|true|vrai/i.test(cells[iActif] || 'oui');
+      recs.push(rec);
+    }
+    if (!recs.length) { showImport('Aucune ligne valide trouvée.', true); return; }
+    showImport('Import de ' + recs.length + ' produit(s) en cours…', false);
+    sb.from('products').upsert(recs, { onConflict: 'ref' }).then(function (r) {
+      if (r.error) { showImport('Import interrompu : ' + r.error.message, true); return; }
+      logAction('import catalogue', recs.length + ' produits');
+      showImport(recs.length + ' produit(s) importé(s)' + (skipped ? ', ' + skipped + ' ligne(s) ignorée(s)' : '') + '.', false);
+      loadProducts();
+    });
+  }
+  function showImport(msg, isErr) {
+    if (!prodImportMsg) return;
+    prodImportMsg.hidden = false;
+    prodImportMsg.textContent = msg;
+    prodImportMsg.style.color = isErr ? '#c94b28' : '';
+  }
 
   if (F.del) F.del.addEventListener('click', function () {
     if (!editing) return;

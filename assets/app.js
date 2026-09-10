@@ -184,12 +184,32 @@ function initCarousel(root){
   });
 })();
 
-/* ---------- comptage discret des visites (tableau de bord) ---------- */
+/* ---------- consentement (RGPD) ---------- */
+function rootsConsent(){ try{ return localStorage.getItem('rootsco_consent'); }catch(e){ return null; } }
 (function(){
+  if(rootsConsent()) return;
+  var b=document.createElement('div');
+  b.className='consent';
+  b.innerHTML='<p>Ce site garde votre panier et compte les visites de façon anonyme, sans publicité ni revente de données. '
+    +'<a href="a-propos.html">En savoir plus</a></p>'
+    +'<div class="consent-btns"><button data-c="1" class="btn btn-primary">Accepter</button>'
+    +'<button data-c="0" class="btn btn-line">Refuser le comptage</button></div>';
+  b.addEventListener('click',function(e){
+    var t=e.target.closest('[data-c]'); if(!t) return;
+    try{ localStorage.setItem('rootsco_consent', t.dataset.c); }catch(e2){}
+    b.remove();
+    if(t.dataset.c==='1') countVisit();
+  });
+  (document.body||document.documentElement).appendChild(b);
+})();
+
+/* ---------- comptage discret des visites (tableau de bord) ---------- */
+function countVisit(){
   var cfg = window.ROOTS_SUPABASE;
   if(!cfg || !cfg.url || !cfg.anonKey) return;
+  if(rootsConsent() === '0') return;               // visiteur qui a refuse le comptage
   var here = location.pathname.split('/').pop() || 'index.html';
-  if(here === 'admin.html') return;               // on ne compte pas l'administrateur
+  if(here === 'admin.html') return;                // on ne compte pas l'administrateur
   try{
     var key = 'roots_vue_' + here;
     var last = sessionStorage.getItem(key);
@@ -204,4 +224,5 @@ function initCarousel(root){
       keepalive: true
     }).catch(function(){});
   }catch(e){}
-})();
+}
+if(rootsConsent() !== '0') countVisit();
