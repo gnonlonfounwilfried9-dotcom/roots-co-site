@@ -28,6 +28,8 @@ create table if not exists public.admins (
   user_id uuid primary key references auth.users(id)
 );
 
+alter table public.orders add column if not exists ref text;
+
 alter table public.orders enable row level security;
 alter table public.admins enable row level security;
 

@@ -130,9 +130,12 @@ document.addEventListener('keydown', function (e) {
 var step1 = document.getElementById('cartStep1');
 var step2 = document.getElementById('cartStep2');
 var step3 = document.getElementById('cartStep3');
-var sendBox = document.getElementById('cartSend');
+var step4 = document.getElementById('cartStep4');
 var nextBtn = document.getElementById('cartNext');
 var reviewBtn = document.getElementById('cartReview');
+var confirmBtn = document.getElementById('cartConfirm');
+var doneClose = document.getElementById('cartDoneClose');
+var footNote = document.getElementById('cartFootNote');
 var cartTitle = document.getElementById('cartTitle');
 
 function goStep(n) {
@@ -140,12 +143,17 @@ function goStep(n) {
   step1.hidden = (n !== 1);
   step2.hidden = (n !== 2);
   if (step3) step3.hidden = (n !== 3);
+  if (step4) step4.hidden = (n !== 4);
   if (nextBtn) nextBtn.hidden = (n !== 1);
   if (reviewBtn) reviewBtn.hidden = (n !== 2);
-  if (sendBox) sendBox.hidden = (n !== 3);
+  if (confirmBtn) confirmBtn.hidden = (n !== 3);
   if (backBtn) backBtn.hidden = (n !== 2);
   if (backBtn2) backBtn2.hidden = (n !== 3);
-  if (cartTitle) cartTitle.textContent = (n === 3) ? 'Vérifiez et envoyez' : (n === 2) ? 'Vos coordonnées' : 'Votre panier';
+  if (doneClose) doneClose.hidden = (n !== 4);
+  if (footNote) footNote.hidden = (n === 4);
+  [].slice.call(document.querySelectorAll('.cart-foot .cart-tot')).forEach(function (el) { el.hidden = (n === 4); });
+  if (cartTitle) cartTitle.textContent =
+    (n === 4) ? 'Merci' : (n === 3) ? 'Vérifiez et envoyez' : (n === 2) ? 'Vos coordonnées' : 'Votre panier';
   var pan = document.getElementById('cartPanel');
   if (pan) pan.scrollTop = 0;
 }
@@ -162,6 +170,43 @@ if (reviewBtn) reviewBtn.addEventListener('click', function () {
   if (!validateForm()) return;
   renderRecap();
   goStep(3);
+});
+if (doneClose) doneClose.addEventListener('click', function () {
+  closeCart();
+  goStep(1);
+});
+
+function orderRef() {
+  var d = new Date();
+  var p = function (x) { return ('0' + x).slice(-2); };
+  var rnd = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return 'RC-' + String(d.getFullYear()).slice(2) + p(d.getMonth() + 1) + p(d.getDate()) + '-' + rnd;
+}
+
+if (confirmBtn) confirmBtn.addEventListener('click', function () {
+  var d = collect();
+  if (!d) return;
+  var rec = buildRecord(d);
+  rec.ref = orderRef();
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = 'Envoi en cours…';
+  var errBox = document.getElementById('cfErr');
+  submitOrder(rec, function (ok, msg) {
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = 'Envoyer ma commande';
+    if (!ok) {
+      if (errBox) {
+        errBox.hidden = false;
+        errBox.textContent = 'Envoi impossible pour le moment. Réessayez, ou appelez le +228 93 07 87 87.';
+      }
+      return;
+    }
+    if (errBox) errBox.hidden = true;
+    var out = document.getElementById('cfRefOut');
+    if (out) out.textContent = rec.ref;
+    set([]);
+    goStep(4);
+  });
 });
 
 function radioVal(name) {
@@ -394,41 +439,37 @@ function buildRecord(d) {
     note: val('cfNote') || null
   };
 }
-function submitOrder(record) {
+/* la commande part au tableau de bord (Supabase). done(ok, message) est rappele ensuite. */
+function submitOrder(record, done) {
   var cfg = window.ROOTS_SUPABASE;
-  if (!cfg || !cfg.url || !cfg.anonKey || !window.supabase) return;
-  try {
-    var sb = window.supabase.createClient(cfg.url, cfg.anonKey);
-    // si un client est connecte a son espace (compte.html) dans ce navigateur, la
-    // commande est rattachee a son compte pour apparaitre dans son historique
-    sb.auth.getSession().then(function (s) {
-      var uid = s.data && s.data.session ? s.data.session.user.id : null;
-      if (uid) record.user_id = uid;
-      sb.from('orders').insert(record).then(function (res) {
-        if (res.error) { try { console.warn('ROOTS: commande non enregistree au tableau de bord', res.error.message); } catch (e) {} }
-      });
-    });
-  } catch (e) { try { console.warn('ROOTS: tableau de bord indisponible', e); } catch (e2) {} }
+  if (!cfg || !cfg.url || !cfg.anonKey || !window.supabase) { done(false, 'non configure'); return; }
+  var sb;
+  try { sb = window.supabase.createClient(cfg.url, cfg.anonKey); }
+  catch (e) { done(false, String(e)); return; }
+  // si un client est connecte a son espace dans ce navigateur, la commande est
+  // rattachee a son compte pour apparaitre dans son historique
+  sb.auth.getSession().then(function (s) {
+    var uid = s.data && s.data.session ? s.data.session.user.id : null;
+    if (uid) record.user_id = uid;
+    function tryInsert(rec, allowRetry) {
+      sb.from('orders').insert(rec).then(function (res) {
+        if (!res.error) { done(true); return; }
+        // si la colonne "ref" n'existe pas encore cote base, on reessaie sans elle :
+        // la commande est enregistree quand meme, la reference reste affichee au client
+        if (allowRetry && /'ref'|column .*ref/i.test(res.error.message || '')) {
+          var noRef = {}; for (var k in rec) if (k !== 'ref') noRef[k] = rec[k];
+          if (rec.ref && !rec.note) noRef.note = 'Reference ' + rec.ref;
+          else if (rec.ref) noRef.note = 'Reference ' + rec.ref + ' | ' + rec.note;
+          tryInsert(noRef, false);
+          return;
+        }
+        try { console.warn('ROOTS: commande non enregistree', res.error.message); } catch (e) {}
+        done(false, res.error.message);
+      }, function (err) { done(false, String(err)); });
+    }
+    tryInsert(record, true);
+  }, function (err) { done(false, String(err)); });
 }
-
-var od = document.getElementById('cartOrder');
-if (od) od.addEventListener('click', function () {
-  var d = collect();
-  if (!d) return;
-  submitOrder(buildRecord(d));
-  window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(d.txt), '_blank');
-});
-var om = document.getElementById('cartMail');
-if (om) om.addEventListener('click', function () {
-  var d = collect();
-  if (!d) return;
-  submitOrder(buildRecord(d));
-  var url = 'mailto:' + MAIL
-    + '?subject=' + encodeURIComponent('Commande depuis le site ROOTS')
-    + (d.copy ? '&cc=' + encodeURIComponent(d.mail) : '')
-    + '&body=' + encodeURIComponent(d.txt);
-  window.location.href = url;
-});
 
 /* ---------------- filtres, recherche, tri ---------------- */
 var grid = document.getElementById('bxgrid');
