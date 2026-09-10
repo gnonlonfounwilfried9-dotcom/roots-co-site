@@ -173,8 +173,12 @@
       var delBtn = node.querySelector('.adm-del');
       if (delBtn) delBtn.addEventListener('click', function () {
         if (!window.confirm('Supprimer définitivement la commande de ' + o.customer_name + ' ? Cette action est irréversible.')) return;
-        sb.from('orders').delete().eq('id', o.id).then(function (r) {
+        sb.from('orders').delete().eq('id', o.id).select().then(function (r) {
           if (r.error) { window.alert('Suppression impossible : ' + r.error.message); return; }
+          if (!r.data || !r.data.length) {
+            window.alert('Rien n\'a été supprimé. La règle de suppression n\'est pas encore en place dans Supabase : collez le petit script "règle de suppression des commandes" que Claude vous a donné, puis réessayez.');
+            return;
+          }
           logAction('commande supprimee', o.ref || o.id);
           loadOrders();
         });
