@@ -156,4 +156,186 @@
     search = searchBox.value.trim().toLowerCase();
     renderList();
   });
+
+  /* ================= onglets ================= */
+  var tabs = document.getElementById('admTabs');
+  var panels = {
+    commandes: document.getElementById('panelCommandes'),
+    produits: document.getElementById('panelProduits')
+  };
+  var editor = document.getElementById('prodEditor');
+  var prodLoaded = false;
+  if (tabs) tabs.addEventListener('click', function (e) {
+    var b = e.target.closest('.adm-tab');
+    if (!b) return;
+    [].slice.call(tabs.querySelectorAll('.adm-tab')).forEach(function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    var t = b.dataset.tab;
+    Object.keys(panels).forEach(function (k) { if (panels[k]) panels[k].hidden = (k !== t); });
+    if (editor) editor.hidden = true;
+    if (t === 'produits' && !prodLoaded) loadProducts();
+  });
+
+  /* ================= produits ================= */
+  var PRODS = [], CATS = [], psearch = '';
+  var prodList = document.getElementById('prodList');
+  var prodEmpty = document.getElementById('prodEmpty');
+  var prodHint = document.getElementById('prodConfigHint');
+
+  function loadCats() {
+    return sb.from('categories').select('*').order('rang').then(function (r) {
+      CATS = (r && r.data) || [];
+    });
+  }
+  function loadProducts() {
+    loadCats().then(function () {
+      return sb.from('products').select('*').order('categorie_id').order('nom_fr');
+    }).then(function (r) {
+      if (r && r.error) {
+        if (prodHint) prodHint.hidden = false;
+        console.warn('ROOTS admin: catalogue', r.error.message);
+        return;
+      }
+      if (prodHint) prodHint.hidden = true;
+      prodLoaded = true;
+      PRODS = (r && r.data) || [];
+      renderProdStats();
+      renderProds();
+    });
+  }
+  var prodRefresh = document.getElementById('prodRefresh');
+  if (prodRefresh) prodRefresh.addEventListener('click', loadProducts);
+  var prodSearchBox = document.getElementById('prodSearch');
+  if (prodSearchBox) prodSearchBox.addEventListener('input', function () {
+    psearch = prodSearchBox.value.trim().toLowerCase();
+    renderProds();
+  });
+
+  function renderProdStats() {
+    document.getElementById('stProdAll').textContent = PRODS.length;
+    document.getElementById('stProdActive').textContent = PRODS.filter(function (p) { return p.actif; }).length;
+    document.getElementById('stProdLow').textContent = PRODS.filter(function (p) { return p.stock <= (p.seuil_alerte || 3); }).length;
+  }
+  function catName(id) {
+    var c = CATS.filter(function (x) { return x.id === id; })[0];
+    return c ? c.nom_fr : (id || 'Sans cat&eacute;gorie');
+  }
+  function renderProds() {
+    var rows = PRODS.filter(function (p) {
+      if (!psearch) return true;
+      return (p.nom_fr + ' ' + p.ref + ' ' + (p.spec_fr || '')).toLowerCase().indexOf(psearch) > -1;
+    });
+    prodList.innerHTML = '';
+    prodEmpty.hidden = rows.length > 0;
+    rows.forEach(function (p) {
+      var low = p.stock <= (p.seuil_alerte || 3);
+      var d = document.createElement('article');
+      d.className = 'adm-prod' + (p.actif ? '' : ' off');
+      d.innerHTML =
+        '<div class="adm-prod-img">' + (p.images && p.images[0] ? '<img src="' + p.images[0] + '" alt="">' : '') + '</div>' +
+        '<div class="adm-prod-main"><strong>' + p.nom_fr + '</strong>' +
+          '<span class="adm-prod-meta">' + p.ref + ' &middot; ' + catName(p.categorie_id) + '</span></div>' +
+        '<div class="adm-prod-num"><b>' + fcfa(p.prix_ttc_fcfa) + '</b>' +
+          '<span>HT ' + fcfa(p.prix_ht_fcfa || Math.round(p.prix_ttc_fcfa / 1.18)) + '</span></div>' +
+        '<div class="adm-prod-stock ' + (low ? 'low' : '') + '">' + p.stock + ' en stock' +
+          (p.actif ? '' : '<span class="adm-prod-tag">Masqu&eacute;</span>') + '</div>' +
+        '<button class="btn btn-line adm-prod-edit" type="button">Modifier</button>';
+      d.querySelector('.adm-prod-edit').addEventListener('click', function () { openEditor(p); });
+      prodList.appendChild(d);
+    });
+  }
+
+  /* ---------------- editeur produit ---------------- */
+  var form2 = document.getElementById('prodForm');
+  var editing = null;
+  var F = {
+    ref: document.getElementById('pfRef'), nom: document.getElementById('pfNom'),
+    cat: document.getElementById('pfCat'), stock: document.getElementById('pfStock'),
+    prix: document.getElementById('pfPrix'), seuil: document.getElementById('pfSeuil'),
+    spec: document.getElementById('pfSpec'), desc: document.getElementById('pfDesc'),
+    img: document.getElementById('pfImg'), actif: document.getElementById('pfActif'),
+    ht: document.getElementById('pfHt'), err: document.getElementById('pfErr'),
+    del: document.getElementById('pfDelete'), title: document.getElementById('prodEditTitle')
+  };
+  function fillCats() {
+    F.cat.innerHTML = CATS.map(function (c) {
+      return '<option value="' + c.id + '">' + c.nom_fr + '</option>';
+    }).join('');
+  }
+  function showHt() {
+    var v = parseInt(F.prix.value, 10);
+    F.ht.textContent = v ? 'Hors taxe : ' + fcfa(Math.round(v / 1.18)) : 'Hors taxe : —';
+  }
+  if (F.prix) F.prix.addEventListener('input', showHt);
+
+  function openEditor(p) {
+    editing = p || null;
+    fillCats();
+    F.err.hidden = true;
+    F.title.textContent = p ? 'Modifier ' + p.nom_fr : 'Nouveau produit';
+    F.ref.value = p ? p.ref : '';
+    F.ref.disabled = !!p;
+    F.nom.value = p ? p.nom_fr : '';
+    F.cat.value = p ? (p.categorie_id || 'divers') : 'portables';
+    F.stock.value = p ? p.stock : 0;
+    F.prix.value = p ? p.prix_ttc_fcfa : '';
+    F.seuil.value = p ? (p.seuil_alerte || 3) : 3;
+    F.spec.value = p ? (p.spec_fr || '') : '';
+    F.desc.value = p ? (p.desc_fr || '') : '';
+    F.img.value = p && p.images && p.images[0] ? p.images[0] : '';
+    F.actif.checked = p ? !!p.actif : true;
+    F.del.hidden = !p;
+    showHt();
+    panels.produits.hidden = true;
+    editor.hidden = false;
+    editor.scrollIntoView({ block: 'start' });
+  }
+  document.getElementById('prodNew').addEventListener('click', function () { openEditor(null); });
+  document.getElementById('prodCancel').addEventListener('click', closeEditor);
+  function closeEditor() {
+    editor.hidden = true;
+    panels.produits.hidden = false;
+  }
+
+  if (form2) form2.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var ref = F.ref.value.trim(), nom = F.nom.value.trim(), prix = parseInt(F.prix.value, 10);
+    if (!ref || !nom || !prix) {
+      F.err.hidden = false; F.err.textContent = 'R&eacute;f&eacute;rence, nom et prix TTC sont obligatoires.';
+      return;
+    }
+    var img = F.img.value.trim();
+    var rec = {
+      ref: ref, nom_fr: nom, categorie_id: F.cat.value,
+      stock: parseInt(F.stock.value, 10) || 0, seuil_alerte: parseInt(F.seuil.value, 10) || 3,
+      prix_ttc_fcfa: prix, prix_ht_fcfa: Math.round(prix / 1.18),
+      spec_fr: F.spec.value.trim() || null, desc_fr: F.desc.value.trim() || null,
+      images: img ? [img] : [], actif: F.actif.checked, maj_le: new Date().toISOString()
+    };
+    F.err.hidden = true;
+    var q = editing
+      ? sb.from('products').update(rec).eq('id', editing.id)
+      : sb.from('products').insert(rec);
+    q.then(function (r) {
+      if (r.error) {
+        F.err.hidden = false; F.err.textContent = 'Enregistrement impossible : ' + r.error.message;
+        return;
+      }
+      closeEditor();
+      loadProducts();
+    });
+  });
+
+  if (F.del) F.del.addEventListener('click', function () {
+    if (!editing) return;
+    if (!window.confirm('Supprimer ' + editing.nom_fr + ' du catalogue ?')) return;
+    sb.from('products').delete().eq('id', editing.id).then(function (r) {
+      if (r.error) {
+        F.err.hidden = false; F.err.textContent = 'Suppression impossible : ' + r.error.message;
+        return;
+      }
+      closeEditor();
+      loadProducts();
+    });
+  });
 })();

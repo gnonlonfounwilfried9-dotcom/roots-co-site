@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Tableau de bord &middot; Roots &amp; Co</title>
-<link rel="stylesheet" href="assets/style.css?v=202609101404">
+<link rel="stylesheet" href="assets/style.css?v=202609101445">
 </head>
 <body class="nohero admin-body">
 
@@ -39,29 +39,91 @@
 
   <section class="adm-dash" id="admDash" hidden>
 
-    <div class="adm-stats">
-      <div class="adm-stat"><b id="stAll">0</b><span>Commandes</span></div>
-      <div class="adm-stat"><b id="stNew">0</b><span>Nouvelles</span></div>
-      <div class="adm-stat"><b id="stProg">0</b><span>En cours</span></div>
-      <div class="adm-stat"><b id="stDone">0</b><span>Livr&eacute;es</span></div>
-      <div class="adm-stat adm-stat-wide"><b id="stTotal">0 FCFA</b><span>Chiffre d&rsquo;affaires (commandes non annul&eacute;es)</span></div>
+    <div class="adm-tabs" id="admTabs">
+      <button class="adm-tab on" data-tab="commandes" type="button">Commandes</button>
+      <button class="adm-tab" data-tab="produits" type="button">Produits</button>
     </div>
 
-    <div class="adm-bar">
-      <div class="adm-filters" id="admFilters">
-        <button class="adm-filter on" data-f="all">Toutes</button>
-        <button class="adm-filter" data-f="nouveau">Nouvelles</button>
-        <button class="adm-filter" data-f="confirme">Confirm&eacute;es</button>
-        <button class="adm-filter" data-f="en_livraison">En livraison</button>
-        <button class="adm-filter" data-f="livre">Livr&eacute;es</button>
-        <button class="adm-filter" data-f="annule">Annul&eacute;es</button>
+    <div class="adm-panel" id="panelCommandes">
+      <div class="adm-stats">
+        <div class="adm-stat"><b id="stAll">0</b><span>Commandes</span></div>
+        <div class="adm-stat"><b id="stNew">0</b><span>Nouvelles</span></div>
+        <div class="adm-stat"><b id="stProg">0</b><span>En cours</span></div>
+        <div class="adm-stat"><b id="stDone">0</b><span>Livr&eacute;es</span></div>
+        <div class="adm-stat adm-stat-wide"><b id="stTotal">0 FCFA</b><span>Chiffre d&rsquo;affaires (commandes non annul&eacute;es)</span></div>
       </div>
-      <input type="search" id="admSearch" class="adm-search" placeholder="Chercher un nom, une ville, une r&eacute;f&eacute;rence&hellip;">
-      <button class="btn btn-line adm-refresh" id="admRefresh">Actualiser</button>
+
+      <div class="adm-bar">
+        <div class="adm-filters" id="admFilters">
+          <button class="adm-filter on" data-f="all">Toutes</button>
+          <button class="adm-filter" data-f="nouveau">Nouvelles</button>
+          <button class="adm-filter" data-f="confirme">Confirm&eacute;es</button>
+          <button class="adm-filter" data-f="en_livraison">En livraison</button>
+          <button class="adm-filter" data-f="livre">Livr&eacute;es</button>
+          <button class="adm-filter" data-f="annule">Annul&eacute;es</button>
+        </div>
+        <input type="search" id="admSearch" class="adm-search" placeholder="Chercher un nom, une ville, une r&eacute;f&eacute;rence&hellip;">
+        <button class="btn btn-line adm-refresh" id="admRefresh">Actualiser</button>
+      </div>
+
+      <p class="adm-empty" id="admEmpty" hidden>Aucune commande pour ce filtre.</p>
+      <div class="adm-list" id="admList"></div>
     </div>
 
-    <p class="adm-empty" id="admEmpty" hidden>Aucune commande pour ce filtre.</p>
-    <div class="adm-list" id="admList"></div>
+    <div class="adm-panel" id="panelProduits" hidden>
+      <div class="adm-stats">
+        <div class="adm-stat"><b id="stProdAll">0</b><span>Produits</span></div>
+        <div class="adm-stat"><b id="stProdActive">0</b><span>En vente</span></div>
+        <div class="adm-stat"><b id="stProdLow">0</b><span>Stock bas</span></div>
+      </div>
+      <div class="adm-bar">
+        <input type="search" id="prodSearch" class="adm-search" placeholder="Chercher un produit, une r&eacute;f&eacute;rence&hellip;">
+        <button class="btn btn-primary" id="prodNew" type="button">Nouveau produit</button>
+        <button class="btn btn-line adm-refresh" id="prodRefresh" type="button">Actualiser</button>
+      </div>
+      <p class="adm-hint" id="prodConfigHint" hidden>La table catalogue n&rsquo;existe pas encore.
+      Collez <code>assets/catalog.sql</code> dans Supabase, SQL Editor, puis actualisez.</p>
+      <p class="adm-empty" id="prodEmpty" hidden>Aucun produit.</p>
+      <div class="adm-prod-list" id="prodList"></div>
+    </div>
+
+    <div class="prod-editor" id="prodEditor" hidden>
+      <form id="prodForm" novalidate>
+        <div class="prod-editor-head">
+          <h2 class="stitle" id="prodEditTitle">Nouveau produit</h2>
+          <button type="button" class="btn btn-line" id="prodCancel">Annuler</button>
+        </div>
+        <div class="cf-row"><label>R&eacute;f&eacute;rence <b>*</b>
+          <input type="text" id="pfRef" required placeholder="Ex. DC16250"></label></div>
+        <div class="cf-row"><label>Nom <b>*</b>
+          <input type="text" id="pfNom" required></label></div>
+        <div class="cf-2">
+          <label>Cat&eacute;gorie
+            <select id="pfCat"></select></label>
+          <label>Stock
+            <input type="number" id="pfStock" min="0" value="0"></label>
+        </div>
+        <div class="cf-2">
+          <label>Prix TTC en FCFA <b>*</b>
+            <input type="number" id="pfPrix" min="0" required></label>
+          <label>Seuil d&rsquo;alerte stock
+            <input type="number" id="pfSeuil" min="0" value="3"></label>
+        </div>
+        <p class="prod-ht" id="pfHt">Hors taxe : &mdash;</p>
+        <div class="cf-row"><label>Fiche technique (une ligne)
+          <input type="text" id="pfSpec" placeholder="16 pouces, Core i5, 16 Go, 512 Go SSD&hellip;"></label></div>
+        <div class="cf-row"><label>Description
+          <textarea id="pfDesc" rows="4"></textarea></label></div>
+        <div class="cf-row"><label>Image (adresse ou chemin)
+          <input type="text" id="pfImg" placeholder="assets/produits/DC16250.png"></label></div>
+        <label class="cf-check"><input type="checkbox" id="pfActif" checked> En vente sur la boutique</label>
+        <p class="cf-err" id="pfErr" hidden></p>
+        <div class="prod-editor-foot">
+          <button type="submit" class="btn btn-primary" id="pfSave">Enregistrer</button>
+          <button type="button" class="btn btn-ghost2" id="pfDelete" hidden>Supprimer ce produit</button>
+        </div>
+      </form>
+    </div>
 
   </section>
 
@@ -102,7 +164,7 @@
 </template>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="assets/supabase-config.js?v=202609101404"></script>
-<script src="assets/admin.js?v=202609101404"></script>
+<script src="assets/supabase-config.js?v=202609101445"></script>
+<script src="assets/admin.js?v=202609101445"></script>
 </body>
 </html>
