@@ -161,7 +161,8 @@
   var tabs = document.getElementById('admTabs');
   var panels = {
     commandes: document.getElementById('panelCommandes'),
-    produits: document.getElementById('panelProduits')
+    produits: document.getElementById('panelProduits'),
+    analyse: document.getElementById('panelAnalyse')
   };
   var editor = document.getElementById('prodEditor');
   var prodLoaded = false;
@@ -174,6 +175,7 @@
     Object.keys(panels).forEach(function (k) { if (panels[k]) panels[k].hidden = (k !== t); });
     if (editor) editor.hidden = true;
     if (t === 'produits' && !prodLoaded) loadProducts();
+    if (t === 'analyse') { if (!anLoaded) loadAnalyse(); else renderAnalyse(); }
   });
 
   /* ================= produits ================= */
@@ -338,4 +340,122 @@
       loadProducts();
     });
   });
+
+  /* ================= analyse ================= */
+  var anLoaded = false, charts = {}, VISITS = [], CHATS = [];
+  var anHint = document.getElementById('anHint');
+
+  function themeColors() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark'
+      || (!document.documentElement.getAttribute('data-theme') && window.matchMedia
+          && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    return {
+      text: dark ? '#93a6bc' : '#58697e',
+      grid: dark ? 'rgba(255,255,255,.08)' : 'rgba(10,30,60,.08)',
+      cyan: '#22c3e6', navy: dark ? '#4fd1e8' : '#123a6b', teal: '#0f92b8'
+    };
+  }
+  function dayKey(d) { return d.toISOString().slice(0, 10); }
+  function lastDays(n) {
+    var out = [], d = new Date();
+    d.setHours(0, 0, 0, 0);
+    for (var i = n - 1; i >= 0; i--) {
+      var x = new Date(d); x.setDate(d.getDate() - i);
+      out.push(dayKey(x));
+    }
+    return out;
+  }
+  function labelShort(k) { var p = k.split('-'); return p[2] + '/' + p[1]; }
+
+  function loadAnalyse() {
+    var since = new Date(Date.now() - 31 * 864e5).toISOString();
+    Promise.all([
+      sb.from('visites').select('quand').gte('quand', since),
+      sb.from('chat_logs').select('quand').gte('quand', since)
+    ]).then(function (res) {
+      var vErr = res[0].error, cErr = res[1].error;
+      if (vErr || cErr) {
+        if (anHint) anHint.hidden = false;
+        console.warn('ROOTS admin: analyse', (vErr || cErr).message);
+      } else if (anHint) anHint.hidden = true;
+      VISITS = (res[0].data) || [];
+      CHATS = (res[1].data) || [];
+      anLoaded = true;
+      renderAnalyse();
+    });
+  }
+  var anRefresh = document.getElementById('anRefresh');
+  if (anRefresh) anRefresh.addEventListener('click', function () { loadOrders(); loadAnalyse(); });
+
+  function mk(id, cfg2) {
+    var el = document.getElementById(id);
+    if (!el || !window.Chart) return;
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new window.Chart(el.getContext('2d'), cfg2);
+  }
+
+  function renderAnalyse() {
+    var C = themeColors();
+    window.Chart && (window.Chart.defaults.color = C.text, window.Chart.defaults.font.family = 'Manrope, sans-serif');
+    var d30 = lastDays(30), d14 = lastDays(14);
+
+    // ventes par jour
+    var vday = {};
+    ALL.filter(function (o) { return o.status !== 'annule'; }).forEach(function (o) {
+      var k = (o.created_at || '').slice(0, 10);
+      vday[k] = (vday[k] || 0) + (o.total_fcfa || 0);
+    });
+    document.getElementById('anRev').textContent = fcfa(d30.reduce(function (s, k) { return s + (vday[k] || 0); }, 0));
+    mk('chVentes', {
+      type: 'bar',
+      data: { labels: d30.map(labelShort), datasets: [{ data: d30.map(function (k) { return vday[k] || 0; }), backgroundColor: C.cyan, borderRadius: 4 }] },
+      options: { plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: C.grid }, ticks: { callback: function (v) { return v >= 1000 ? Math.round(v / 1000) + 'k' : v; } } } } }
+    });
+
+    // visites et commandes 14j
+    var vv = {}, oo = {};
+    VISITS.forEach(function (v) { var k = (v.quand || '').slice(0, 10); vv[k] = (vv[k] || 0) + 1; });
+    ALL.forEach(function (o) { var k = (o.created_at || '').slice(0, 10); oo[k] = (oo[k] || 0) + 1; });
+    var totV = d30.reduce(function (s, k) { return s + (vv[k] || 0); }, 0);
+    var totO = d30.reduce(function (s, k) { return s + (oo[k] || 0); }, 0);
+    document.getElementById('anVisits').textContent = totV;
+    document.getElementById('anConv').textContent = totV ? (Math.round(totO / totV * 1000) / 10) + ' %' : '—';
+    document.getElementById('anChat').textContent = CHATS.filter(function (c) { return d30.indexOf((c.quand || '').slice(0, 10)) > -1; }).length;
+    mk('chConv', {
+      type: 'line',
+      data: {
+        labels: d14.map(labelShort),
+        datasets: [
+          { label: 'Visites', data: d14.map(function (k) { return vv[k] || 0; }), borderColor: C.navy, backgroundColor: 'transparent', tension: .3 },
+          { label: 'Commandes', data: d14.map(function (k) { return oo[k] || 0; }), borderColor: C.cyan, backgroundColor: 'transparent', tension: .3 }
+        ]
+      },
+      options: { plugins: { legend: { position: 'bottom' } }, scales: { x: { grid: { display: false } }, y: { grid: { color: C.grid }, ticks: { precision: 0 } } } }
+    });
+
+    // top produits
+    var top = {};
+    ALL.filter(function (o) { return o.status !== 'annule'; }).forEach(function (o) {
+      (o.items || []).forEach(function (it) { top[it.name] = (top[it.name] || 0) + (it.qty || 0); });
+    });
+    var tl = Object.keys(top).map(function (k) { return [k, top[k]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 8);
+    mk('chTop', {
+      type: 'bar',
+      data: { labels: tl.map(function (x) { return x[0]; }), datasets: [{ data: tl.map(function (x) { return x[1]; }), backgroundColor: C.teal, borderRadius: 4 }] },
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { color: C.grid }, ticks: { precision: 0 } }, y: { grid: { display: false } } } }
+    });
+
+    // statuts
+    var st = { nouveau: 0, confirme: 0, en_livraison: 0, livre: 0, annule: 0 };
+    ALL.forEach(function (o) { if (st[o.status] != null) st[o.status]++; });
+    mk('chStatut', {
+      type: 'doughnut',
+      data: {
+        labels: ['Nouvelles', 'Confirmées', 'En livraison', 'Livrées', 'Annulées'],
+        datasets: [{ data: [st.nouveau, st.confirme, st.en_livraison, st.livre, st.annule],
+          backgroundColor: ['#22c3e6', '#0f92b8', '#f59e0b', '#15803d', '#9f1239'] }]
+      },
+      options: { plugins: { legend: { position: 'bottom' } }, cutout: '58%' }
+    });
+  }
 })();

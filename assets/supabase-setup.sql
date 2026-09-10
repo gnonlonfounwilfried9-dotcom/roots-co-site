@@ -1,6 +1,9 @@
--- ROOTS & Co : installation complete de la base (commandes + catalogue).
+-- ROOTS & Co : installation complete de la base.
 -- A COLLER EN UNE SEULE FOIS dans Supabase : menu de gauche, SQL Editor, New query, Run.
--- Relancable sans risque autant de fois que necessaire.
+-- Relancable sans risque. ATTENTION : la partie 2 recharge les 22 produits d'origine
+-- (elle ecrase les modifications faites a la main sur ces 22 references).
+-- Pour une simple mise a jour sans toucher aux produits, utilisez les fichiers
+-- assets/supabase-update-stock.sql et assets/analytics.sql separement.
 
 -- ========== 1. COMMANDES, ESPACE CLIENT, TABLEAU DE BORD ==========
 
@@ -72,7 +75,7 @@ create policy "Personne ne consulte la table admins directement"
   using (false);
 
 
--- ========== 2. CATALOGUE PRODUITS ET STOCK ==========
+-- ========== 2. CATALOGUE, STOCK ET DECLENCHEURS ==========
 
 -- Roots & Co : catalogue produits. A coller dans Supabase SQL Editor, relancable sans risque.
 
@@ -194,4 +197,45 @@ on conflict (ref) do update set
   nom_fr=excluded.nom_fr, categorie_id=excluded.categorie_id, spec_fr=excluded.spec_fr,
   desc_fr=excluded.desc_fr, prix_ttc_fcfa=excluded.prix_ttc_fcfa, prix_ht_fcfa=excluded.prix_ht_fcfa,
   images=excluded.images, maj_le=now();
+
+
+
+-- ========== 3. SUIVI DES VISITES ET DE L'ASSISTANT ==========
+
+-- ROOTS & Co : suivi des visites et de l'assistant, pour le tableau de bord analytique.
+-- Relancable sans risque. SQL Editor, New query, coller, Run.
+
+create table if not exists public.visites (
+  id bigint generated always as identity primary key,
+  quand timestamptz not null default now(),
+  page text,
+  referent text
+);
+
+create table if not exists public.chat_logs (
+  id bigint generated always as identity primary key,
+  quand timestamptz not null default now(),
+  question text,
+  page text
+);
+
+alter table public.visites enable row level security;
+alter table public.chat_logs enable row level security;
+
+drop policy if exists "Le site enregistre une visite" on public.visites;
+drop policy if exists "L'administrateur lit les visites" on public.visites;
+drop policy if exists "Le site enregistre une question" on public.chat_logs;
+drop policy if exists "L'administrateur lit les questions" on public.chat_logs;
+
+create policy "Le site enregistre une visite" on public.visites
+  for insert to anon, authenticated with check (true);
+create policy "L'administrateur lit les visites" on public.visites
+  for select to authenticated
+  using (exists (select 1 from public.admins where admins.user_id = auth.uid()));
+
+create policy "Le site enregistre une question" on public.chat_logs
+  for insert to anon, authenticated with check (true);
+create policy "L'administrateur lit les questions" on public.chat_logs
+  for select to authenticated
+  using (exists (select 1 from public.admins where admins.user_id = auth.uid()));
 

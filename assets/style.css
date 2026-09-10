@@ -1449,6 +1449,13 @@ body:has(.rc-panel.show) #rcBtn{opacity:0;pointer-events:none;}
 .adm-tab.on{color:var(--teal);border-bottom-color:var(--teal);}
 :root[data-theme="dark"] .adm-tab.on{color:var(--cyan);border-bottom-color:var(--cyan);}
 
+/* analyse : graphiques */
+.adm-charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.adm-chart{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:16px 18px;}
+.adm-chart h3{font-family:var(--head);font-size:13px;font-weight:600;color:var(--body);margin-bottom:12px;}
+.adm-chart canvas{max-width:100%;}
+@media(max-width:760px){.adm-charts{grid-template-columns:1fr;}}
+
 /* liste produits */
 .adm-prod-list{display:flex;flex-direction:column;gap:8px;}
 .adm-prod{display:grid;grid-template-columns:52px 1fr auto auto auto;gap:14px;align-items:center;

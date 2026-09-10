@@ -197,8 +197,22 @@ function apiAnswer(q) {
   });
 }
 
+function logQuestion(q) {
+  var cfg = window.ROOTS_SUPABASE;
+  if (!cfg || !cfg.url || !cfg.anonKey || !q) return;
+  try {
+    fetch(cfg.url + '/rest/v1/chat_logs', {
+      method: 'POST',
+      headers: { 'apikey': cfg.anonKey, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ question: String(q).slice(0, 500), page: (location.pathname.split('/').pop() || 'index.html') }),
+      keepalive: true
+    }).catch(function () {});
+  } catch (e) {}
+}
+
 function ask(q, label) {
   add(esc(label || q), 'me');
+  logQuestion(q);
   setQuick([]);
   setTimeout(function () {
     if (API) apiAnswer(q); else localAnswer(q);

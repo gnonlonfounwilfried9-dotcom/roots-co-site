@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Tableau de bord &middot; Roots &amp; Co</title>
-<link rel="stylesheet" href="assets/style.css?v=202609101451">
+<link rel="stylesheet" href="assets/style.css?v=202609101818">
 </head>
 <body class="nohero admin-body">
 
@@ -42,6 +42,7 @@
     <div class="adm-tabs" id="admTabs">
       <button class="adm-tab on" data-tab="commandes" type="button">Commandes</button>
       <button class="adm-tab" data-tab="produits" type="button">Produits</button>
+      <button class="adm-tab" data-tab="analyse" type="button">Analyse</button>
     </div>
 
     <div class="adm-panel" id="panelCommandes">
@@ -85,6 +86,26 @@
       Collez <code>assets/catalog.sql</code> dans Supabase, SQL Editor, puis actualisez.</p>
       <p class="adm-empty" id="prodEmpty" hidden>Aucun produit.</p>
       <div class="adm-prod-list" id="prodList"></div>
+    </div>
+
+    <div class="adm-panel" id="panelAnalyse" hidden>
+      <div class="adm-stats">
+        <div class="adm-stat"><b id="anVisits">0</b><span>Visites (30 jours)</span></div>
+        <div class="adm-stat"><b id="anConv">0 %</b><span>Taux de conversion</span></div>
+        <div class="adm-stat"><b id="anChat">0</b><span>Questions &agrave; l&rsquo;assistant (30 j)</span></div>
+        <div class="adm-stat"><b id="anRev">0 FCFA</b><span>Ventes des 30 jours</span></div>
+      </div>
+      <div class="adm-bar">
+        <button class="btn btn-line adm-refresh" id="anRefresh" type="button">Actualiser</button>
+      </div>
+      <p class="adm-hint" id="anHint" hidden>Le suivi des visites et de l&rsquo;assistant n&rsquo;est pas encore actif.
+      Collez <code>assets/analytics.sql</code> dans Supabase, SQL Editor, puis actualisez.</p>
+      <div class="adm-charts">
+        <div class="adm-chart"><h3>Ventes par jour, 30 derniers jours</h3><canvas id="chVentes" height="150"></canvas></div>
+        <div class="adm-chart"><h3>Visites et commandes, 14 derniers jours</h3><canvas id="chConv" height="150"></canvas></div>
+        <div class="adm-chart"><h3>Produits les plus command&eacute;s</h3><canvas id="chTop" height="180"></canvas></div>
+        <div class="adm-chart"><h3>Commandes par statut</h3><canvas id="chStatut" height="180"></canvas></div>
+      </div>
     </div>
 
     <div class="prod-editor" id="prodEditor" hidden>
@@ -164,7 +185,8 @@
 </template>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="assets/supabase-config.js?v=202609101451"></script>
-<script src="assets/admin.js?v=202609101451"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="assets/supabase-config.js?v=202609101818"></script>
+<script src="assets/admin.js?v=202609101818"></script>
 </body>
 </html>

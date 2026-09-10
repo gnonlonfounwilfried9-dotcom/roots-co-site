@@ -183,3 +183,25 @@ function initCarousel(root){
     window.open('https://wa.me/22893078787?text='+txt,'_blank');
   });
 })();
+
+/* ---------- comptage discret des visites (tableau de bord) ---------- */
+(function(){
+  var cfg = window.ROOTS_SUPABASE;
+  if(!cfg || !cfg.url || !cfg.anonKey) return;
+  var here = location.pathname.split('/').pop() || 'index.html';
+  if(here === 'admin.html') return;               // on ne compte pas l'administrateur
+  try{
+    var key = 'roots_vue_' + here;
+    var last = sessionStorage.getItem(key);
+    if(last && (Date.now() - (+last)) < 1800000) return;  // 1 visite par page / 30 min / onglet
+    sessionStorage.setItem(key, String(Date.now()));
+  }catch(e){}
+  try{
+    fetch(cfg.url + '/rest/v1/visites', {
+      method:'POST',
+      headers:{'apikey':cfg.anonKey,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body: JSON.stringify({ page: here, referent: (document.referrer||'').slice(0,300) || null }),
+      keepalive: true
+    }).catch(function(){});
+  }catch(e){}
+})();
