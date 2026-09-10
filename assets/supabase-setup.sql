@@ -72,7 +72,7 @@ create policy "Personne ne consulte la table admins directement"
   using (false);
 
 
--- ========== 2. CATALOGUE PRODUITS ==========
+-- ========== 2. CATALOGUE PRODUITS ET STOCK ==========
 
 -- Roots & Co : catalogue produits. A coller dans Supabase SQL Editor, relancable sans risque.
 
@@ -120,6 +120,43 @@ create policy "L'administrateur gere les categories" on public.categories for al
 create policy "L'administrateur gere le catalogue" on public.products for all to authenticated
   using (exists (select 1 from public.admins where admins.user_id = auth.uid()))
   with check (exists (select 1 from public.admins where admins.user_id = auth.uid()));
+
+-- ---- le stock suit les commandes : chaque commande deduit, chaque annulation remet ----
+create or replace function public.stock_sur_commande()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare it jsonb;
+begin
+  for it in select * from jsonb_array_elements(coalesce(new.items, '[]'::jsonb)) loop
+    update public.products
+       set stock = stock - coalesce((it->>'qty')::int, 0), maj_le = now()
+     where ref = it->>'ref';
+  end loop;
+  return new;
+end $$;
+
+create or replace function public.stock_sur_annulation()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare it jsonb; sens int;
+begin
+  if new.status = old.status then return new; end if;
+  if new.status = 'annule' and old.status <> 'annule' then sens := 1;
+  elsif old.status = 'annule' and new.status <> 'annule' then sens := -1;
+  else return new; end if;
+  for it in select * from jsonb_array_elements(coalesce(new.items, '[]'::jsonb)) loop
+    update public.products
+       set stock = stock + sens * coalesce((it->>'qty')::int, 0), maj_le = now()
+     where ref = it->>'ref';
+  end loop;
+  return new;
+end $$;
+
+drop trigger if exists trg_stock_sur_commande on public.orders;
+create trigger trg_stock_sur_commande after insert on public.orders
+  for each row execute function public.stock_sur_commande();
+
+drop trigger if exists trg_stock_sur_annulation on public.orders;
+create trigger trg_stock_sur_annulation after update of status on public.orders
+  for each row execute function public.stock_sur_annulation();
 
 insert into public.categories (id, nom_fr, nom_en, rang) values
   ('portables','Ordinateurs portables','Laptops',1),
