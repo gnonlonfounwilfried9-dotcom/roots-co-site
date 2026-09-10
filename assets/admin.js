@@ -138,6 +138,7 @@
       if (r.error) { console.warn('ROOTS admin: statut non enregistré', r.error.message); return; }
       var o = ALL.filter(function (x) { return x.id === id; })[0];
       if (o) o.status = status;
+      logAction('statut de commande', (o && o.ref) || id, { statut: status });
       renderStats();
     });
   }
@@ -163,7 +164,8 @@
     commandes: document.getElementById('panelCommandes'),
     produits: document.getElementById('panelProduits'),
     clients: document.getElementById('panelClients'),
-    analyse: document.getElementById('panelAnalyse')
+    analyse: document.getElementById('panelAnalyse'),
+    reglages: document.getElementById('panelReglages')
   };
   var editor = document.getElementById('prodEditor');
   var prodLoaded = false;
@@ -179,6 +181,7 @@
     if (t === 'produits' && !prodLoaded) loadProducts();
     if (t === 'analyse') { if (!anLoaded) loadAnalyse(); else renderAnalyse(); }
     if (t === 'clients') { closeCli(); buildClients(); }
+    if (t === 'reglages') loadReglages();
   });
 
   /* ================= produits ================= */
@@ -326,6 +329,7 @@
         F.err.hidden = false; F.err.textContent = 'Enregistrement impossible : ' + r.error.message;
         return;
       }
+      logAction(editing ? 'produit modifie' : 'produit cree', ref, { prix: prix });
       closeEditor();
       loadProducts();
     });
@@ -334,14 +338,220 @@
   if (F.del) F.del.addEventListener('click', function () {
     if (!editing) return;
     if (!window.confirm('Supprimer ' + editing.nom_fr + ' du catalogue ?')) return;
+    var delRef = editing.ref;
     sb.from('products').delete().eq('id', editing.id).then(function (r) {
       if (r.error) {
         F.err.hidden = false; F.err.textContent = 'Suppression impossible : ' + r.error.message;
         return;
       }
+      logAction('produit supprime', delRef);
       closeEditor();
       loadProducts();
     });
+  });
+
+  /* ================= journal des actions ================= */
+  var ME = { id: null, nom: null };
+  sb.auth.getUser().then(function (r) {
+    if (r.data && r.data.user) { ME.id = r.data.user.id; ME.nom = r.data.user.email; }
+  });
+  function logAction(action, cible, details) {
+    if (!ME.id) return;
+    sb.from('audit_log').insert({
+      user_id: ME.id, user_nom: ME.nom, action: action, cible: cible || null, details: details || null
+    }).then(function () {}, function () {});
+  }
+
+  /* ================= reglages ================= */
+  var RG_ROLE = { admin: 'Administrateur', manager: 'Manager', support: 'Support' };
+  var rgHint = document.getElementById('rgHint');
+  var STAFF = [], ZONES = [], PARAMS = {};
+
+  function loadReglages() {
+    Promise.all([
+      sb.from('staff').select('*').order('role'),
+      sb.from('parametres').select('*'),
+      sb.from('zones_livraison').select('*').order('rang'),
+      sb.from('audit_log').select('*').order('quand', { ascending: false }).limit(40)
+    ]).then(function (res) {
+      var anyErr = res.some(function (r) { return r.error; });
+      if (rgHint) rgHint.hidden = !anyErr;
+      STAFF = (res[0].data) || [];
+      PARAMS = {}; ((res[1].data) || []).forEach(function (p) { PARAMS[p.cle] = p.valeur; });
+      ZONES = (res[2].data) || [];
+      renderStaff();
+      renderParams();
+      renderZones();
+      renderAudit((res[3].data) || []);
+    });
+  }
+
+  function renderStaff() {
+    var box = document.getElementById('staffList');
+    box.innerHTML = STAFF.map(function (s) {
+      return '<div class="rg-row"><div><strong>' + (s.nom || s.user_id.slice(0, 8)) + '</strong>' +
+        '<span>' + s.user_id + '</span></div>' +
+        '<select data-uid="' + s.user_id + '" class="rg-srole">' +
+        Object.keys(RG_ROLE).map(function (r) { return '<option value="' + r + '"' + (r === s.role ? ' selected' : '') + '>' + RG_ROLE[r] + '</option>'; }).join('') +
+        '</select><button type="button" class="rg-x" data-uid="' + s.user_id + '" aria-label="Retirer">Retirer</button></div>';
+    }).join('') || '<p class="rg-lead">Personne pour l’instant.</p>';
+    [].slice.call(box.querySelectorAll('.rg-srole')).forEach(function (sel) {
+      sel.addEventListener('change', function () {
+        sb.from('staff').update({ role: sel.value }).eq('user_id', sel.dataset.uid).then(function (r) {
+          if (!r.error) { logAction('role modifie', sel.dataset.uid, { role: sel.value }); loadReglages(); }
+        });
+      });
+    });
+    [].slice.call(box.querySelectorAll('.rg-x')).forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!window.confirm('Retirer cette personne de l’equipe ?')) return;
+        sb.from('staff').delete().eq('user_id', b.dataset.uid).then(function (r) {
+          if (!r.error) { logAction('membre retire', b.dataset.uid); loadReglages(); }
+        });
+      });
+    });
+  }
+  var staffForm = document.getElementById('staffForm');
+  if (staffForm) staffForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var uid = document.getElementById('sfUid').value.trim();
+    var err = document.getElementById('staffErr');
+    if (!/^[0-9a-f-]{30,40}$/i.test(uid)) { err.hidden = false; err.textContent = 'Identifiant Supabase invalide.'; return; }
+    err.hidden = true;
+    sb.from('staff').insert({
+      user_id: uid, nom: document.getElementById('sfNom').value.trim() || null, role: document.getElementById('sfRole').value
+    }).then(function (r) {
+      if (r.error) { err.hidden = false; err.textContent = r.error.message; return; }
+      logAction('membre ajoute', uid, { role: document.getElementById('sfRole').value });
+      staffForm.reset();
+      loadReglages();
+    });
+  });
+
+  function renderParams() {
+    document.getElementById('pTva').value = PARAMS.tva != null ? (parseFloat(PARAMS.tva) * 100) : 18;
+    document.getElementById('pEur').value = PARAMS.taux_eur_fcfa || 655.957;
+    document.getElementById('pUsd').value = PARAMS.taux_usd_fcfa || 600;
+  }
+  var paramForm = document.getElementById('paramForm');
+  if (paramForm) paramForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var err = document.getElementById('paramErr');
+    var rows = [
+      { cle: 'tva', valeur: String((parseFloat(document.getElementById('pTva').value) || 18) / 100) },
+      { cle: 'taux_eur_fcfa', valeur: String(parseFloat(document.getElementById('pEur').value) || 655.957) },
+      { cle: 'taux_usd_fcfa', valeur: String(parseFloat(document.getElementById('pUsd').value) || 600) }
+    ];
+    sb.from('parametres').upsert(rows.map(function (r) { r.maj_le = new Date().toISOString(); return r; })).then(function (r) {
+      if (r.error) { err.hidden = false; err.textContent = r.error.message; return; }
+      err.hidden = true;
+      logAction('reglages modifies', 'tva et devises');
+      paramForm.querySelector('button').textContent = 'Enregistré';
+      setTimeout(function () { paramForm.querySelector('button').textContent = 'Enregistrer'; }, 1500);
+    });
+  });
+
+  function renderZones() {
+    var box = document.getElementById('zoneList');
+    box.innerHTML = ZONES.map(function (z) {
+      return '<div class="rg-row"><div><strong>' + z.nom + '</strong>' +
+        '<span>' + (z.pays || '') + (z.delai ? ' · ' + z.delai : '') + '</span></div>' +
+        '<input type="number" class="rg-ztarif" data-id="' + z.id + '" value="' + (z.tarif_fcfa || 0) + '" min="0"> FCFA' +
+        '<button type="button" class="rg-x" data-id="' + z.id + '" aria-label="Retirer">Retirer</button></div>';
+    }).join('') || '<p class="rg-lead">Aucune zone.</p>';
+    [].slice.call(box.querySelectorAll('.rg-ztarif')).forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        sb.from('zones_livraison').update({ tarif_fcfa: parseInt(inp.value, 10) || 0 }).eq('id', inp.dataset.id).then(function (r) {
+          if (!r.error) logAction('tarif de livraison modifie', inp.dataset.id, { tarif: inp.value });
+        });
+      });
+    });
+    [].slice.call(box.querySelectorAll('.rg-x')).forEach(function (b) {
+      b.addEventListener('click', function () {
+        sb.from('zones_livraison').delete().eq('id', b.dataset.id).then(function (r) {
+          if (!r.error) { logAction('zone supprimee', b.dataset.id); loadReglages(); }
+        });
+      });
+    });
+  }
+  var zoneForm = document.getElementById('zoneForm');
+  if (zoneForm) zoneForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var err = document.getElementById('zoneErr');
+    sb.from('zones_livraison').insert({
+      nom: document.getElementById('zfNom').value.trim(),
+      pays: document.getElementById('zfPays').value.trim() || null,
+      tarif_fcfa: parseInt(document.getElementById('zfTarif').value, 10) || 0,
+      delai: document.getElementById('zfDelai').value.trim() || null,
+      rang: ZONES.length + 1
+    }).then(function (r) {
+      if (r.error) { err.hidden = false; err.textContent = r.error.message; return; }
+      err.hidden = true;
+      logAction('zone ajoutee', document.getElementById('zfNom').value.trim());
+      zoneForm.reset();
+      loadReglages();
+    });
+  });
+
+  function renderAudit(rows) {
+    var box = document.getElementById('auditList');
+    box.innerHTML = rows.map(function (a) {
+      return '<div class="rg-logrow"><span>' + fmtDate(a.quand) + '</span>' +
+        '<span>' + (a.user_nom || 'système') + '</span>' +
+        '<span>' + a.action + (a.cible ? ' · ' + a.cible : '') + '</span></div>';
+    }).join('') || '<p class="rg-lead">Rien encore.</p>';
+  }
+
+  /* ---- double authentification (TOTP) ---- */
+  var mfaFactorId = null, mfaChallengeId = null;
+  function refreshMfaState() {
+    sb.auth.mfa.listFactors().then(function (r) {
+      var el = document.getElementById('mfaState'); if (!el) return;
+      var verified = r.data && r.data.totp && r.data.totp.filter(function (f) { return f.status === 'verified'; });
+      if (verified && verified.length) {
+        el.innerHTML = '<p class="rg-ok">Second facteur actif sur ce compte.</p>';
+        document.getElementById('mfaStart').hidden = true;
+      } else {
+        el.innerHTML = '';
+        document.getElementById('mfaStart').hidden = false;
+      }
+    }, function () {});
+  }
+  var mfaStart = document.getElementById('mfaStart');
+  if (mfaStart) {
+    refreshMfaState();
+    mfaStart.addEventListener('click', function () {
+      var err = document.getElementById('mfaErr'); err.hidden = true;
+      sb.auth.mfa.enroll({ factorType: 'totp' }).then(function (r) {
+        if (r.error) { err.hidden = false; err.textContent = r.error.message + ' (activez TOTP dans Supabase, Authentication)'; return; }
+        mfaFactorId = r.data.id;
+        document.getElementById('mfaQr').innerHTML = '<img alt="QR code" style="max-width:200px" src="' + r.data.totp.qr_code + '">';
+        document.getElementById('mfaSecret').textContent = 'Clé : ' + r.data.totp.secret;
+        document.getElementById('mfaEnroll').hidden = false;
+        mfaStart.hidden = true;
+      });
+    });
+  }
+  var mfaVerify = document.getElementById('mfaVerify');
+  if (mfaVerify) mfaVerify.addEventListener('click', function () {
+    var err = document.getElementById('mfaErr'); err.hidden = true;
+    var code = document.getElementById('mfaCode').value.trim();
+    sb.auth.mfa.challenge({ factorId: mfaFactorId }).then(function (c) {
+      if (c.error) { err.hidden = false; err.textContent = c.error.message; return; }
+      mfaChallengeId = c.data.id;
+      sb.auth.mfa.verify({ factorId: mfaFactorId, challengeId: mfaChallengeId, code: code }).then(function (v) {
+        if (v.error) { err.hidden = false; err.textContent = 'Code refusé, réessayez.'; return; }
+        document.getElementById('mfaEnroll').hidden = true;
+        logAction('double authentification activee', ME.nom);
+        refreshMfaState();
+      });
+    });
+  });
+  var mfaCancel = document.getElementById('mfaCancel');
+  if (mfaCancel) mfaCancel.addEventListener('click', function () {
+    if (mfaFactorId) sb.auth.mfa.unenroll({ factorId: mfaFactorId });
+    document.getElementById('mfaEnroll').hidden = true;
+    document.getElementById('mfaStart').hidden = false;
   });
 
   /* ================= clients ================= */

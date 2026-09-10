@@ -3,6 +3,20 @@
 var K = 'roots_cart', XOF = 655.957, WA = '22901995652', MAIL = 'sales@roots.ws';
 var NL = String.fromCharCode(10);
 
+/* taux de change pilote depuis le tableau de bord (Reglages) */
+(function () {
+  var cfg = window.ROOTS_SUPABASE;
+  if (!cfg || !cfg.url || !cfg.anonKey) return;
+  fetch(cfg.url + '/rest/v1/parametres?select=cle,valeur&cle=eq.taux_eur_fcfa', {
+    headers: { 'apikey': cfg.anonKey }
+  }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+    if (rows && rows[0] && parseFloat(rows[0].valeur) > 0) {
+      XOF = parseFloat(rows[0].valeur);
+      if (typeof render === 'function') render();
+    }
+  }).catch(function () {});
+})();
+
 function get() { try { return JSON.parse(localStorage.getItem(K)) || []; } catch (e) { return []; } }
 function set(c) { try { localStorage.setItem(K, JSON.stringify(c)); } catch (e) {} render(); }
 function eur(v) { return v.toFixed(2).replace('.', ',') + ' €'; }

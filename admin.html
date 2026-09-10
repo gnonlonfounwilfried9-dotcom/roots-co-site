@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Tableau de bord &middot; Roots &amp; Co</title>
-<link rel="stylesheet" href="assets/style.css?v=202609101841">
+<link rel="stylesheet" href="assets/style.css?v=202609101848">
 </head>
 <body class="nohero admin-body">
 
@@ -44,6 +44,7 @@
       <button class="adm-tab" data-tab="produits" type="button">Produits</button>
       <button class="adm-tab" data-tab="clients" type="button">Clients</button>
       <button class="adm-tab" data-tab="analyse" type="button">Analyse</button>
+      <button class="adm-tab" data-tab="reglages" type="button">R&eacute;glages</button>
     </div>
 
     <div class="adm-panel" id="panelCommandes">
@@ -133,6 +134,76 @@
       </div>
     </div>
 
+    <div class="adm-panel" id="panelReglages" hidden>
+      <p class="adm-hint" id="rgHint" hidden>Les tables de r&eacute;glages n&rsquo;existent pas encore.
+      Collez <code>assets/roles.sql</code> puis <code>assets/settings.sql</code> dans Supabase, SQL Editor, puis actualisez.</p>
+
+      <div class="rg-card">
+        <h3>S&eacute;curit&eacute; de mon compte</h3>
+        <p class="rg-lead">Ajoutez un second facteur : un code &agrave; six chiffres depuis une application
+        d&rsquo;authentification, en plus du mot de passe.</p>
+        <div id="mfaState"></div>
+        <button class="btn btn-primary" id="mfaStart" type="button">S&eacute;curiser mon compte</button>
+        <div id="mfaEnroll" hidden>
+          <p class="rg-lead">Scannez ce code dans Google Authenticator, Authy ou &eacute;quivalent, puis
+          entrez le code affich&eacute;.</p>
+          <div id="mfaQr"></div>
+          <p class="rg-secret" id="mfaSecret"></p>
+          <div class="cf-2">
+            <label>Code &agrave; six chiffres<input type="text" id="mfaCode" inputmode="numeric" maxlength="6"></label>
+            <span></span>
+          </div>
+          <button class="btn btn-primary" id="mfaVerify" type="button">Valider</button>
+          <button class="btn btn-line" id="mfaCancel" type="button">Annuler</button>
+        </div>
+        <p class="cf-err" id="mfaErr" hidden></p>
+      </div>
+
+      <div class="rg-card">
+        <h3>&Eacute;quipe interne</h3>
+        <p class="rg-lead">Administrateur : tout. Manager : commandes, produits, clients. Support : commandes.
+        Pour ajouter une personne, cr&eacute;ez d&rsquo;abord son compte dans Supabase, Authentication, Users,
+        puis collez son identifiant ici.</p>
+        <div class="rg-list" id="staffList"></div>
+        <form id="staffForm" class="rg-add">
+          <input type="text" id="sfUid" placeholder="User UID (Supabase)" required>
+          <input type="text" id="sfNom" placeholder="Nom">
+          <select id="sfRole"><option value="support">Support</option><option value="manager">Manager</option><option value="admin">Administrateur</option></select>
+          <button class="btn btn-primary" type="submit">Ajouter</button>
+        </form>
+        <p class="cf-err" id="staffErr" hidden></p>
+      </div>
+
+      <div class="rg-card">
+        <h3>TVA et devises</h3>
+        <form id="paramForm" class="rg-params">
+          <label>TVA (pourcentage)<input type="number" id="pTva" step="0.01" min="0"></label>
+          <label>1 EUR en FCFA<input type="number" id="pEur" step="0.001" min="0"></label>
+          <label>1 USD en FCFA<input type="number" id="pUsd" step="0.001" min="0"></label>
+          <button class="btn btn-primary" type="submit">Enregistrer</button>
+        </form>
+        <p class="cf-err" id="paramErr" hidden></p>
+      </div>
+
+      <div class="rg-card">
+        <h3>Zones et tarifs de livraison</h3>
+        <div class="rg-list" id="zoneList"></div>
+        <form id="zoneForm" class="rg-add">
+          <input type="text" id="zfNom" placeholder="Nom de la zone" required>
+          <input type="text" id="zfPays" placeholder="Pays">
+          <input type="number" id="zfTarif" placeholder="Tarif FCFA" min="0">
+          <input type="text" id="zfDelai" placeholder="D&eacute;lai">
+          <button class="btn btn-primary" type="submit">Ajouter</button>
+        </form>
+        <p class="cf-err" id="zoneErr" hidden></p>
+      </div>
+
+      <div class="rg-card">
+        <h3>Journal des actions</h3>
+        <div class="rg-log" id="auditList"></div>
+      </div>
+    </div>
+
     <div class="prod-editor" id="prodEditor" hidden>
       <form id="prodForm" novalidate>
         <div class="prod-editor-head">
@@ -211,7 +282,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="assets/supabase-config.js?v=202609101841"></script>
-<script src="assets/admin.js?v=202609101841"></script>
+<script src="assets/supabase-config.js?v=202609101848"></script>
+<script src="assets/admin.js?v=202609101848"></script>
 </body>
 </html>
