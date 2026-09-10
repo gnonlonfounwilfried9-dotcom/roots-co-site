@@ -1678,3 +1678,27 @@ body:has(.rc-panel.show) #rcBtn{opacity:0;pointer-events:none;}
 .acct-del{border-color:rgba(201,75,40,.4);color:#c94b28;}
 .acct-del:hover{background:rgba(201,75,40,.08);border-color:#c94b28;}
 :root[data-theme="dark"] .acct-del{color:#fb7185;border-color:rgba(251,113,133,.4);}
+
+/* suivi de colis */
+.adm-suivi,.acct-track{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);}
+.adm-suivi h5,.acct-track h5{font-family:var(--head);font-size:11px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.suivi-steps{list-style:none;display:flex;flex-direction:column;gap:0;margin:0 0 12px;padding:0;}
+.suivi-steps li{position:relative;padding:0 0 14px 22px;font-size:12.5px;}
+.suivi-steps li::before{content:"";position:absolute;left:4px;top:3px;width:9px;height:9px;border-radius:50%;
+  background:var(--cyan);border:2px solid var(--card);box-shadow:0 0 0 1px var(--cyan);}
+.suivi-steps li::after{content:"";position:absolute;left:8px;top:12px;bottom:0;width:1px;background:var(--line);}
+.suivi-steps li:last-child::after{display:none;}
+.suivi-steps li.done::before{background:#2eaf6e;box-shadow:0 0 0 1px #2eaf6e;}
+.suivi-steps li strong{display:block;color:var(--ink);}
+.suivi-steps li span{font-size:11px;color:var(--muted);}
+.suivi-add{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+.suivi-add select,.suivi-add input{background:var(--card);border:1px solid var(--line);border-radius:8px;
+  padding:7px 10px;font-family:inherit;font-size:12.5px;color:var(--ink);}
+.suivi-add .suivi-note{flex:1;min-width:130px;}
+.suivi-btn{padding:7px 14px;font-size:12px;}
+.suivi-eta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);}
+.suivi-eta input{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 9px;
+  font-family:inherit;font-size:12.5px;color:var(--ink);}
+.acct-eta{font-family:var(--head);font-size:12.5px;font-weight:600;color:var(--teal);margin-bottom:10px;}
+:root[data-theme="dark"] .acct-eta{color:var(--cyan);}

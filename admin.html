@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Tableau de bord &middot; Roots &amp; Co</title>
-<link rel="stylesheet" href="assets/style.css?v=202609101921">
+<link rel="stylesheet" href="assets/style.css?v=202609101949">
 <script>try{if((localStorage.getItem('rootsco_theme')||'light')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
 </head>
 <body class="nohero admin-body">
@@ -292,6 +292,23 @@ document.getElementById('admTheme').addEventListener('click',function(){
         <div><h5>Paiement</h5><p class="adm-pay"></p></div>
       </div>
       <p class="adm-note" hidden></p>
+      <div class="adm-suivi">
+        <h5>Suivi du colis</h5>
+        <ol class="suivi-steps"></ol>
+        <div class="suivi-add">
+          <select class="suivi-etape">
+            <option value="En pr&eacute;paration">En pr&eacute;paration</option>
+            <option value="Exp&eacute;di&eacute;e">Exp&eacute;di&eacute;e</option>
+            <option value="Arriv&eacute;e au point local">Arriv&eacute;e au point local</option>
+            <option value="En livraison">En livraison</option>
+            <option value="Livr&eacute;e">Livr&eacute;e</option>
+          </select>
+          <input type="text" class="suivi-note" placeholder="Pr&eacute;cision (facultatif)">
+          <button type="button" class="btn btn-line suivi-btn">Ajouter l&rsquo;&eacute;tape</button>
+        </div>
+        <label class="suivi-eta">Livraison estim&eacute;e le
+          <input type="date" class="suivi-date"></label>
+      </div>
       <div class="adm-row-foot">
         <span class="adm-ref"></span>
         <button class="adm-del" type="button">Supprimer cette commande</button>
@@ -302,7 +319,7 @@ document.getElementById('admTheme').addEventListener('click',function(){
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="assets/supabase-config.js?v=202609101921"></script>
-<script src="assets/admin.js?v=202609101921"></script>
+<script src="assets/supabase-config.js?v=202609101949"></script>
+<script src="assets/admin.js?v=202609101949"></script>
 </body>
 </html>

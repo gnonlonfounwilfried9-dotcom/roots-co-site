@@ -115,6 +115,22 @@
         node.querySelector('.adm-ship').innerHTML = shipTxt;
         node.querySelector('.adm-pay').innerHTML = o.pay_method + (o.pay_detail ? '<br>' + o.pay_detail : '');
 
+        var stepsEl = node.querySelector('.suivi-steps');
+        var suivi = (o.suivi) || [];
+        if (stepsEl) stepsEl.innerHTML = suivi.map(function (s, i) {
+          var done = (i < suivi.length - 1) || o.status === 'livre';
+          return '<li class="' + (done ? 'done' : 'now') + '"><strong>' + s.etape + '</strong>'
+            + '<span>' + fmtDate(s.date) + (s.note ? ' · ' + s.note : '') + '</span></li>';
+        }).join('');
+        var etaEl = node.querySelector('.acct-eta');
+        if (etaEl && o.livraison_estimee) {
+          etaEl.hidden = false;
+          try {
+            etaEl.textContent = 'Livraison estimée le '
+              + new Date(o.livraison_estimee + 'T00:00').toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+          } catch (e) { etaEl.textContent = 'Livraison estimée le ' + o.livraison_estimee; }
+        }
+
         var toggle = node.querySelector('.adm-toggle');
         var body = node.querySelector('.adm-row-body');
         toggle.addEventListener('click', function () {

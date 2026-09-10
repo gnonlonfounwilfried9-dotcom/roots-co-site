@@ -122,6 +122,34 @@
       if (o.note) { noteEl.hidden = false; noteEl.textContent = o.note; }
       var refEl = node.querySelector('.adm-ref');
       if (refEl) refEl.textContent = o.ref ? 'Référence ' + o.ref : '';
+
+      // suivi du colis
+      var stepsEl = node.querySelector('.suivi-steps');
+      function drawSteps() {
+        stepsEl.innerHTML = ((o.suivi) || []).map(function (s) {
+          return '<li><strong>' + s.etape + '</strong><span>' + fmtDate(s.date) + (s.note ? ' · ' + s.note : '') + '</span></li>';
+        }).join('');
+      }
+      drawSteps();
+      var dateEl = node.querySelector('.suivi-date');
+      if (o.livraison_estimee) dateEl.value = o.livraison_estimee;
+      dateEl.addEventListener('change', function () {
+        sb.from('orders').update({ livraison_estimee: dateEl.value || null }).eq('id', o.id).then(function (r) {
+          if (!r.error) { o.livraison_estimee = dateEl.value; logAction('date de livraison', o.ref || o.id, { date: dateEl.value }); }
+        });
+      });
+      node.querySelector('.suivi-btn').addEventListener('click', function () {
+        var et = node.querySelector('.suivi-etape').value;
+        var nt = node.querySelector('.suivi-note').value.trim();
+        var next = ((o.suivi) || []).concat([{ etape: et, date: new Date().toISOString(), note: nt || null }]);
+        sb.from('orders').update({ suivi: next }).eq('id', o.id).then(function (r) {
+          if (r.error) { window.alert('Étape non enregistrée : ' + r.error.message); return; }
+          o.suivi = next;
+          node.querySelector('.suivi-note').value = '';
+          drawSteps();
+          logAction('etape de suivi', o.ref || o.id, { etape: et });
+        });
+      });
       var delBtn = node.querySelector('.adm-del');
       if (delBtn) delBtn.addEventListener('click', function () {
         if (!window.confirm('Supprimer définitivement la commande de ' + o.customer_name + ' ? Cette action est irréversible.')) return;
@@ -610,8 +638,18 @@
     refreshMfaState();
     mfaStart.addEventListener('click', function () {
       var err = document.getElementById('mfaErr'); err.hidden = true;
-      sb.auth.mfa.enroll({ factorType: 'totp' }).then(function (r) {
-        if (r.error) { err.hidden = false; err.textContent = r.error.message + ' (activez TOTP dans Supabase, Authentication)'; return; }
+      // on nettoie d'abord un eventuel facteur non termine, qui bloquerait un nouvel essai
+      sb.auth.mfa.listFactors().then(function (lf) {
+        var stale = (lf.data && lf.data.all || []).filter(function (f) { return f.status === 'unverified'; });
+        return Promise.all(stale.map(function (f) { return sb.auth.mfa.unenroll({ factorId: f.id }); }));
+      }).then(function () {
+        return sb.auth.mfa.enroll({ factorType: 'totp' });
+      }).then(function (r) {
+        if (r.error) {
+          err.hidden = false;
+          err.textContent = 'Impossible pour le moment. Dans Supabase, Authentication, Multi-Factor, ouvrez la liste déroulante à côté de TOTP et choisissez l\'option qui mentionne "Enroll" (elle autorise l\'ajout d\'un nouveau facteur), puis Save changes.';
+          return;
+        }
         mfaFactorId = r.data.id;
         document.getElementById('mfaQr').innerHTML = '<img alt="QR code" style="max-width:200px" src="' + r.data.totp.qr_code + '">';
         document.getElementById('mfaSecret').textContent = 'Clé : ' + r.data.totp.secret;
