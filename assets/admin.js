@@ -123,14 +123,29 @@
       var refEl = node.querySelector('.adm-ref');
       if (refEl) refEl.textContent = o.ref ? 'Référence ' + o.ref : '';
 
-      // suivi du colis
+      // barre d'avancement visible sans deplier
+      var TR = (window.ROOTS_SUIVI ? window.ROOTS_SUIVI.progress(o) : { pct: 0, label: '' });
+      var fillEl = node.querySelector('.track-fill');
+      var tlblEl = node.querySelector('.track-lbl');
+      if (fillEl) fillEl.style.width = TR.pct + '%';
+      if (tlblEl) tlblEl.textContent = TR.label + ' · ' + TR.pct + ' %'
+        + (o.livraison_estimee ? ' · arrivée prévue le ' + o.livraison_estimee.split('-').reverse().join('/') : '');
+      var tbar = node.querySelector('.track-bar');
+      if (tbar && o.status === 'annule') tbar.classList.add('cancelled');
+
+      // suivi du colis (detail)
       var stepsEl = node.querySelector('.suivi-steps');
       function drawSteps() {
         stepsEl.innerHTML = ((o.suivi) || []).map(function (s) {
-          return '<li><strong>' + s.etape + '</strong><span>' + fmtDate(s.date) + (s.note ? ' · ' + s.note : '') + '</span></li>';
+          var lab = window.ROOTS_SUIVI ? window.ROOTS_SUIVI.label(s.etape) : s.etape;
+          return '<li class="done"><strong>' + lab + '</strong><span>' + fmtDate(s.date) + (s.note ? ' · ' + s.note : '') + '</span></li>';
         }).join('');
       }
       drawSteps();
+      var etSel = node.querySelector('.suivi-etape');
+      if (etSel && window.ROOTS_SUIVI) etSel.innerHTML = window.ROOTS_SUIVI.ETAPES
+        .filter(function (e) { return e.cle !== 'Commande recue'; })
+        .map(function (e) { return '<option value="' + e.label + '">' + e.label + '</option>'; }).join('');
       var dateEl = node.querySelector('.suivi-date');
       if (o.livraison_estimee) dateEl.value = o.livraison_estimee;
       dateEl.addEventListener('change', function () {
@@ -147,7 +162,12 @@
           o.suivi = next;
           node.querySelector('.suivi-note').value = '';
           drawSteps();
+          // barre d'avancement mise a jour
+          var p2 = window.ROOTS_SUIVI.progress(o);
+          if (fillEl) fillEl.style.width = p2.pct + '%';
+          if (tlblEl) tlblEl.textContent = p2.label + ' · ' + p2.pct + ' %';
           logAction('etape de suivi', o.ref || o.id, { etape: et });
+          notifierClient(o, et, p2.pct, nt);
         });
       });
       var delBtn = node.querySelector('.adm-del');
@@ -178,6 +198,10 @@
       var o = ALL.filter(function (x) { return x.id === id; })[0];
       if (o) o.status = status;
       logAction('statut de commande', (o && o.ref) || id, { statut: status });
+      if (o && status !== 'annule') {
+        var p = window.ROOTS_SUIVI ? window.ROOTS_SUIVI.progress(o) : { pct: 0 };
+        notifierClient(o, STATUS_LABEL[status] || status, p.pct, '');
+      }
       renderStats();
     });
   }
@@ -475,6 +499,19 @@
     if (!ME.id) return;
     sb.from('audit_log').insert({
       user_id: ME.id, user_nom: ME.nom, action: action, cible: cible || null, details: details || null
+    }).then(function () {}, function () {});
+  }
+
+  /* prevenir le client par e-mail a chaque etape (via la fonction Edge notifier-suivi).
+     Silencieux si la fonction ou la cle e-mail n'est pas encore en place. */
+  function notifierClient(order, etape, pct, note) {
+    if (!order || !order.customer_mail) return;
+    sb.functions.invoke('notifier-suivi', {
+      body: {
+        email: order.customer_mail, nom: order.customer_name,
+        ref: order.ref || '', etape: etape, pct: pct, note: note || '',
+        eta: order.livraison_estimee || ''
+      }
     }).then(function () {}, function () {});
   }
 

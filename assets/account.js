@@ -115,11 +115,20 @@
         node.querySelector('.adm-ship').innerHTML = shipTxt;
         node.querySelector('.adm-pay').innerHTML = o.pay_method + (o.pay_detail ? '<br>' + o.pay_detail : '');
 
+        var TR = window.ROOTS_SUIVI ? window.ROOTS_SUIVI.progress(o) : { pct: 0, label: '' };
+        var fillEl = node.querySelector('.track-fill');
+        var tlblEl = node.querySelector('.track-lbl');
+        if (fillEl) fillEl.style.width = TR.pct + '%';
+        if (tlblEl) tlblEl.textContent = TR.label + ' · ' + TR.pct + ' %';
+        var tbar = node.querySelector('.track-bar');
+        if (tbar && o.status === 'annule') tbar.classList.add('cancelled');
+
         var stepsEl = node.querySelector('.suivi-steps');
         var suivi = (o.suivi) || [];
         if (stepsEl) stepsEl.innerHTML = suivi.map(function (s, i) {
           var done = (i < suivi.length - 1) || o.status === 'livre';
-          return '<li class="' + (done ? 'done' : 'now') + '"><strong>' + s.etape + '</strong>'
+          var lab = window.ROOTS_SUIVI ? window.ROOTS_SUIVI.label(s.etape) : s.etape;
+          return '<li class="' + (done ? 'done' : 'now') + '"><strong>' + lab + '</strong>'
             + '<span>' + fmtDate(s.date) + (s.note ? ' · ' + s.note : '') + '</span></li>';
         }).join('');
         var etaEl = node.querySelector('.acct-eta');

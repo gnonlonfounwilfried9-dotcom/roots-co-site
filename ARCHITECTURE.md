@@ -52,7 +52,11 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - `boutique.html` + `assets/shop.js` : panier, tunnel en 4 etapes (panier, coordonnees, verification type Amazon, confirmation avec reference `RC-AAMMJJ-XXXX`). Plus de WhatsApp, la commande part au tableau de bord. Lit `taux_eur_fcfa` depuis `parametres`.
 - `assets/app.js` : theme, banniere de consentement RGPD, comptage des visites (fetch REST direct, 1/page/30min/onglet, gate sur le consentement).
 - `assets/chat.js` + `assets/kb.js` : assistant. `logQuestion()` compte les questions dans `chat_logs`. VLAN ajoute (`me01b`).
-- `supabase/functions/paiement-webhook/index.ts` : fonction Edge de reception des confirmations de paiement, prete pour FedaPay / PayDunya / Flutterwave, en attente du compte marchand.
+- `assets/suivi-etapes.js` : source de verite des etapes de suivi (libelle + pourcentage), partagee admin et client. `window.ROOTS_SUIVI.progress(order)` donne l'avancement.
+- Fonctions Edge dans `supabase/functions/` (a deployer avec `supabase functions deploy <nom>`) :
+  - `paiement-webhook` : recoit les confirmations de paiement (FedaPay / PayDunya / Flutterwave). En attente du compte marchand.
+  - `notifier-suivi` : e-mail au client a chaque etape (via Resend). Secrets `RESEND_API_KEY`, `MAIL_FROM`. Silencieux tant que la cle n'est pas la.
+  - `taux-change` : met a jour `taux_usd_fcfa` chaque jour depuis open.er-api.com. A planifier en cron `0 6 * * *`. L'euro reste fixe (655,957).
 
 ## Contraintes permanentes
 
@@ -76,3 +80,4 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - 2026-09-10 : onglet Reglages, roles et journal (etape 6), TVA/devises/zones de livraison (etape 7).
 - 2026-09-10 : nav (A propos remplace par Nos partenaires), bouton clair/sombre admin, suppression de commande, import CSV (etape 10), consentement RGPD + suppression de compte + CI (etape 9), prep paiement (etape 8) + PDF procedure.
 - 2026-09-10 : suivi de colis intelligent (frise cote admin et cote client, date de livraison estimee), robustesse MFA.
+- 2026-09-10 : barre d'avancement en pourcentage visible sans deplier (admin + client), fonction e-mail `notifier-suivi` (Resend, prete), mise a jour automatique du taux dollar `taux-change` (Edge + cron).
