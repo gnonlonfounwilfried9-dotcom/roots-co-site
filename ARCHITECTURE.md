@@ -114,8 +114,36 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   (`prix_ht_fcfa`, `prix_ttc_fcfa`), seule la source de saisie a change.
 - `assets/kb.js` (reponses de l'assistant) et `worker/roots-chat-worker.js` (systeme de l'assistant IA,
   optionnel) mis a jour pour ne plus jamais mentionner de TTC.
-- **A faire par Wilfried** : le fichier Excel contient 28 references au total (6 Dell deja dans le catalogue,
-  22 HP/Lenovo pas encore ajoutees). Pas encore integrees : voir "Reste a faire".
+
+## Catalogue HP et Lenovo (2026-09-11)
+
+- Source : `Downloads/Descriptifs de communication_ site e-commerce.xlsx` fourni par Wilfried, 28 lignes
+  (5 Dell deja dans le catalogue, 23 HP/Lenovo). 21 ajoutees (2 exclues, voir plus bas), dans
+  `assets/catalog-hp-lenovo.sql` (fichier separe, **a coller dans Supabase SQL Editor**, pas encore fait par
+  Wilfried) et dans `boutique.html` (cartes ajoutees au `#bxgrid`, compteurs de filtre mis a jour : 43 au total,
+  25 portables, 8 bureau, inchange pour ecrans/claviers/souris/stations).
+- **Photos** : aucune photo n'existait pour ces produits. Sourcees en direct depuis les sites officiels
+  (`support.hp.com` et `psref.lenovo.com`, jamais de banque d'images tierce ni de photo generique non
+  verifiee), une photo par ligne de produit reelle (plusieurs configurations d'un meme modele physique
+  partagent la meme photo, ex. les 4 HP ProBook 460 G11 AD0W.../AD2G9ET/AD2H0ET). 12 photos au total dans
+  `assets/produits/` (prefixe `hp-` ou `lenovo-`).
+- **Colonnes Excel corrompues confirmees pendant le travail** : `TYPE DISQUE DUR` et `MEMOIRE VIVE`
+  s'incrementaient ligne par ligne (glissement Excel), et `Type (Portable/Desktop)` marquait "Desktops" pour
+  des portables reels (confirme en cherchant les fiches HP/Lenovo officielles : ProBook 460 G11, ProBook 450
+  G10, 240R G10, tous les Lenovo V/IdeaPad/LOQ sont des portables malgre l'etiquette Excel). Seule la colonne
+  `CARACTERISTIQUES (Fournisseurs)` (texte libre) a servi de source pour les caracteristiques ; c'est elle
+  qui a ete utilisee pour retrouver les vraies fiches produit et confirmer portable vs bureau.
+- **2 lignes exclues, a clarifier avec Wilfried si besoin** :
+  - `RTS_2026360054` (Lenovo V15 G5 IRL, 83GW006MFE) : doublon exact d'une autre ligne (`RTS_2026360055`,
+    meme MTM, meme prix), texte `CARACTERISTIQUES` tronque en plus. La ligne `RTS_2026360055` (plus complete)
+    a ete gardee seule.
+  - `RTS_2026360053` (Lenovo "V15-IRL", 83GW00EPFE) : le texte `CARACTERISTIQUES` de cette ligne se
+    contredit lui-meme ("CORE 7-240H" dans le titre, "Intel Core i3-1315U" dans le detail). Non publiee tant
+    que Wilfried n'a pas confirme le bon processeur.
+- **Ecart de prix constate sur les Dell deja au catalogue** : les 5 lignes Dell de l'Excel (DC16250 et
+  consorts) donnent des prix HT plus eleves que ceux deja publies sur le site (ex. DC16250 : 748 252 dans
+  l'Excel contre 589 572 deja en ligne, environ +27%). Pas touche pour l'instant (pas dans la demande), mais
+  a clarifier avec Wilfried : le fichier Excel est peut-etre une mise a jour tarifaire a repercuter.
 
 ## Contraintes permanentes
 
@@ -140,17 +168,10 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - Wiring `boutique.html` pour lire le catalogue depuis Supabase au lieu du HTML fige.
 - Publication automatique des posts reseaux sociaux (comptes Meta / LinkedIn Business + revue d'app).
 - Refonte visuelle : palette or/cuivre appliquee le 2026-09-11 (voir section Palette de couleurs). Reste a affiner si besoin : fond de page (motifs/degrades) et redeployer `notifier-suivi` pour que l'e-mail de suivi reprenne aussi la nouvelle couleur.
-- **Ajouter les 22 references HP/Lenovo du fichier Excel au catalogue.** Bloque sur deux points a trancher avec
-  Wilfried avant de publier quoi que ce soit (pour ne pas repeter l'erreur des photos/produits fictifs) :
-  1. **Photos** : aucune photo reelle de ces produits HP/Lenovo n'est disponible dans le depot. Il faut soit que
-     Wilfried fournisse les vraies photos (une par reference), soit accepter des photos generiques du modele
-     officiel (site HP/Lenovo) le temps d'avoir les vraies — a ne jamais faire sans validation, vu le sujet.
-  2. **Colonnes corrompues dans le fichier Excel** : `TYPE DISQUE DUR` et `MEMOIRE VIVE` contiennent des valeurs
-     qui s'incrementent ligne par ligne sans rapport avec le vrai produit (512 Go, 513 Go, 514 Go... et 8 Go,
-     9 Go, 10 Go... probablement une poignee Excel glissee par erreur). La colonne `Type (Portable/Desktop)`
-     est aussi douteuse (des portables connus comme le Lenovo V15 ou le HP ProBook y sont marques "Desktops").
-     Le texte libre `CARACTERISTIQUES (Fournisseurs)` reste fiable et a ete utilise comme reference le cas
-     echeant. A confirmer avec Wilfried avant de publier des fiches techniques basees sur ces colonnes.
+- Coller `assets/catalog-hp-lenovo.sql` dans Supabase pour que les 21 nouveaux produits HP/Lenovo apparaissent
+  aussi dans le tableau de bord admin (deja visibles sur `boutique.html`, qui est en HTML statique).
+- Clarifier avec Wilfried : la ligne Lenovo `83GW00EPFE` (specs contradictoires dans l'Excel) et l'ecart de
+  prix HT sur les 5 Dell de l'Excel vs le catalogue actuel (voir section "Catalogue HP et Lenovo").
 
 ## Journal des livraisons
 
@@ -166,6 +187,8 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   aux prix **HT uniquement** (boutique, panier, assistant, admin), a partir des vrais prix HT fournis par
   Wilfried. `catalogue.html` : suppression des produits fictifs et photos generiques reutilisees (Dell Vostro,
   Dell Latitude, HP 250, ThinkBook...), remplaces par de vrais produits du catalogue avec leurs vraies photos.
-  Excel `Descriptifs de communication_ site e-commerce.xlsx` recu : 6 references deja dans le catalogue
-  confirmees, 22 HP/Lenovo restent a ajouter (bloque sur les photos reelles et deux colonnes corrompues du
-  fichier, voir "Reste a faire").
+  Numero WhatsApp unifie sur tout le site (+229 99 56 52 52).
+- 2026-09-11 (suite) : 21 produits HP et Lenovo ajoutes au catalogue (`boutique.html` + `assets/catalog-hp-lenovo.sql`),
+  a partir du fichier Excel de Wilfried, avec de vraies photos officielles retrouvees sur les sites HP et
+  Lenovo (voir section "Catalogue HP et Lenovo"). Boutique passee de 22 a 43 references, page devenue
+  multi-marque (Dell, HP, Lenovo) dans les textes et le menu.
