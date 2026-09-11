@@ -6,7 +6,7 @@
      on retombe automatiquement sur le mode local. Voir worker/README.md.
 */
 (function () {
-var WA = 'https://wa.me/22901995652';
+var WA = 'https://wa.me/22999565252';
 var KB = window.ROOTS_KB || [];
 var MENUS = window.ROOTS_KB_MENUS || [];
 var API = (window.ROOTS_CHAT_API || '').trim();

@@ -182,7 +182,7 @@ function initCarousel(root){
       +'Email: '+v('[name=email]')+'%0A'
       +L.c+': '+v('[name=company]')+'%0A'
       +L.m+': '+v('[name=need]');
-    window.open('https://wa.me/22893078787?text='+txt,'_blank');
+    window.open('https://wa.me/22999565252?text='+txt,'_blank');
   });
 })();
 
