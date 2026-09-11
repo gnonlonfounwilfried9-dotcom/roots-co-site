@@ -184,6 +184,35 @@ function initCarousel(root){
   });
 })();
 
+/* ---------- reseaux sociaux (footer) ---------- */
+(function () {
+  var box = document.querySelector('.foot-bottom');
+  if (!box || box.querySelector('.foot-social')) return;
+  var NETS = [
+    { name: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61593100837100&mibextid=ZbWKwL',
+      path: 'M22 12a10 10 0 1 0-11.5 9.9v-7H8v-2.9h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6v1.9H16l-.4 2.9h-2.1v7A10 10 0 0 0 22 12Z' },
+    { name: 'Instagram', url: 'https://www.instagram.com/root_sandco?igsh=cWdnOGg5amkwYnJu&igsi=cWdnOGg5amkwYnJu',
+      path: 'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.2-3.3a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z',
+      fillRule: 'evenodd' },
+    { name: 'LinkedIn', url: 'https://www.linkedin.com/in/roots-technologies-18499543',
+      path: 'M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-4v-5.3c0-1.3 0-2.9-1.8-2.9s-2 1.4-2 2.8V21h-4V9Z' },
+    { name: 'TikTok', url: 'https://www.tiktok.com/@rootsco5?_r=1&_t=ZS-990nBenQpBU',
+      path: 'M14 2h3.1c.2 1.7 1.4 3.1 3.1 3.5.6.1 1.2.2 1.8.2v3.2c-1.5 0-2.9-.4-4.1-1.2v6.7a6.6 6.6 0 1 1-6.6-6.6c.3 0 .6 0 .9.1v3.3a3.3 3.3 0 1 0 2.3 3.2V2Z' },
+    { name: 'X', url: 'https://x.com/RootsandCo',
+      path: 'M3 3h5.6l4 5.4L17.1 3H20l-6.2 7.6L20.6 21H15l-4.4-5.9L5 21H2.1l6.7-8.2L3 3Zm2.6 1.8 10.3 14.4h1.6L7.2 4.8H5.6Z',
+      fillRule: 'evenodd' }
+  ];
+  var wrap = document.createElement('div');
+  wrap.className = 'foot-social';
+  NETS.forEach(function (n) {
+    var a = document.createElement('a');
+    a.href = n.url; a.target = '_blank'; a.rel = 'noopener'; a.setAttribute('aria-label', n.name);
+    a.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"' + (n.fillRule ? ' fill-rule="' + n.fillRule + '"' : '') + '><path d="' + n.path + '"/></svg>';
+    wrap.appendChild(a);
+  });
+  box.appendChild(wrap);
+})();
+
 /* ---------- consentement (RGPD) ---------- */
 function rootsConsent(){ try{ return localStorage.getItem('rootsco_consent'); }catch(e){ return null; } }
 (function(){

@@ -3,6 +3,10 @@
 var K = 'roots_cart', XOF = 655.957, WA = '22901995652', MAIL = 'sales@roots.ws';
 var NL = String.fromCharCode(10);
 
+/* achat en ligne en pause (paiement en cours d'ouverture) : les prix restent affiches,
+   mais on ne peut pas ajouter au panier. Remettre a true des que le paiement est branche. */
+var CART_ENABLED = false;
+
 /* taux de change pilote depuis le tableau de bord (Reglages) */
 (function () {
   var cfg = window.ROOTS_SUPABASE;
@@ -528,6 +532,30 @@ var qi = document.getElementById('bxq');
 if (qi) qi.addEventListener('input', function () { q = this.value; apply(); });
 var so = document.getElementById('bxsort');
 if (so) so.addEventListener('change', function () { sortBy(this.value); });
+
+/* ---------------- panier en pause (paiement pas encore ouvert) ---------------- */
+if (!CART_ENABLED) {
+  var offTitle = 'Le paiement en ligne sera bientôt disponible. Contactez-nous pour commander ce produit.';
+  document.querySelectorAll('.sadd').forEach(function (b) {
+    b.disabled = true;
+    b.classList.add('sadd-off');
+    b.textContent = 'Non disponible';
+    b.title = offTitle;
+  });
+  document.querySelectorAll('.bxpackadd').forEach(function (b) {
+    b.disabled = true;
+    b.classList.add('sadd-off');
+    b.textContent = 'Non disponible';
+    b.title = offTitle;
+  });
+  if (modalAdd) {
+    modalAdd.disabled = true;
+    modalAdd.classList.add('sadd-off');
+    modalAdd.textContent = 'Non disponible pour le moment';
+    modalAdd.title = offTitle;
+  }
+  if (btnCart) btnCart.style.display = 'none';
+}
 
 render();
 goStep(1);
