@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Tableau de bord &middot; Roots &amp; Co</title>
-<link rel="stylesheet" href="assets/style.css?v=202609102023">
+<link rel="stylesheet" href="assets/style.css?v=202609111338">
 <script>try{if((localStorage.getItem('rootsco_theme')||'light')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
 </head>
 <body class="nohero admin-body">
@@ -81,6 +81,10 @@ document.getElementById('admTheme').addEventListener('click',function(){
         <button class="btn btn-line adm-refresh" id="admRefresh">Actualiser</button>
       </div>
 
+      <div class="adm-bulk">
+        <label class="adm-check-all"><input type="checkbox" id="admCheckAll"> Tout s&eacute;lectionner</label>
+        <button class="btn btn-line adm-del-bulk" id="admDelBulk" type="button" hidden>Supprimer la s&eacute;lection (<span id="admSelCount">0</span>)</button>
+      </div>
       <p class="adm-empty" id="admEmpty" hidden>Aucune commande pour ce filtre.</p>
       <div class="adm-list" id="admList"></div>
     </div>
@@ -265,6 +269,7 @@ document.getElementById('admTheme').addEventListener('click',function(){
 <template id="admRowTpl">
   <article class="adm-row">
     <div class="adm-row-head">
+      <input type="checkbox" class="adm-check" aria-label="S&eacute;lectionner cette commande">
       <div class="adm-row-who">
         <strong class="adm-name"></strong>
         <span class="adm-city"></span>
@@ -323,7 +328,7 @@ document.getElementById('admTheme').addEventListener('click',function(){
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="assets/supabase-config.js?v=202609102023"></script>
-<script src="assets/suivi-etapes.js?v=202609102023"></script><script src="assets/admin.js?v=202609102023"></script>
+<script src="assets/supabase-config.js?v=202609111338"></script>
+<script src="assets/suivi-etapes.js?v=202609111338"></script><script src="assets/admin.js?v=202609111338"></script>
 </body>
 </html>

@@ -91,14 +91,32 @@
   var emptyBox = document.getElementById('admEmpty');
   var tpl = document.getElementById('admRowTpl');
 
+  var SELECTED = {};
+  function updateBulkBar() {
+    var n = Object.keys(SELECTED).filter(function (k) { return SELECTED[k]; }).length;
+    var btn = document.getElementById('admDelBulk');
+    var cnt = document.getElementById('admSelCount');
+    if (cnt) cnt.textContent = n;
+    if (btn) btn.hidden = n === 0;
+  }
   function renderList() {
     var rows = ALL.filter(matches);
     listBox.innerHTML = '';
     emptyBox.hidden = rows.length > 0;
+    var visibleIds = {};
     rows.forEach(function (o) {
+      visibleIds[o.id] = true;
       var node = tpl.content.cloneNode(true);
       var art = node.querySelector('.adm-row');
       art.dataset.id = o.id;
+      var chk = node.querySelector('.adm-check');
+      if (chk) {
+        chk.checked = !!SELECTED[o.id];
+        chk.addEventListener('change', function () {
+          if (chk.checked) SELECTED[o.id] = true; else delete SELECTED[o.id];
+          updateBulkBar();
+        });
+      }
       node.querySelector('.adm-name').textContent = o.customer_name + (o.customer_org ? ' · ' + o.customer_org : '');
       node.querySelector('.adm-city').textContent = o.customer_city;
       node.querySelector('.adm-date').textContent = fmtDate(o.created_at);
@@ -193,7 +211,35 @@
 
       listBox.appendChild(node);
     });
+    // on oublie la selection des commandes qui ne sont plus dans la vue (filtre/recherche)
+    Object.keys(SELECTED).forEach(function (id) { if (!visibleIds[id]) delete SELECTED[id]; });
+    var allChk = document.getElementById('admCheckAll');
+    if (allChk) allChk.checked = rows.length > 0 && rows.every(function (o) { return SELECTED[o.id]; });
+    updateBulkBar();
   }
+
+  var checkAllBox = document.getElementById('admCheckAll');
+  if (checkAllBox) checkAllBox.addEventListener('change', function () {
+    var rows = ALL.filter(matches);
+    rows.forEach(function (o) { if (checkAllBox.checked) SELECTED[o.id] = true; else delete SELECTED[o.id]; });
+    renderList();
+  });
+  var delBulkBtn = document.getElementById('admDelBulk');
+  if (delBulkBtn) delBulkBtn.addEventListener('click', function () {
+    var ids = Object.keys(SELECTED).filter(function (k) { return SELECTED[k]; });
+    if (!ids.length) return;
+    if (!window.confirm('Supprimer définitivement ' + ids.length + ' commande(s) ? Cette action est irréversible.')) return;
+    sb.from('orders').delete().in('id', ids).select().then(function (r) {
+      if (r.error) { window.alert('Suppression impossible : ' + r.error.message); return; }
+      if (!r.data || !r.data.length) {
+        window.alert('Rien n\'a été supprimé. La règle de suppression n\'est pas encore en place dans Supabase.');
+        return;
+      }
+      logAction('suppression groupee', ids.length + ' commande(s)');
+      SELECTED = {};
+      loadOrders();
+    });
+  });
 
   function updateStatus(id, status, sel) {
     sel.className = 'adm-status st-' + status;

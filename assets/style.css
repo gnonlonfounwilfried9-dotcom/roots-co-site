@@ -1713,3 +1713,12 @@ body:has(.rc-panel.show) #rcBtn{opacity:0;pointer-events:none;}
 .track-bar.cancelled .track-fill{background:#c94b28;}
 :root[data-theme="dark"] .track-lbl{color:#eef2f7;mix-blend-mode:normal;}
 @media(max-width:560px){.track-bar{margin-left:0;margin-right:0;}.track-lbl{font-size:10px;}}
+
+/* selection multiple des commandes */
+.adm-bulk{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.adm-check-all{display:flex;align-items:center;gap:8px;font-family:var(--head);font-size:12.5px;
+  font-weight:600;color:var(--body);cursor:pointer;}
+.adm-check-all input,.adm-check{width:17px;height:17px;accent-color:var(--cyan);cursor:pointer;flex:none;}
+.adm-del-bulk{border-color:rgba(201,75,40,.4);color:#c94b28;font-size:12.5px;padding:8px 14px;}
+.adm-del-bulk:hover{background:rgba(201,75,40,.08);}
+:root[data-theme="dark"] .adm-del-bulk{color:#fb7185;border-color:rgba(251,113,133,.4);}
