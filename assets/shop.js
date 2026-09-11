@@ -3,9 +3,18 @@
 var K = 'roots_cart', XOF = 655.957, WA = '22901995652', MAIL = 'sales@roots.ws';
 var NL = String.fromCharCode(10);
 
-/* achat en ligne en pause (paiement en cours d'ouverture) : les prix restent affiches,
-   mais on ne peut pas ajouter au panier. Remettre a true des que le paiement est branche. */
+/* achat en ligne en pause (paiement en cours d'ouverture) : les produits restent
+   disponibles et affiches normalement, mais le bouton n'ajoute plus au panier,
+   il ouvre un e-mail pre-rempli vers l'equipe commerciale. Remettre a true des
+   que le paiement est branche. */
 var CART_ENABLED = false;
+function contactMailto(ref, name, ttc) {
+  var subject = 'Demande - ' + name + ' (Ref. ' + ref + ')';
+  var body = 'Bonjour ROOTS,' + NL + NL + 'Je suis interesse par ce produit :' + NL
+    + name + ' - Ref. ' + ref + NL + 'Prix TTC : ' + fcfa(ttc) + ' (' + eur(ttc) + ')' + NL + NL
+    + 'Merci de me recontacter pour finaliser la commande.';
+  return 'mailto:' + MAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+}
 
 /* taux de change pilote depuis le tableau de bord (Reglages) */
 (function () {
@@ -105,7 +114,9 @@ if (modal) {
   modalAdd.addEventListener('click', function () {
     if (!currentRef) return;
     var b = document.querySelector('.sadd[data-ref="' + currentRef + '"]');
-    if (b) { addBtn(b, true); closeDetail(); goStep(1); openCart(); }
+    if (!b) return;
+    if (!CART_ENABLED) { window.location.href = contactMailto(b.dataset.ref, b.dataset.name, parseFloat(b.dataset.ttc)); return; }
+    addBtn(b, true); closeDetail(); goStep(1); openCart();
   });
 }
 
@@ -115,6 +126,7 @@ document.addEventListener('click', function (e) {
   if (z) { openDetail(z.dataset.ref); return; }
   var pk = e.target.closest('.bxpackadd');
   if (pk) {
+    if (!CART_ENABLED) { window.location.href = contactMailto(pk.dataset.refs, pk.textContent.trim(), 0); return; }
     pk.dataset.refs.split('|').forEach(function (r) {
       var bb = document.querySelector('.sadd[data-ref="' + r + '"]');
       if (bb) addBtn(bb, true);
@@ -125,7 +137,10 @@ document.addEventListener('click', function (e) {
     return;
   }
   var a = e.target.closest('.sadd');
-  if (a) { addBtn(a, false); return; }
+  if (a) {
+    if (!CART_ENABLED) { window.location.href = contactMailto(a.dataset.ref, a.dataset.name, parseFloat(a.dataset.ttc)); return; }
+    addBtn(a, false); return;
+  }
   var m = e.target.closest('[data-m]');
   if (m) { var cm = get(), im = +m.dataset.m; cm[im].q--; if (cm[im].q < 1) cm.splice(im, 1); set(cm); return; }
   var p = e.target.closest('[data-p]');
@@ -534,26 +549,13 @@ var so = document.getElementById('bxsort');
 if (so) so.addEventListener('change', function () { sortBy(this.value); });
 
 /* ---------------- panier en pause (paiement pas encore ouvert) ---------------- */
+/* les produits restent disponibles ; seul le libelle du bouton change, pour dire
+   qu'on passe par un e-mail plutot que par un panier en ligne. */
 if (!CART_ENABLED) {
-  var offTitle = 'Le paiement en ligne sera bientôt disponible. Contactez-nous pour commander ce produit.';
-  document.querySelectorAll('.sadd').forEach(function (b) {
-    b.disabled = true;
-    b.classList.add('sadd-off');
-    b.textContent = 'Non disponible';
-    b.title = offTitle;
-  });
-  document.querySelectorAll('.bxpackadd').forEach(function (b) {
-    b.disabled = true;
-    b.classList.add('sadd-off');
-    b.textContent = 'Non disponible';
-    b.title = offTitle;
-  });
-  if (modalAdd) {
-    modalAdd.disabled = true;
-    modalAdd.classList.add('sadd-off');
-    modalAdd.textContent = 'Non disponible pour le moment';
-    modalAdd.title = offTitle;
-  }
+  var offTitle = 'Cliquez pour nous écrire et passer commande par e-mail.';
+  document.querySelectorAll('.sadd').forEach(function (b) { b.textContent = 'Nous écrire'; b.title = offTitle; });
+  document.querySelectorAll('.bxpackadd').forEach(function (b) { b.textContent = 'Nous écrire'; b.title = offTitle; });
+  if (modalAdd) { modalAdd.textContent = 'Nous écrire pour ce produit'; modalAdd.title = offTitle; }
   if (btnCart) btnCart.style.display = 'none';
 }
 

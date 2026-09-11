@@ -97,10 +97,12 @@ document.documentElement.classList.add('js');
   var en=(el.getAttribute('data-words-en')||'').split('|');
   var i=0;
   function arr(){ return (document.documentElement.lang==='en' && en.length)?en:fr; }
-  function tick(){ var a=arr(); el.style.opacity='0'; el.style.transform='translateY(12px)';
-    setTimeout(function(){ el.textContent=a[i%a.length]; el.style.opacity='1'; el.style.transform='none'; i++; },600); }
+  function render(){ el.textContent=arr()[i%arr().length]; }
+  function tick(){ el.style.opacity='0'; el.style.transform='translateY(12px)';
+    setTimeout(function(){ i++; render(); el.style.opacity='1'; el.style.transform='none'; },600); }
   el.textContent=fr[0]||el.textContent;
   setTimeout(tick,1800); setInterval(tick,3400);
+  window.__setHeroWords=render;
 })();
 
 /* ---------- parallax ---------- */
