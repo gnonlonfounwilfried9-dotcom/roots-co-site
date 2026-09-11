@@ -159,9 +159,9 @@ function initCarousel(root){
   function draw(){
     ctx.clearRect(0,0,W,H);
     for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
-      ctx.beginPath();ctx.arc(p.x,p.y,1.6,0,6.28);ctx.fillStyle='rgba(140,233,255,.75)';ctx.fill();}
+      ctx.beginPath();ctx.arc(p.x,p.y,1.6,0,6.28);ctx.fillStyle='rgba(230,190,120,.75)';ctx.fill();}
     for(var a=0;a<pts.length;a++)for(var b=a+1;b<pts.length;b++){var dx=pts[a].x-pts[b].x,dy=pts[a].y-pts[b].y,d=dx*dx+dy*dy;
-      if(d<17000){ctx.beginPath();ctx.moveTo(pts[a].x,pts[a].y);ctx.lineTo(pts[b].x,pts[b].y);ctx.strokeStyle='rgba(34,195,230,'+(1-d/17000)*.32+')';ctx.lineWidth=1;ctx.stroke();}}
+      if(d<17000){ctx.beginPath();ctx.moveTo(pts[a].x,pts[a].y);ctx.lineTo(pts[b].x,pts[b].y);ctx.strokeStyle='rgba(217,164,65,'+(1-d/17000)*.32+')';ctx.lineWidth=1;ctx.stroke();}}
     raf=requestAnimationFrame(draw);
   }
   size(); draw(); window.addEventListener('resize',function(){cancelAnimationFrame(raf);size();draw();});

@@ -880,7 +880,7 @@
     return {
       text: dark ? '#93a6bc' : '#58697e',
       grid: dark ? 'rgba(255,255,255,.08)' : 'rgba(10,30,60,.08)',
-      cyan: '#22c3e6', navy: dark ? '#4fd1e8' : '#123a6b', teal: '#0f92b8'
+      cyan: '#d9a441', navy: dark ? '#e8c176' : '#123a6b', teal: '#a9762a'
     };
   }
   function dayKey(d) { return d.toISOString().slice(0, 10); }
@@ -981,7 +981,7 @@
       data: {
         labels: ['Nouvelles', 'Confirmées', 'En livraison', 'Livrées', 'Annulées'],
         datasets: [{ data: [st.nouveau, st.confirme, st.en_livraison, st.livre, st.annule],
-          backgroundColor: ['#22c3e6', '#0f92b8', '#f59e0b', '#15803d', '#9f1239'] }]
+          backgroundColor: ['#d9a441', '#a9762a', '#f59e0b', '#15803d', '#9f1239'] }]
       },
       options: { plugins: { legend: { position: 'bottom' } }, cutout: '58%' }
     });

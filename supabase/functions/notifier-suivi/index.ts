@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
       <p>Bonjour ${nom},</p>
       <p>Votre commande ${ref ? `<strong>${ref}</strong> ` : ""}avance : <strong>${etape}</strong>.</p>
       <div style="background:#eef2f7;border-radius:20px;height:14px;margin:14px 0;overflow:hidden">
-        <div style="background:#22c3e6;height:100%;width:${pct}%"></div>
+        <div style="background:#d9a441;height:100%;width:${pct}%"></div>
       </div>
       <p style="font-size:13px;color:#58697e">${pct} % du parcours${note ? ` &middot; ${note}` : ""}${eta ? `<br>Arrivee prevue le ${eta.split("-").reverse().join("/")}` : ""}</p>
       <p style="font-size:13px;color:#58697e;margin-top:18px">Vous pouvez suivre votre commande a tout moment depuis votre espace client sur le site.</p>

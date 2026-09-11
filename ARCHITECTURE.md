@@ -69,6 +69,25 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - **Bug historique corrige (2026-09-11)** : un second bloc `:root{--head:...}` plus bas dans le fichier (vers la ligne 1230, sous un commentaire "TYPOGRAPHIE v2") redefinissait `--head`/`--sans` vers des polices jamais chargees (`Space Grotesk`, `Manrope` en CDN qui n'existait pas), ecrasant systematiquement tout changement fait en haut du fichier a cause de l'ordre de la cascade CSS. C'est pour ca que les tentatives precedentes de changer la police "ne marchaient pas". Le bloc en double a ete supprime : il n'y a plus qu'une seule source de verite pour `--head`/`--sans`, en haut du fichier.
 - `Manrope` reste chargee separement, reservee aux graphiques Chart.js du tableau de bord (`admin.js` fixe `Chart.defaults.font.family`).
 
+## Palette de couleurs
+
+- **Changement 2026-09-11, decision de Wilfried** : le cyan d'origine est retire, remplace par un bleu marine + or/cuivre.
+- Les noms de variables CSS ne changent PAS (`--cyan`, `--cyan-d`, `--teal`, `--gold`), seulement leurs valeurs :
+  `--cyan:#d9a441` (or, accent principal), `--cyan-d:#a9762a` (cuivre fonce, degrades et hover), `--teal:#8a5a1f` (bronze fonce,
+  texte sur fond clair type kicker/liens), `--gold:#f4b63c` (inchange, reste le ton le plus vif). `--navy`/`--navy2`/`--navy3`
+  inchanges (base sombre du site). `--dell:#0f7fc0` **volontairement inchange** : c'est le vrai bleu de marque Dell, pas
+  notre accent.
+- Fonds clairs rechauffes : `--surface`/`--surface2`/`--tint`/`--line` sont passes d'un bleu-gris froid (aspect "SaaS
+  generique") a un ivoire chaud, pour repondre au retour "fond trop generique".
+- **Attention en cas de nouvelle modification de couleur** : plusieurs couleurs cyan etaient codees en dur (pas via variable)
+  et il faut les repasser a la main si on change encore la teinte : `assets/style.css` (`rgba(34,195,230,...)` -> deja
+  converti en `rgba(217,164,65,...)`, et le degrade texte de `.hero h1 .rot`), `assets/app.js` (particules et lignes du
+  reseau anime du hero, `ctx.fillStyle`/`strokeStyle`), `assets/admin.js` (`themeColors()` et les couleurs du donut Analyse),
+  `a-propos.html` (dgradient SVG inline), `supabase/functions/notifier-suivi/index.ts` (barre de progression de l'e-mail,
+  **ne se met a jour qu'apres redeploiement manuel de la fonction**, le depot Git n'est pas relie a Supabase).
+- Fond de page juge "trop generique" par Wilfried : premiere passe faite (fonds ivoire au lieu de bleu-gris), a affiner
+  si besoin (epurer davantage les degrades/motifs de fond).
+
 ## Contraintes permanentes
 
 - Zero tiret comme separateur, zero emoji, icones SVG maison. Ton humain, francais accentue.
@@ -90,7 +109,7 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - Verifier le domaine Resend (`roots.services` ou `roots.ws`) pour pouvoir notifier les vrais clients, pas seulement le compte Resend.
 - Wiring `boutique.html` pour lire le catalogue depuis Supabase au lieu du HTML fige.
 - Publication automatique des posts reseaux sociaux (comptes Meta / LinkedIn Business + revue d'app).
-- Refonte visuelle en cours (voir journal 2026-09-11) : fond de page a epurer, palette de couleurs a revoir (decision en attente de Wilfried).
+- Refonte visuelle : palette or/cuivre appliquee le 2026-09-11 (voir section Palette de couleurs). Reste a affiner si besoin : fond de page (motifs/degrades) et redeployer `notifier-suivi` pour que l'e-mail de suivi reprenne aussi la nouvelle couleur.
 
 ## Journal des livraisons
 
@@ -100,4 +119,4 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - 2026-09-10 : nav (A propos remplace par Nos partenaires), bouton clair/sombre admin, suppression de commande, import CSV (etape 10), consentement RGPD + suppression de compte + CI (etape 9), prep paiement (etape 8) + PDF procedure.
 - 2026-09-10 : suivi de colis intelligent (frise cote admin et cote client, date de livraison estimee), robustesse MFA.
 - 2026-09-10 : barre d'avancement en pourcentage visible sans deplier (admin + client), fonction e-mail `notifier-suivi` (Resend, prete), mise a jour automatique du taux dollar `taux-change` (Edge + cron).
-- 2026-09-11 : `notifier-suivi` et `taux-change` deployees et testees en direct (voir piege "Function name" ci-dessus et limite Resend mode test). Achat en ligne mis en pause le temps d'ouvrir le compte marchand (`CART_ENABLED=false` dans `shop.js`, produits **disponibles**, prix toujours visibles, le bouton ouvre un e-mail au lieu du panier). Bloc reseaux sociaux ajoute au footer de toutes les pages via `app.js` (Facebook, Instagram, LinkedIn, TikTok, X). Police de titres remplacee par Montserrat, bug de cascade CSS corrige (double `:root` qui annulait tout changement de police). Bug de traduction corrige : le mot qui tourne dans le titre (`.rot`) ne suivait pas le bouton FR/EN, restait dans l'ancienne langue jusqu'au prochain cycle automatique.
+- 2026-09-11 : `notifier-suivi` et `taux-change` deployees et testees en direct (voir piege "Function name" ci-dessus et limite Resend mode test). Achat en ligne mis en pause le temps d'ouvrir le compte marchand (`CART_ENABLED=false` dans `shop.js`, produits **disponibles**, prix toujours visibles, le bouton ouvre un e-mail au lieu du panier). Bloc reseaux sociaux ajoute au footer de toutes les pages via `app.js` (Facebook, Instagram, LinkedIn, TikTok, X). Police de titres remplacee par Montserrat, bug de cascade CSS corrige (double `:root` qui annulait tout changement de police). Bug de traduction corrige : le mot qui tourne dans le titre (`.rot`) ne suivait pas le bouton FR/EN, restait dans l'ancienne langue jusqu'au prochain cycle automatique. Palette recolore en bleu marine + or/cuivre (fini le cyan), fonds clairs rechauffes (ivoire au lieu de bleu-gris).
