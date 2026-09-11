@@ -97,11 +97,18 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   recapitulatif, e-mail de commande et `buildRecord()` calculent tout en HT (`it.ht`, `unit_ht_eur` dans
   `orders.items`). Les anciennes commandes enregistrees avant cette date ont encore `unit_ttc_eur` dans leur
   JSON `items` : ne pas essayer de les "corriger" retroactivement, c'est un historique reel.
-  - Catalogue interne de reference (HT en FCFA, source `catalog.sql`) : DC16250=589572, DP14-120U=568520,
-    DP14E-i3U=420424, DP14E-i3W=484291, DP14E-i5U=554478, DP14E-i5W=621158, DP15E=508856, QCS1250N=560799,
+  - Catalogue interne de reference (HT en FCFA, source `catalog.sql`, **prix Dell mis a jour le 2026-09-11**,
+    voir section suivante) : DC16250=748252, DP14-120U=723493, DP14E-i3U=549355, DP14E-i3W=624457,
+    DP14E-i5U=706987, DP14E-i5W=621158 (inchange), DP15E=508856 (inchange), QCS1250N=560799,
     TOWER-W11=560799, QC1250N=442181, TOWER-i5=490611, QBT1250N=519385, E2425HSM=80716, S2425HSM=84224,
     S2725HSM=105281, MS116=6315, KM5221W=20357, KM7120W=40708, KB216=8422, WD25=108789, WD25-3Y=113003,
     WD25TB4=168447.
+- **Bug corrige (2026-09-11)** : l'attribut `data-price` sur `<article class="bxcard">` (utilise par le tri
+  "Trier par prix" dans `shop.js`) avait garde l'ancienne valeur TTC pour les 22 produits d'origine, alors que
+  l'affichage etait deja passe en HT. Resynchronise avec `data-ht` pour les 22 (le tri par prix triait sur les
+  bons chiffres relatifs entre eux avant, mais affichait un total incoherent avec le prix visible si on le
+  comparait au detail). A verifier si un nouveau produit est ajoute a la main : `data-price` doit toujours
+  etre identique a `data-ht` sur le meme article.
 - `catalogue.html` : le bloc "Nos meilleures ventes" et "Toute la gamme" affichaient des **produits fictifs**
   (Dell Vostro 3520/3510, Dell Latitude 3420, HP 250 G8/G10, Lenovo ThinkBook...) avec des photos generiques
   reutilisees entre plusieurs modeles (`assets/img/prod_dell.jpg` etc.) et des prix invente — c'est ce que
@@ -118,10 +125,10 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 ## Catalogue HP et Lenovo (2026-09-11)
 
 - Source : `Downloads/Descriptifs de communication_ site e-commerce.xlsx` fourni par Wilfried, 28 lignes
-  (5 Dell deja dans le catalogue, 23 HP/Lenovo). 21 ajoutees (2 exclues, voir plus bas), dans
+  (5 Dell deja dans le catalogue, 23 HP/Lenovo). 22 ajoutees (1 doublon exclu, voir plus bas), dans
   `assets/catalog-hp-lenovo.sql` (fichier separe, **a coller dans Supabase SQL Editor**, pas encore fait par
-  Wilfried) et dans `boutique.html` (cartes ajoutees au `#bxgrid`, compteurs de filtre mis a jour : 43 au total,
-  25 portables, 8 bureau, inchange pour ecrans/claviers/souris/stations).
+  Wilfried) et dans `boutique.html` (cartes ajoutees au `#bxgrid`, compteurs de filtre : 44 au total,
+  26 portables, 8 bureau, inchange pour ecrans/claviers/souris/stations).
 - **Photos** : aucune photo n'existait pour ces produits. Sourcees en direct depuis les sites officiels
   (`support.hp.com` et `psref.lenovo.com`, jamais de banque d'images tierce ni de photo generique non
   verifiee), une photo par ligne de produit reelle (plusieurs configurations d'un meme modele physique
@@ -133,17 +140,20 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   G10, 240R G10, tous les Lenovo V/IdeaPad/LOQ sont des portables malgre l'etiquette Excel). Seule la colonne
   `CARACTERISTIQUES (Fournisseurs)` (texte libre) a servi de source pour les caracteristiques ; c'est elle
   qui a ete utilisee pour retrouver les vraies fiches produit et confirmer portable vs bureau.
-- **2 lignes exclues, a clarifier avec Wilfried si besoin** :
-  - `RTS_2026360054` (Lenovo V15 G5 IRL, 83GW006MFE) : doublon exact d'une autre ligne (`RTS_2026360055`,
-    meme MTM, meme prix), texte `CARACTERISTIQUES` tronque en plus. La ligne `RTS_2026360055` (plus complete)
-    a ete gardee seule.
-  - `RTS_2026360053` (Lenovo "V15-IRL", 83GW00EPFE) : le texte `CARACTERISTIQUES` de cette ligne se
-    contredit lui-meme ("CORE 7-240H" dans le titre, "Intel Core i3-1315U" dans le detail). Non publiee tant
-    que Wilfried n'a pas confirme le bon processeur.
-- **Ecart de prix constate sur les Dell deja au catalogue** : les 5 lignes Dell de l'Excel (DC16250 et
-  consorts) donnent des prix HT plus eleves que ceux deja publies sur le site (ex. DC16250 : 748 252 dans
-  l'Excel contre 589 572 deja en ligne, environ +27%). Pas touche pour l'instant (pas dans la demande), mais
-  a clarifier avec Wilfried : le fichier Excel est peut-etre une mise a jour tarifaire a repercuter.
+- **1 ligne exclue** : `RTS_2026360054` (Lenovo V15 G5 IRL, 83GW006MFE) est un doublon exact d'une autre ligne
+  (`RTS_2026360055`, meme MTM, meme prix), texte `CARACTERISTIQUES` tronque en plus. La ligne `RTS_2026360055`
+  (plus complete) a ete gardee seule.
+- **Ligne `83GW00EPFE` (Lenovo, ex-"V15-IRL") resolue** : son texte `CARACTERISTIQUES` se contredisait
+  lui-meme dans l'Excel ("CORE 7-240H" dans le titre, "Intel Core i3-1315U" dans le detail). Verifie sur la
+  fiche officielle Lenovo PSREF pour ce MTM exact (`psref.lenovo.com/Detail/Lenovo_V15_G5_IRL?M=83GW00EPFE`) :
+  le bon processeur est **Intel Core 7 240H** (8 Go, 512 Go SSD, ecran 15,6" FHD non tactile, sans systeme
+  preinstalle). Region Excel "Africa-French-Portuguese" confirmee sur la fiche officielle. Ajoutee sous le nom
+  Lenovo V15 G5 IRL, meme photo que les autres references de cette famille.
+- **Prix Dell mis a jour** : Wilfried a confirme que les prix Dell de l'Excel (plus eleves que ceux deja en
+  ligne, environ +27%) sont une vraie mise a jour tarifaire, a appliquer. Fait dans `catalog.sql`,
+  `boutique.html`, `catalogue.html` et `assets/kb.js` pour DC16250, DP14-120U, DP14E-i3U, DP14E-i3W et
+  DP14E-i5U (les 2 seuls Dell laptop non couverts par cet Excel, DP14E-i5W et DP15E, gardent leur ancien
+  prix). SQL de mise a jour : `assets/price-updates-2026-09-11.sql`.
 
 ## Contraintes permanentes
 
@@ -168,10 +178,9 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - Wiring `boutique.html` pour lire le catalogue depuis Supabase au lieu du HTML fige.
 - Publication automatique des posts reseaux sociaux (comptes Meta / LinkedIn Business + revue d'app).
 - Refonte visuelle : palette or/cuivre appliquee le 2026-09-11 (voir section Palette de couleurs). Reste a affiner si besoin : fond de page (motifs/degrades) et redeployer `notifier-suivi` pour que l'e-mail de suivi reprenne aussi la nouvelle couleur.
-- Coller `assets/catalog-hp-lenovo.sql` dans Supabase pour que les 21 nouveaux produits HP/Lenovo apparaissent
-  aussi dans le tableau de bord admin (deja visibles sur `boutique.html`, qui est en HTML statique).
-- Clarifier avec Wilfried : la ligne Lenovo `83GW00EPFE` (specs contradictoires dans l'Excel) et l'ecart de
-  prix HT sur les 5 Dell de l'Excel vs le catalogue actuel (voir section "Catalogue HP et Lenovo").
+- Coller `assets/price-updates-2026-09-11.sql` PUIS `assets/catalog-hp-lenovo.sql` dans Supabase (SQL Editor,
+  Run) pour que les prix Dell corriges et les 22 nouveaux produits HP/Lenovo apparaissent aussi dans le
+  tableau de bord admin (deja visibles sur `boutique.html`/`catalogue.html`, qui sont en HTML statique).
 
 ## Journal des livraisons
 
@@ -188,7 +197,11 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   Wilfried. `catalogue.html` : suppression des produits fictifs et photos generiques reutilisees (Dell Vostro,
   Dell Latitude, HP 250, ThinkBook...), remplaces par de vrais produits du catalogue avec leurs vraies photos.
   Numero WhatsApp unifie sur tout le site (+229 99 56 52 52).
-- 2026-09-11 (suite) : 21 produits HP et Lenovo ajoutes au catalogue (`boutique.html` + `assets/catalog-hp-lenovo.sql`),
+- 2026-09-11 (suite) : 22 produits HP et Lenovo ajoutes au catalogue (`boutique.html` + `assets/catalog-hp-lenovo.sql`),
   a partir du fichier Excel de Wilfried, avec de vraies photos officielles retrouvees sur les sites HP et
-  Lenovo (voir section "Catalogue HP et Lenovo"). Boutique passee de 22 a 43 references, page devenue
+  Lenovo (voir section "Catalogue HP et Lenovo"). Boutique passee de 22 a 44 references, page devenue
   multi-marque (Dell, HP, Lenovo) dans les textes et le menu.
+- 2026-09-11 (suite) : prix Dell corriges (mise a jour tarifaire confirmee par Wilfried, 5 references,
+  `assets/price-updates-2026-09-11.sql`). Ligne Lenovo `83GW00EPFE` resolue par verification sur la fiche
+  officielle PSREF (Core 7 240H) et ajoutee. Bug corrige : `data-price` (tri par prix de la boutique) etait
+  reste en TTC pour les 22 produits d'origine alors que l'affichage etait deja en HT.
