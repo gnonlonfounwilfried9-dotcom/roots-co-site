@@ -51,7 +51,7 @@ Ces règles ont été répétées plusieurs fois par le client, ne pas les casse
 - FR/EN sur chaque page via l'attribut `data-en` sur les éléments (bascule gérée par `assets/app.js`,
   état persistant en `localStorage`).
 - Thème clair/sombre géré par `:root[data-theme]`, bouton dans la nav.
-- Taux de change fixe utilisé partout : **1 EUR = 655,957 FCFA**. TVA 18 % pour calculer le HT depuis le TTC.
+- Taux de change fixe utilisé partout : **1 EUR = 655,957 FCFA**. Les prix affichés sur le site sont hors taxes (HT) uniquement depuis le 2026-09-11 (voir ARCHITECTURE.md, document de référence tenu à jour en priorité).
 - Jamais de fausses données : pas de faux stock, faux avis, fausses urgences.
 - Jamais de collecte de données bancaires sur le site : le paiement carte se fait toujours via un lien
   sécurisé envoyé après confirmation de commande, jamais un champ carte sur le site lui-même.

@@ -356,8 +356,8 @@
         '<div class="adm-prod-img">' + (p.images && p.images[0] ? '<img src="' + p.images[0] + '" alt="">' : '') + '</div>' +
         '<div class="adm-prod-main"><strong>' + p.nom_fr + '</strong>' +
           '<span class="adm-prod-meta">' + p.ref + ' &middot; ' + catName(p.categorie_id) + '</span></div>' +
-        '<div class="adm-prod-num"><b>' + fcfa(p.prix_ttc_fcfa) + '</b>' +
-          '<span>HT ' + fcfa(p.prix_ht_fcfa || Math.round(p.prix_ttc_fcfa / 1.18)) + '</span></div>' +
+        '<div class="adm-prod-num"><b>' + fcfa(p.prix_ht_fcfa || Math.round(p.prix_ttc_fcfa / 1.18)) + '</b>' +
+          '<span>HT</span></div>' +
         '<div class="adm-prod-stock ' + (low ? 'low' : '') + '">' + p.stock + ' en stock' +
           (p.actif ? '' : '<span class="adm-prod-tag">Masqu&eacute;</span>') + '</div>' +
         '<button class="btn btn-line adm-prod-edit" type="button">Modifier</button>';
@@ -385,7 +385,7 @@
   }
   function showHt() {
     var v = parseInt(F.prix.value, 10);
-    F.ht.textContent = v ? 'Hors taxe : ' + fcfa(Math.round(v / 1.18)) : 'Hors taxe : —';
+    F.ht.textContent = v ? 'TTC (18%) : ' + fcfa(Math.round(v * 1.18)) : 'TTC (18%) : —';
   }
   if (F.prix) F.prix.addEventListener('input', showHt);
 
@@ -399,7 +399,7 @@
     F.nom.value = p ? p.nom_fr : '';
     F.cat.value = p ? (p.categorie_id || 'divers') : 'portables';
     F.stock.value = p ? p.stock : 0;
-    F.prix.value = p ? p.prix_ttc_fcfa : '';
+    F.prix.value = p ? (p.prix_ht_fcfa || Math.round(p.prix_ttc_fcfa / 1.18)) : '';
     F.seuil.value = p ? (p.seuil_alerte || 3) : 3;
     F.spec.value = p ? (p.spec_fr || '') : '';
     F.desc.value = p ? (p.desc_fr || '') : '';
@@ -422,14 +422,14 @@
     e.preventDefault();
     var ref = F.ref.value.trim(), nom = F.nom.value.trim(), prix = parseInt(F.prix.value, 10);
     if (!ref || !nom || !prix) {
-      F.err.hidden = false; F.err.textContent = 'R&eacute;f&eacute;rence, nom et prix TTC sont obligatoires.';
+      F.err.hidden = false; F.err.textContent = 'R&eacute;f&eacute;rence, nom et prix HT sont obligatoires.';
       return;
     }
     var img = F.img.value.trim();
     var rec = {
       ref: ref, nom_fr: nom, categorie_id: F.cat.value,
       stock: parseInt(F.stock.value, 10) || 0, seuil_alerte: parseInt(F.seuil.value, 10) || 3,
-      prix_ttc_fcfa: prix, prix_ht_fcfa: Math.round(prix / 1.18),
+      prix_ht_fcfa: prix, prix_ttc_fcfa: Math.round(prix * 1.18),
       spec_fr: F.spec.value.trim() || null, desc_fr: F.desc.value.trim() || null,
       images: img ? [img] : [], actif: F.actif.checked, maj_le: new Date().toISOString()
     };
@@ -453,9 +453,9 @@
   var prodFile = document.getElementById('prodFile');
   var tplBtn = document.getElementById('prodTemplate');
   if (tplBtn) tplBtn.addEventListener('click', function () {
-    var csv = 'ref;nom;categorie;prix_ttc_fcfa;stock;spec;actif\r\n'
-      + 'DC16250;Dell 16;portables;695695;10;16 pouces, Core i5, 16 Go, 512 Go SSD;oui\r\n'
-      + 'NOUVEAU-REF;Nom du produit;accessoires;15000;5;Description courte;oui\r\n';
+    var csv = 'ref;nom;categorie;prix_ht_fcfa;stock;spec;actif\r\n'
+      + 'DC16250;Dell 16;portables;589572;10;16 pouces, Core i5, 16 Go, 512 Go SSD;oui\r\n'
+      + 'NOUVEAU-REF;Nom du produit;accessoires;12712;5;Description courte;oui\r\n';
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
     a.download = 'modele-catalogue-roots.csv';
@@ -487,8 +487,8 @@
     if (lines.length < 2) { showImport('Fichier vide ou sans ligne de données.', true); return; }
     var sep = (lines[0].indexOf(';') > -1) ? ';' : ',';
     var head = splitCsvLine(lines[0], sep).map(function (h) { return h.trim().toLowerCase(); });
-    var iRef = head.indexOf('ref'), iNom = head.indexOf('nom'), iPrix = head.indexOf('prix_ttc_fcfa');
-    if (iRef < 0 || iNom < 0 || iPrix < 0) { showImport('Colonnes ref, nom et prix_ttc_fcfa obligatoires. Utilisez le modèle CSV.', true); return; }
+    var iRef = head.indexOf('ref'), iNom = head.indexOf('nom'), iPrix = head.indexOf('prix_ht_fcfa');
+    if (iRef < 0 || iNom < 0 || iPrix < 0) { showImport('Colonnes ref, nom et prix_ht_fcfa obligatoires. Utilisez le modèle CSV.', true); return; }
     var iCat = head.indexOf('categorie'), iStock = head.indexOf('stock'), iSpec = head.indexOf('spec'), iActif = head.indexOf('actif');
     var catIds = CATS.map(function (c) { return c.id; });
     var recs = [], skipped = 0;
@@ -501,7 +501,7 @@
       if (catIds.indexOf(cat) < 0) cat = 'divers';
       var rec = {
         ref: ref, nom_fr: (cells[iNom] || ref).trim(), categorie_id: cat,
-        prix_ttc_fcfa: prix, prix_ht_fcfa: Math.round(prix / 1.18),
+        prix_ht_fcfa: prix, prix_ttc_fcfa: Math.round(prix * 1.18),
         images: ['assets/produits/' + ref + '.png'], maj_le: new Date().toISOString()
       };
       if (iStock > -1 && cells[iStock] !== '') rec.stock = parseInt(cells[iStock], 10) || 0;

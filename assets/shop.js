@@ -3,18 +3,10 @@
 var K = 'roots_cart', XOF = 655.957, WA = '22901995652', MAIL = 'sales@roots.ws';
 var NL = String.fromCharCode(10);
 
-/* achat en ligne en pause (paiement en cours d'ouverture) : les produits restent
-   disponibles et affiches normalement, mais le bouton n'ajoute plus au panier,
-   il ouvre un e-mail pre-rempli vers l'equipe commerciale. Remettre a true des
-   que le paiement est branche. */
+/* le panier, le catalogue et le tunnel de commande sont pleinement actifs : on ne bloque
+   qu'au tout dernier geste (bouton "Envoyer ma commande"), le temps que le paiement soit
+   branche. Remettre a true des que le compte marchand est pret pour un envoi reel. */
 var CART_ENABLED = false;
-function contactMailto(ref, name, ttc) {
-  var subject = 'Demande - ' + name + ' (Ref. ' + ref + ')';
-  var body = 'Bonjour ROOTS,' + NL + NL + 'Je suis interesse par ce produit :' + NL
-    + name + ' - Ref. ' + ref + NL + 'Prix TTC : ' + fcfa(ttc) + ' (' + eur(ttc) + ')' + NL + NL
-    + 'Merci de me recontacter pour finaliser la commande.';
-  return 'mailto:' + MAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-}
 
 /* taux de change pilote depuis le tableau de bord (Reglages) */
 (function () {
@@ -39,7 +31,7 @@ function fcfa(v) { return Math.round(v * XOF).toString().replace(/\B(?=(\d{3})+(
 function render() {
   var c = get(), items = document.getElementById('cartItems'), n = 0, t = 0;
   var cc = document.getElementById('cartCount');
-  c.forEach(function (it) { n += it.q; t += it.q * it.ttc; });
+  c.forEach(function (it) { n += it.q; t += it.q * it.ht; });
   if (cc) { cc.textContent = n; cc.style.display = n ? 'flex' : 'none'; }
   if (!items) return;
   items.innerHTML = '';
@@ -52,7 +44,7 @@ function render() {
     d.innerHTML =
       (it.img ? '<div class="ci-img"><img src="' + it.img + '" alt=""></div>' : '') +
       '<div class="ci-main"><strong>' + it.name + '</strong>' +
-        '<span class="ci-p">' + fcfa(it.ttc) + ' <i>' + eur(it.ttc) + '</i></span>' +
+        '<span class="ci-p">' + fcfa(it.ht) + ' <i>' + eur(it.ht) + '</i></span>' +
         '<div class="ci-q"><button data-m="' + idx + '" aria-label="Retirer">&minus;</button>' +
         '<span>' + it.q + '</span>' +
         '<button data-p="' + idx + '" aria-label="Ajouter">+</button>' +
@@ -77,7 +69,7 @@ function addBtn(btn, silent) {
   var c = get(), r = btn.dataset.ref, f = null;
   for (var i = 0; i < c.length; i++) if (c[i].ref === r) f = c[i];
   if (f) f.q++;
-  else c.push({ ref: r, name: btn.dataset.name, ttc: parseFloat(btn.dataset.ttc), img: btn.dataset.img || '', q: 1 });
+  else c.push({ ref: r, name: btn.dataset.name, ht: parseFloat(btn.dataset.ht), img: btn.dataset.img || '', q: 1 });
   set(c);
   if (!silent) {
     goStep(1);
@@ -115,7 +107,6 @@ if (modal) {
     if (!currentRef) return;
     var b = document.querySelector('.sadd[data-ref="' + currentRef + '"]');
     if (!b) return;
-    if (!CART_ENABLED) { window.location.href = contactMailto(b.dataset.ref, b.dataset.name, parseFloat(b.dataset.ttc)); return; }
     addBtn(b, true); closeDetail(); goStep(1); openCart();
   });
 }
@@ -126,7 +117,6 @@ document.addEventListener('click', function (e) {
   if (z) { openDetail(z.dataset.ref); return; }
   var pk = e.target.closest('.bxpackadd');
   if (pk) {
-    if (!CART_ENABLED) { window.location.href = contactMailto(pk.dataset.refs, pk.textContent.trim(), 0); return; }
     pk.dataset.refs.split('|').forEach(function (r) {
       var bb = document.querySelector('.sadd[data-ref="' + r + '"]');
       if (bb) addBtn(bb, true);
@@ -137,10 +127,7 @@ document.addEventListener('click', function (e) {
     return;
   }
   var a = e.target.closest('.sadd');
-  if (a) {
-    if (!CART_ENABLED) { window.location.href = contactMailto(a.dataset.ref, a.dataset.name, parseFloat(a.dataset.ttc)); return; }
-    addBtn(a, false); return;
-  }
+  if (a) { addBtn(a, false); return; }
   var m = e.target.closest('[data-m]');
   if (m) { var cm = get(), im = +m.dataset.m; cm[im].q--; if (cm[im].q < 1) cm.splice(im, 1); set(cm); return; }
   var p = e.target.closest('[data-p]');
@@ -219,11 +206,22 @@ function orderRef() {
 if (confirmBtn) confirmBtn.addEventListener('click', function () {
   var d = collect();
   if (!d) return;
+  var errBox = document.getElementById('cfSendErr');
+  if (!CART_ENABLED) {
+    var mailHref = 'mailto:' + MAIL + '?subject=' + encodeURIComponent('Commande site - ' + val('cfName'))
+      + '&body=' + encodeURIComponent(d.txt);
+    if (errBox) {
+      errBox.hidden = false;
+      errBox.innerHTML = 'L&rsquo;envoi automatique n&rsquo;est pas encore disponible. '
+        + '<a href="' + mailHref + '">Cliquez ici pour nous envoyer votre commande par e-mail</a>, '
+        + 'ou appelez le +228 93 07 87 87.';
+    }
+    return;
+  }
   var rec = buildRecord(d);
   rec.ref = orderRef();
   confirmBtn.disabled = true;
   confirmBtn.textContent = 'Envoi en cours…';
-  var errBox = document.getElementById('cfErr');
   submitOrder(rec, function (ok, msg) {
     confirmBtn.disabled = false;
     confirmBtn.textContent = 'Envoyer ma commande';
@@ -371,7 +369,7 @@ function renderRecap() {
   var box = document.getElementById('cfRecap');
   if (!box) return;
   var c = get(), t = 0, rows = '';
-  c.forEach(function (it) { t += it.q * it.ttc; });
+  c.forEach(function (it) { t += it.q * it.ht; });
   var name = val('cfName'), org = val('cfOrg'), tel = val('cfTel'), mail = val('cfMail'), city = val('cfCity');
   var ship = radioVal('cfShip'), pay = radioVal('cfPay'), addr = shipAddressLine(), note = val('cfNote');
 
@@ -382,10 +380,10 @@ function renderRecap() {
   }
 
   var items = c.map(function (it) {
-    return '<p><span>' + it.q + ' &times; ' + it.name + '</span><b>' + fcfa(it.q * it.ttc) + '</b></p>';
+    return '<p><span>' + it.q + ' &times; ' + it.name + '</span><b>' + fcfa(it.q * it.ht) + '</b></p>';
   }).join('');
   rows += '<div class="cf-rec-b"><h4>Articles</h4>' + items
-    + '<p class="cf-rec-tot"><span>Total TTC</span><b>' + fcfa(t) + ' &middot; ' + eur(t) + '</b></p></div>';
+    + '<p class="cf-rec-tot"><span>Total HT</span><b>' + fcfa(t) + ' &middot; ' + eur(t) + '</b></p></div>';
 
   var contactLines = [['Nom', name]];
   if (org) contactLines.push(['Entreprise', org]);
@@ -417,8 +415,8 @@ function collect() {
   if (!c.length) return null;
   var t = 0, lines = [];
   c.forEach(function (it) {
-    t += it.q * it.ttc;
-    lines.push('- ' + it.q + ' x ' + it.name + ' (' + it.ref + ') : ' + fcfa(it.q * it.ttc));
+    t += it.q * it.ht;
+    lines.push('- ' + it.q + ' x ' + it.name + ' (' + it.ref + ') : ' + fcfa(it.q * it.ht));
   });
 
   var org = val('cfOrg'), note = val('cfNote');
@@ -427,7 +425,7 @@ function collect() {
   L.push('');
   L.push('COMMANDE');
   L = L.concat(lines);
-  L.push('Total TTC : ' + fcfa(t) + ' (soit ' + eur(t) + ')');
+  L.push('Total HT : ' + fcfa(t) + ' (soit ' + eur(t) + ')');
   L.push('');
   L.push('COORDONNEES');
   L.push('Nom : ' + name);
@@ -466,7 +464,7 @@ function buildRecord(d) {
     ship_slot: val('cfSlot') || null,
     pay_method: radioVal('cfPay'),
     pay_detail: (val('cfMMOp') || val('cfMMNum')) ? (val('cfMMOp') + ' ' + val('cfMMNum')).trim() : (val('cfBankName') || null),
-    items: c.map(function (it) { return { ref: it.ref, name: it.name, qty: it.q, unit_ttc_eur: it.ttc }; }),
+    items: c.map(function (it) { return { ref: it.ref, name: it.name, qty: it.q, unit_ht_eur: it.ht }; }),
     total_fcfa: Math.round(d.total * XOF),
     total_eur: Math.round(d.total * 100) / 100,
     note: val('cfNote') || null
@@ -547,17 +545,6 @@ var qi = document.getElementById('bxq');
 if (qi) qi.addEventListener('input', function () { q = this.value; apply(); });
 var so = document.getElementById('bxsort');
 if (so) so.addEventListener('change', function () { sortBy(this.value); });
-
-/* ---------------- panier en pause (paiement pas encore ouvert) ---------------- */
-/* les produits restent disponibles ; seul le libelle du bouton change, pour dire
-   qu'on passe par un e-mail plutot que par un panier en ligne. */
-if (!CART_ENABLED) {
-  var offTitle = 'Cliquez pour nous écrire et passer commande par e-mail.';
-  document.querySelectorAll('.sadd').forEach(function (b) { b.textContent = 'Nous écrire'; b.title = offTitle; });
-  document.querySelectorAll('.bxpackadd').forEach(function (b) { b.textContent = 'Nous écrire'; b.title = offTitle; });
-  if (modalAdd) { modalAdd.textContent = 'Nous écrire pour ce produit'; modalAdd.title = offTitle; }
-  if (btnCart) btnCart.style.display = 'none';
-}
 
 render();
 goStep(1);

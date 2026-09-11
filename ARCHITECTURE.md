@@ -55,7 +55,7 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - `assets/chat.js` + `assets/kb.js` : assistant. `logQuestion()` compte les questions dans `chat_logs`. VLAN ajoute (`me01b`).
 - `assets/suivi-etapes.js` : source de verite des etapes de suivi (libelle + pourcentage), partagee admin et client. `window.ROOTS_SUIVI.progress(order)` donne l'avancement.
 - `assets/app.js` injecte automatiquement un bloc **reseaux sociaux** (`.foot-social`) dans le `.foot-bottom` de chaque page (Facebook, Instagram, LinkedIn, TikTok, X), sans toucher au HTML de chacune des 26 pages. Pour changer un lien, modifier le tableau `NETS` dans `app.js`.
-- **Achat en ligne en pause (2026-09-11)** : dans `assets/shop.js`, `var CART_ENABLED = false;`. Les produits restent **disponibles** et les prix affiches normalement (rien n'est grise ni marque indisponible) ; seul le bouton change de comportement : il ne remplit plus le panier, il ouvre un e-mail pre-rempli (`contactMailto()`) vers `sales@roots.ws` avec le produit, la reference et le prix. Le bouton panier flottant reste masque (rien a y afficher tant qu'on ne vend pas en ligne). Remettre `CART_ENABLED = true` des que le paiement est branche (etape 8) pour retrouver le vrai panier.
+- **Panier pleinement actif, bloque seulement au dernier geste (2026-09-11)** : dans `assets/shop.js`, `var CART_ENABLED = false;`. Catalogue, ajout au panier, panier flottant, formulaire de coordonnees et recapitulatif fonctionnent normalement de bout en bout. Seul le clic sur "Envoyer ma commande" (step 3) est intercepte : au lieu d'inserer dans Supabase, un message s'affiche dans `#cfSendErr` (element ajoute dans `cartStep3`, a ne pas confondre avec `#cfErr` qui sert aux erreurs de validation du formulaire, step 2) avec un lien `mailto:` pre-rempli reprenant l'integralite du recapitulatif de commande (`d.txt`, deja construit par `collect()`). Rien n'est enregistre cote Supabase dans ce cas (verifie : le panier reste intact apres le clic). Remettre `CART_ENABLED = true` des que le paiement est branche (etape 8) pour activer l'envoi reel (`submitOrder`).
 - Fonctions Edge dans `supabase/functions/`, **deployees et verifiees en direct le 2026-09-11** via le dashboard Supabase (Edge Functions > Via Editor) :
   - `paiement-webhook` : recoit les confirmations de paiement (FedaPay / PayDunya / Flutterwave). En attente du compte marchand, pas encore deployee.
   - `notifier-suivi` : e-mail au client a chaque etape (via Resend). Secrets `RESEND_API_KEY`, `MAIL_FROM` configures. Testee en direct : envoi reussi vers l'adresse du compte Resend (`marketing-digital@roots.services`). **Limite Resend en mode test** : impossible d'envoyer a d'autres destinataires (les vrais clients) tant que le domaine `roots.services` ou `roots.ws` n'est pas verifie sur resend.com/domains. A faire avant mise en prod reelle.
@@ -88,13 +88,43 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - Fond de page juge "trop generique" par Wilfried : premiere passe faite (fonds ivoire au lieu de bleu-gris), a affiner
   si besoin (epurer davantage les degrades/motifs de fond).
 
+## Prix : hors taxes (HT) uniquement, depuis le 2026-09-11
+
+- Decision de Wilfried : **plus aucun prix TTC affiche sur le site**, ni cote client ni dans les reponses de
+  l'assistant. Le fichier `Downloads/Descriptifs de communication_ site e-commerce.xlsx` fourni par Wilfried
+  donne les prix HT de reference (colonne `PRIX EN VENTE HT`).
+- `boutique.html` : les 22 boutons produits utilisent `data-ht="<eur>"` (avant : `data-ttc`). `shop.js` : panier,
+  recapitulatif, e-mail de commande et `buildRecord()` calculent tout en HT (`it.ht`, `unit_ht_eur` dans
+  `orders.items`). Les anciennes commandes enregistrees avant cette date ont encore `unit_ttc_eur` dans leur
+  JSON `items` : ne pas essayer de les "corriger" retroactivement, c'est un historique reel.
+  - Catalogue interne de reference (HT en FCFA, source `catalog.sql`) : DC16250=589572, DP14-120U=568520,
+    DP14E-i3U=420424, DP14E-i3W=484291, DP14E-i5U=554478, DP14E-i5W=621158, DP15E=508856, QCS1250N=560799,
+    TOWER-W11=560799, QC1250N=442181, TOWER-i5=490611, QBT1250N=519385, E2425HSM=80716, S2425HSM=84224,
+    S2725HSM=105281, MS116=6315, KM5221W=20357, KM7120W=40708, KB216=8422, WD25=108789, WD25-3Y=113003,
+    WD25TB4=168447.
+- `catalogue.html` : le bloc "Nos meilleures ventes" et "Toute la gamme" affichaient des **produits fictifs**
+  (Dell Vostro 3520/3510, Dell Latitude 3420, HP 250 G8/G10, Lenovo ThinkBook...) avec des photos generiques
+  reutilisees entre plusieurs modeles (`assets/img/prod_dell.jpg` etc.) et des prix invente — c'est ce que
+  Wilfried a repere ("Dell Latitude 3420" affichait une photo HP). Remplace par une selection de vrais produits
+  du catalogue reel (photos et prix HT depuis `assets/produits/*.png` et `catalog.sql`), badges "Garantie X an(s)"
+  a la place des faux badges "Stock France/Togo/Benin" inventes.
+- `admin.js`/`admin.html` : le formulaire produit (onglet Produits) prend maintenant le **HT** en entree
+  (`pfPrix`), le TTC (18%) est affiche en dessous a titre indicatif seulement. Le modele CSV d'import utilise
+  la colonne `prix_ht_fcfa` (avant : `prix_ttc_fcfa`). La table `products` garde ses deux colonnes
+  (`prix_ht_fcfa`, `prix_ttc_fcfa`), seule la source de saisie a change.
+- `assets/kb.js` (reponses de l'assistant) et `worker/roots-chat-worker.js` (systeme de l'assistant IA,
+  optionnel) mis a jour pour ne plus jamais mentionner de TTC.
+- **A faire par Wilfried** : le fichier Excel contient 28 references au total (6 Dell deja dans le catalogue,
+  22 HP/Lenovo pas encore ajoutees). Pas encore integrees : voir "Reste a faire".
+
 ## Contraintes permanentes
 
 - Zero tiret comme separateur, zero emoji, icones SVG maison. Ton humain, francais accentue.
-- Jamais de faux avis, fausses promos, faux stock.
+- Jamais de faux avis, fausses promos, faux stock, faux produit ni photo ne correspondant pas au produit reel.
 - Carte bancaire = lien de paiement securise chez le prestataire, jamais de saisie carte sur le site.
 - Site bilingue FR/EN via attributs `data-en`.
 - EUR vers FCFA : parite fixe (655,957), ne fluctue pas. USD vers FCFA : fluctue, valeur manuelle.
+- Prix affiches : **HT uniquement**, jamais de TTC (voir section dediee ci-dessus).
 
 ## Paiement, verifie en direct le 2026-09-11
 
@@ -110,6 +140,17 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - Wiring `boutique.html` pour lire le catalogue depuis Supabase au lieu du HTML fige.
 - Publication automatique des posts reseaux sociaux (comptes Meta / LinkedIn Business + revue d'app).
 - Refonte visuelle : palette or/cuivre appliquee le 2026-09-11 (voir section Palette de couleurs). Reste a affiner si besoin : fond de page (motifs/degrades) et redeployer `notifier-suivi` pour que l'e-mail de suivi reprenne aussi la nouvelle couleur.
+- **Ajouter les 22 references HP/Lenovo du fichier Excel au catalogue.** Bloque sur deux points a trancher avec
+  Wilfried avant de publier quoi que ce soit (pour ne pas repeter l'erreur des photos/produits fictifs) :
+  1. **Photos** : aucune photo reelle de ces produits HP/Lenovo n'est disponible dans le depot. Il faut soit que
+     Wilfried fournisse les vraies photos (une par reference), soit accepter des photos generiques du modele
+     officiel (site HP/Lenovo) le temps d'avoir les vraies — a ne jamais faire sans validation, vu le sujet.
+  2. **Colonnes corrompues dans le fichier Excel** : `TYPE DISQUE DUR` et `MEMOIRE VIVE` contiennent des valeurs
+     qui s'incrementent ligne par ligne sans rapport avec le vrai produit (512 Go, 513 Go, 514 Go... et 8 Go,
+     9 Go, 10 Go... probablement une poignee Excel glissee par erreur). La colonne `Type (Portable/Desktop)`
+     est aussi douteuse (des portables connus comme le Lenovo V15 ou le HP ProBook y sont marques "Desktops").
+     Le texte libre `CARACTERISTIQUES (Fournisseurs)` reste fiable et a ete utilise comme reference le cas
+     echeant. A confirmer avec Wilfried avant de publier des fiches techniques basees sur ces colonnes.
 
 ## Journal des livraisons
 
@@ -119,4 +160,12 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - 2026-09-10 : nav (A propos remplace par Nos partenaires), bouton clair/sombre admin, suppression de commande, import CSV (etape 10), consentement RGPD + suppression de compte + CI (etape 9), prep paiement (etape 8) + PDF procedure.
 - 2026-09-10 : suivi de colis intelligent (frise cote admin et cote client, date de livraison estimee), robustesse MFA.
 - 2026-09-10 : barre d'avancement en pourcentage visible sans deplier (admin + client), fonction e-mail `notifier-suivi` (Resend, prete), mise a jour automatique du taux dollar `taux-change` (Edge + cron).
-- 2026-09-11 : `notifier-suivi` et `taux-change` deployees et testees en direct (voir piege "Function name" ci-dessus et limite Resend mode test). Achat en ligne mis en pause le temps d'ouvrir le compte marchand (`CART_ENABLED=false` dans `shop.js`, produits **disponibles**, prix toujours visibles, le bouton ouvre un e-mail au lieu du panier). Bloc reseaux sociaux ajoute au footer de toutes les pages via `app.js` (Facebook, Instagram, LinkedIn, TikTok, X). Police de titres remplacee par Montserrat, bug de cascade CSS corrige (double `:root` qui annulait tout changement de police). Bug de traduction corrige : le mot qui tourne dans le titre (`.rot`) ne suivait pas le bouton FR/EN, restait dans l'ancienne langue jusqu'au prochain cycle automatique. Palette recolore en bleu marine + or/cuivre (fini le cyan), fonds clairs rechauffes (ivoire au lieu de bleu-gris).
+- 2026-09-11 : `notifier-suivi` et `taux-change` deployees et testees en direct (voir piege "Function name" ci-dessus et limite Resend mode test). Bloc reseaux sociaux ajoute au footer de toutes les pages via `app.js` (Facebook, Instagram, LinkedIn, TikTok, X). Police de titres remplacee par Montserrat, bug de cascade CSS corrige (double `:root` qui annulait tout changement de police). Bug de traduction corrige : le mot qui tourne dans le titre (`.rot`) ne suivait pas le bouton FR/EN, restait dans l'ancienne langue jusqu'au prochain cycle automatique. Palette recolore en bleu marine + or/cuivre (fini le cyan), fonds clairs rechauffes (ivoire au lieu de bleu-gris).
+- 2026-09-11 (suite) : correction du panier — les produits ne doivent jamais paraitre indisponibles, seul le
+  dernier geste (envoi de la commande) est bloque, avec recours par e-mail pre-rempli. Passage integral du site
+  aux prix **HT uniquement** (boutique, panier, assistant, admin), a partir des vrais prix HT fournis par
+  Wilfried. `catalogue.html` : suppression des produits fictifs et photos generiques reutilisees (Dell Vostro,
+  Dell Latitude, HP 250, ThinkBook...), remplaces par de vrais produits du catalogue avec leurs vraies photos.
+  Excel `Descriptifs de communication_ site e-commerce.xlsx` recu : 6 references deja dans le catalogue
+  confirmees, 22 HP/Lenovo restent a ajouter (bloque sur les photos reelles et deux colonnes corrompues du
+  fichier, voir "Reste a faire").
