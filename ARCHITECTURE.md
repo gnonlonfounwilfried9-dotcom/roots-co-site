@@ -14,10 +14,23 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 
 - Principal : `rootsandcotech-create/Roots-Co` (remote `origin`). Live : https://rootsandcotech-create.github.io/Roots-Co/
 - Ancien : `gnonlonfounwilfried9-dotcom/roots-co-site` (remote `old-origin`). On pousse sur les deux a chaque commit.
-- Objectif : quitter GitHub Pages pour un vrai hebergeur + domaine (roots.services / roots.ws).
+- Objectif : quitter GitHub Pages pour un vrai hebergeur + domaine (roots.services / roots.ws / roots-co.fr).
 - Avant chaque publication : `python3 <scratchpad>/bust.py` (anti-cache `?v=` sur les CSS/JS locaux).
 - CI : `.github/workflows/verif.yml` lance `scripts/verif.py` a chaque push (titres, marqueurs de
   conflit, ressources manquantes, tirets parasites).
+- **Piege GitHub Pages decouvert le 2026-09-14** : deux push trop rapproches font echouer le deploiement du
+  second ("pages build and deployment" en `failure`, log : "Deployment request failed... due to in progress
+  deployment. Please cancel [sha] first or wait for it to complete."). Le commit reste bien pousse sur
+  `origin`/`old-origin` (rien de perdu), mais **le site public ne se met pas a jour** tant qu'un nouveau push
+  ne redeclenche pas un deploiement propre. Verifier apres coup avec
+  `gh run list --repo rootsandcotech-create/Roots-Co --limit 5` (colonne `pages-build-deployment` doit dire
+  `success` pour le dernier push) plutot que de supposer que "commit pousse" = "site a jour". Si ca arrive :
+  refaire un commit (meme petit) declenche un nouveau deploiement qui, lui, reussira (plus de deploiement
+  concurrent en cours).
+- `roots-co.fr` (domaine achete par Wilfried) redirige deja (301) vers
+  `https://rootsandcotech-create.github.io/Roots-Co/` — verifie en direct le 2026-09-14. Ce n'est pas encore
+  un vrai hebergement (juste une redirection DNS/registrar vers la meme URL GitHub Pages qu'avant), et pas
+  encore le nouvel hebergement FTP dont Wilfried a parle. Voir "Reste a faire".
 
 ## Supabase
 
@@ -65,28 +78,44 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 
 ## Typographie
 
-- Police de titres : **Montserrat** (variable, auto-hebergee dans `assets/fonts/montserrat-var.woff2`), variable CSS `--head`. Texte courant : **Inter**, variable `--sans`. Ces deux variables sont definies **une seule fois**, tout en haut de `assets/style.css` (`:root`).
-- **Bug historique corrige (2026-09-11)** : un second bloc `:root{--head:...}` plus bas dans le fichier (vers la ligne 1230, sous un commentaire "TYPOGRAPHIE v2") redefinissait `--head`/`--sans` vers des polices jamais chargees (`Space Grotesk`, `Manrope` en CDN qui n'existait pas), ecrasant systematiquement tout changement fait en haut du fichier a cause de l'ordre de la cascade CSS. C'est pour ca que les tentatives precedentes de changer la police "ne marchaient pas". Le bloc en double a ete supprime : il n'y a plus qu'une seule source de verite pour `--head`/`--sans`, en haut du fichier.
+- **Police unique du site (2026-09-14, consigne directe de "AH")** : **EB Garamond** pour tout, titres et texte
+  courant (`--head` et `--sans` pointent tous les deux sur `'EB Garamond'`), variable auto-hebergee dans
+  `assets/fonts/ebgaramond-var.woff2`. Consigne recue : "veillez a l'uniformite de la police (Garamond)" —
+  compris comme une seule famille partout, pas un couple titre/texte differencie. Si ce n'est pas ce qui etait
+  voulu (ex. Garamond pour les titres seulement, garder un sans-serif pour le texte courant), le signaler :
+  c'est un changement facile a affiner (une seule paire de variables a modifier).
+- Avant cette consigne, le site est passe par Sora/Inter puis Montserrat/Inter (2026-09-11). Inter a ete retire
+  du depot (fichiers `assets/fonts/inter-*.woff2` supprimes) puisqu'il n'est plus utilise nulle part.
+- **Bug historique (corrige le 2026-09-11, toujours vrai a retenir)** : un second bloc `:root{--head:...}` avait
+  ete ajoute plus bas dans `style.css` (sous un commentaire "TYPOGRAPHIE v2") qui redefinissait `--head`/`--sans`
+  et ecrasait silencieusement tout changement fait en haut du fichier a cause de l'ordre de la cascade CSS.
+  C'est pour ca que les tentatives de changement de police avant cette date ne prenaient jamais effet. Il n'y a
+  plus qu'une seule source de verite pour `--head`/`--sans`, tout en haut de `assets/style.css` (`:root`) —
+  ne jamais recreer un second bloc de ce type plus bas dans le fichier.
 - `Manrope` reste chargee separement, reservee aux graphiques Chart.js du tableau de bord (`admin.js` fixe `Chart.defaults.font.family`).
 
 ## Palette de couleurs
 
-- **Changement 2026-09-11, decision de Wilfried** : le cyan d'origine est retire, remplace par un bleu marine + or/cuivre.
-- Les noms de variables CSS ne changent PAS (`--cyan`, `--cyan-d`, `--teal`, `--gold`), seulement leurs valeurs :
-  `--cyan:#d9a441` (or, accent principal), `--cyan-d:#a9762a` (cuivre fonce, degrades et hover), `--teal:#8a5a1f` (bronze fonce,
-  texte sur fond clair type kicker/liens), `--gold:#f4b63c` (inchange, reste le ton le plus vif). `--navy`/`--navy2`/`--navy3`
-  inchanges (base sombre du site). `--dell:#0f7fc0` **volontairement inchange** : c'est le vrai bleu de marque Dell, pas
-  notre accent.
-- Fonds clairs rechauffes : `--surface`/`--surface2`/`--tint`/`--line` sont passes d'un bleu-gris froid (aspect "SaaS
-  generique") a un ivoire chaud, pour repondre au retour "fond trop generique".
-- **Attention en cas de nouvelle modification de couleur** : plusieurs couleurs cyan etaient codees en dur (pas via variable)
-  et il faut les repasser a la main si on change encore la teinte : `assets/style.css` (`rgba(34,195,230,...)` -> deja
-  converti en `rgba(217,164,65,...)`, et le degrade texte de `.hero h1 .rot`), `assets/app.js` (particules et lignes du
-  reseau anime du hero, `ctx.fillStyle`/`strokeStyle`), `assets/admin.js` (`themeColors()` et les couleurs du donut Analyse),
-  `a-propos.html` (dgradient SVG inline), `supabase/functions/notifier-suivi/index.ts` (barre de progression de l'e-mail,
-  **ne se met a jour qu'apres redeploiement manuel de la fonction**, le depot Git n'est pas relie a Supabase).
-- Fond de page juge "trop generique" par Wilfried : premiere passe faite (fonds ivoire au lieu de bleu-gris), a affiner
-  si besoin (epurer davantage les degrades/motifs de fond).
+- **Charte officielle Roots & Co, decidee en reunion le 2026-08-13** : bleu marine + cyan
+  (`--navy2:#0c2848`, `--cyan:#22c3e6`). C'est la reference a utiliser par defaut.
+- **2026-09-11** : essai d'un bleu marine + or/cuivre (decision de Wilfried a ce moment-la, sans reference a la
+  charte officielle ci-dessus).
+- **2026-09-14, retour direct ("AH")** : "privilegier les couleurs officiels de la structure" + "enleve la
+  couleur or, choisis l'une ou l'autre des autres, jamais le tout" → **revenu a la charte officielle (navy +
+  cyan)**, l'or/cuivre est completement retire. `--cyan:#22c3e6`, `--cyan-d:#0f92b8`, `--teal:#0c7c9c` (valeurs
+  d'origine). `--gold` n'est plus un ton or : aligne sur `--cyan-d` pour ne pas reintroduire une 3e couleur hors
+  charte. `--navy`/`--navy2`/`--navy3` n'ont jamais change. `--dell:#0f7fc0` **volontairement inchange** dans
+  les deux versions : c'est le vrai bleu de marque Dell, pas l'accent du site.
+- Fonds clairs restes ivoire (`--surface`/`--surface2`/`--tint`/`--line`, plus chauds qu'a l'origine) : ce
+  changement du 2026-09-11 n'a pas ete remis en cause par la correction du 2026-09-14 (qui portait sur la
+  couleur d'accent, pas sur les fonds neutres) — a confirmer si Wilfried voulait aussi revenir sur les fonds.
+- **Toutes les couleurs codees en dur (hors variable CSS) ont ete re-basculees en cyan le 2026-09-14** :
+  `assets/style.css` (`rgba(34,195,230,...)`, degrade texte de `.hero h1 .rot`, `.spot-badge`), `assets/app.js`
+  (particules et lignes du reseau anime du hero), `assets/admin.js` (`themeColors()` et couleurs du donut
+  Analyse), `a-propos.html` (degrade SVG inline), `supabase/functions/notifier-suivi/index.ts` (barre de
+  progression de l'e-mail — **ne prendra effet qu'apres redeploiement manuel de la fonction sur Supabase**, le
+  depot Git n'est pas relie automatiquement). Si la couleur doit encore changer un jour, chercher `217,164,65`
+  et `230,190,120` (residus de l'essai or/cuivre) pour verifier qu'aucune trace ne reste.
 
 ## Prix : hors taxes (HT) uniquement, depuis le 2026-09-11
 
@@ -98,11 +127,11 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   `orders.items`). Les anciennes commandes enregistrees avant cette date ont encore `unit_ttc_eur` dans leur
   JSON `items` : ne pas essayer de les "corriger" retroactivement, c'est un historique reel.
   - Catalogue interne de reference (HT en FCFA, source `catalog.sql`, **prix Dell mis a jour le 2026-09-11**,
-    voir section suivante) : DC16250=748252, DP14-120U=723493, DP14E-i3U=549355, DP14E-i3W=624457,
-    DP14E-i5U=706987, DP14E-i5W=621158 (inchange), DP15E=508856 (inchange), QCS1250N=560799,
-    TOWER-W11=560799, QC1250N=442181, TOWER-i5=490611, QBT1250N=519385, E2425HSM=80716, S2425HSM=84224,
-    S2725HSM=105281, MS116=6315, KM5221W=20357, KM7120W=40708, KB216=8422, WD25=108789, WD25-3Y=113003,
-    WD25TB4=168447.
+    refs renommees le 2026-09-14, voir sections suivantes) : RTS_2026360025=748252, RTS_2026360026=723493,
+    RTS_2026360027=549355, RTS_2026360028=624457, RTS_2026360029=706987, DP14E-i5W=621158 (inchange, pas de
+    code RTS connu), DP15E=508856 (inchange, pas de code RTS connu), QCS1250N=560799, TOWER-W11=560799,
+    QC1250N=442181, TOWER-i5=490611, QBT1250N=519385, E2425HSM=80716, S2425HSM=84224, S2725HSM=105281,
+    MS116=6315, KM5221W=20357, KM7120W=40708, KB216=8422, WD25=108789, WD25-3Y=113003, WD25TB4=168447.
 - **Bug corrige (2026-09-11)** : l'attribut `data-price` sur `<article class="bxcard">` (utilise par le tri
   "Trier par prix" dans `shop.js`) avait garde l'ancienne valeur TTC pour les 22 produits d'origine, alors que
   l'affichage etait deja passe en HT. Resynchronise avec `data-ht` pour les 22 (le tri par prix triait sur les
@@ -151,9 +180,37 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   Lenovo V15 G5 IRL, meme photo que les autres references de cette famille.
 - **Prix Dell mis a jour** : Wilfried a confirme que les prix Dell de l'Excel (plus eleves que ceux deja en
   ligne, environ +27%) sont une vraie mise a jour tarifaire, a appliquer. Fait dans `catalog.sql`,
-  `boutique.html`, `catalogue.html` et `assets/kb.js` pour DC16250, DP14-120U, DP14E-i3U, DP14E-i3W et
-  DP14E-i5U (les 2 seuls Dell laptop non couverts par cet Excel, DP14E-i5W et DP15E, gardent leur ancien
-  prix). SQL de mise a jour : `assets/price-updates-2026-09-11.sql`.
+  `boutique.html`, `catalogue.html` et `assets/kb.js` pour RTS_2026360025 (ex-DC16250), RTS_2026360026
+  (ex-DP14-120U), RTS_2026360027 (ex-DP14E-i3U), RTS_2026360028 (ex-DP14E-i3W) et RTS_2026360029
+  (ex-DP14E-i5U) (les 2 seuls Dell laptop non couverts par cet Excel, DP14E-i5W et DP15E, gardent leur ancien
+  prix ET leur ancienne reference, faute de code RTS connu pour eux). SQL de mise a jour :
+  `assets/price-updates-2026-09-11.sql`.
+
+## References produits : passage aux numeros d'identification officiels (RTS_..., 2026-09-14)
+
+- **Consigne directe ("AH")** : "utiliser les numeros d'identification suivants en reference" — le "Ref."
+  affiche au client doit correspondre au vrai code interne de suivi (`ITEM_CODE` de l'Excel fournisseur,
+  format `RTS_2026360XXX`), pas a un raccourci invente par Claude (`DC16250`, `AD0W1ET`...).
+- **27 produits renommes** (les 5 Dell + les 22 HP/Lenovo qui ont un `ITEM_CODE` connu dans l'Excel) :
+  partout ou l'ancien code apparaissait (`boutique.html` : badge "Ref.", `data-ref` des boutons, texte de
+  recherche ; `catalogue.html` ; `assets/kb.js` ; `assets/catalog.sql` ; `assets/catalog-hp-lenovo.sql` ;
+  `admin.html`/`assets/admin.js` : exemple du modele CSV), remplace par le code RTS correspondant. Mapping
+  complet dans `assets/catalog.sql` et `assets/catalog-hp-lenovo.sql` (colonne `ref`).
+  **Les noms de fichiers image ne changent pas** (ex. `assets/produits/DC16250.png` reste tel quel meme si le
+  produit s'appelle maintenant `RTS_2026360025`) : seule la reference visible/le `ref` en base changent, pas
+  les chemins d'assets internes.
+- **16 produits gardent leur ancienne reference courte**, faute de code RTS connu pour eux (pas dans l'Excel
+  fournisseur) : DP14E-i5W, DP15E, QCS1250N, TOWER-W11, QC1250N, TOWER-i5, QBT1250N, E2425HSM, S2425HSM,
+  S2725HSM, MS116, KM5221W, KM7120W, KB216, WD25, WD25-3Y, WD25TB4. **A demander a Wilfried** : leurs vrais
+  codes RTS s'ils existent, pour finir l'uniformisation.
+- **SQL a coller dans Supabase** : `assets/price-updates-2026-09-11.sql` fait maintenant le prix ET le
+  renommage en une seule commande (`update ... set ref='RTS_...', prix_ht_fcfa=..., prix_ttc_fcfa=... where
+  ref='ancien_ref'`), puisque la base de Wilfried a encore les anciennes references tant qu'il n'a rien colle.
+  **A coller AVANT** `assets/catalog-hp-lenovo.sql` (qui, lui, insere directement avec les codes RTS finaux).
+  **Attention** : une fois ce renommage fait, ne plus recoller `assets/catalog.sql` tel quel sur cette meme
+  base — il contient maintenant les references RTS directement (bon pour une installation neuve), et son
+  `on conflict (ref)` ne "verrait" plus les 5 lignes Dell comme deja existantes si elles etaient encore sous
+  l'ancien nom, risquant de creer des doublons.
 
 ## Contraintes permanentes
 
@@ -179,8 +236,17 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - Publication automatique des posts reseaux sociaux (comptes Meta / LinkedIn Business + revue d'app).
 - Refonte visuelle : palette or/cuivre appliquee le 2026-09-11 (voir section Palette de couleurs). Reste a affiner si besoin : fond de page (motifs/degrades) et redeployer `notifier-suivi` pour que l'e-mail de suivi reprenne aussi la nouvelle couleur.
 - Coller `assets/price-updates-2026-09-11.sql` PUIS `assets/catalog-hp-lenovo.sql` dans Supabase (SQL Editor,
-  Run) pour que les prix Dell corriges et les 22 nouveaux produits HP/Lenovo apparaissent aussi dans le
-  tableau de bord admin (deja visibles sur `boutique.html`/`catalogue.html`, qui sont en HTML statique).
+  Run) pour que les prix Dell corriges, le renommage en references RTS et les 22 nouveaux produits HP/Lenovo
+  apparaissent aussi dans le tableau de bord admin (deja visibles sur `boutique.html`/`catalogue.html`, qui
+  sont en HTML statique).
+- Demander a Wilfried les vrais codes RTS des 16 produits qui n'en ont pas encore (voir section "References
+  produits").
+- **`roots-co.fr` / migration hors GitHub Pages** : Wilfried a indique qu'un nouvel hebergement est "en cours
+  de configuration et de MAJ DNS chez le registrar", accessible des maintenant par FTP (identifiants recus par
+  e-mail de son cote). Claude n'a pas ces identifiants et n'a pas d'outil FTP branche : **action bloquee tant
+  que Wilfried ne fournit pas les details** (hote, utilisateur, mot de passe, protocole FTP/FTPS/SFTP) ou ne
+  fait pas l'upload lui-meme avec des instructions pas-a-pas. Une fois la migration faite, mettre a jour cette
+  section (nouvel hebergeur, comment publier desormais, devenir de `origin`/`old-origin`).
 
 ## Journal des livraisons
 
@@ -205,3 +271,15 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   `assets/price-updates-2026-09-11.sql`). Ligne Lenovo `83GW00EPFE` resolue par verification sur la fiche
   officielle PSREF (Core 7 240H) et ajoutee. Bug corrige : `data-price` (tri par prix de la boutique) etait
   reste en TTC pour les 22 produits d'origine alors que l'affichage etait deja en HT.
+- 2026-09-14 : retour de correction recu (fichier "Elements de correction AH 2.0 V3 e-commerce.pptx") →
+  couleur revenue a la charte officielle Roots (bleu marine + cyan, decidee en reunion le 13/08/2026), or/cuivre
+  retire partout (voir "Palette de couleurs"). Police unifiee sur EB Garamond, titres et texte (voir
+  "Typographie"). Numero de telephone corrige dans le message "envoi automatique pas encore disponible" et
+  dans le message d'echec d'envoi (`assets/shop.js`) : utilisaient encore l'ancien numero Togo, remplaces par
+  le numero WhatsApp actif +229 99 56 52 52. 27 references produits renommees vers les codes d'identification
+  officiels `RTS_2026360XXX` fournis par Wilfried (voir "References produits"), 16 gardent leur ancienne
+  reference faute de code connu. Decouvert et documente : un push trop rapide apres un autre fait echouer le
+  deploiement GitHub Pages (deploiement concurrent refuse), ce qui explique pourquoi certains changements du
+  2026-09-11 n'etaient pas encore visibles en ligne le 2026-09-14 malgre des commits corrects sur `origin`.
+  `roots-co.fr` verifie : redirige deja vers le site GitHub Pages actuel, la migration vers un nouvel
+  hebergement FTP reste a faire (bloquee, identifiants necessaires cote Wilfried).

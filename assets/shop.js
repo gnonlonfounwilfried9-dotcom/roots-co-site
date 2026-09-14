@@ -214,7 +214,7 @@ if (confirmBtn) confirmBtn.addEventListener('click', function () {
       errBox.hidden = false;
       errBox.innerHTML = 'L&rsquo;envoi automatique n&rsquo;est pas encore disponible. '
         + '<a href="' + mailHref + '">Cliquez ici pour nous envoyer votre commande par e-mail</a>, '
-        + 'ou appelez le +228 93 07 87 87.';
+        + 'ou appelez/&eacute;crivez sur WhatsApp au +229 99 56 52 52.';
     }
     return;
   }
@@ -228,7 +228,7 @@ if (confirmBtn) confirmBtn.addEventListener('click', function () {
     if (!ok) {
       if (errBox) {
         errBox.hidden = false;
-        errBox.textContent = 'Envoi impossible pour le moment. Réessayez, ou appelez le +228 93 07 87 87.';
+        errBox.textContent = 'Envoi impossible pour le moment. Réessayez, ou appelez/écrivez sur WhatsApp au +229 99 56 52 52.';
       }
       return;
     }

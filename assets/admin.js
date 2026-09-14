@@ -454,8 +454,8 @@
   var tplBtn = document.getElementById('prodTemplate');
   if (tplBtn) tplBtn.addEventListener('click', function () {
     var csv = 'ref;nom;categorie;prix_ht_fcfa;stock;spec;actif\r\n'
-      + 'DC16250;Dell 16;portables;589572;10;16 pouces, Core i5, 16 Go, 512 Go SSD;oui\r\n'
-      + 'NOUVEAU-REF;Nom du produit;accessoires;12712;5;Description courte;oui\r\n';
+      + 'RTS_2026360025;Dell 16;portables;748252;10;16 pouces, Core i5, 16 Go, 512 Go SSD;oui\r\n'
+      + 'RTS_NOUVELLE-REF;Nom du produit;accessoires;12712;5;Description courte;oui\r\n';
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
     a.download = 'modele-catalogue-roots.csv';
@@ -880,7 +880,7 @@
     return {
       text: dark ? '#93a6bc' : '#58697e',
       grid: dark ? 'rgba(255,255,255,.08)' : 'rgba(10,30,60,.08)',
-      cyan: '#d9a441', navy: dark ? '#e8c176' : '#123a6b', teal: '#a9762a'
+      cyan: '#22c3e6', navy: dark ? '#4fd1e8' : '#123a6b', teal: '#0f92b8'
     };
   }
   function dayKey(d) { return d.toISOString().slice(0, 10); }
@@ -981,7 +981,7 @@
       data: {
         labels: ['Nouvelles', 'Confirmées', 'En livraison', 'Livrées', 'Annulées'],
         datasets: [{ data: [st.nouveau, st.confirme, st.en_livraison, st.livre, st.annule],
-          backgroundColor: ['#d9a441', '#a9762a', '#f59e0b', '#15803d', '#9f1239'] }]
+          backgroundColor: ['#22c3e6', '#0f92b8', '#f59e0b', '#15803d', '#9f1239'] }]
       },
       options: { plugins: { legend: { position: 'bottom' } }, cutout: '58%' }
     });
