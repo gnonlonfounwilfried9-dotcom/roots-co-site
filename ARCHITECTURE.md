@@ -243,12 +243,15 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   anciennes lignes orphelines) — **a coller dans Supabase SQL Editor par Wilfried, pas encore fait**.
 - Demander a Wilfried les vrais codes RTS des 16 produits qui n'en ont pas encore (voir section "References
   produits").
-- **`roots-co.fr` / migration hors GitHub Pages** : Wilfried a indique qu'un nouvel hebergement est "en cours
-  de configuration et de MAJ DNS chez le registrar", accessible des maintenant par FTP (identifiants recus par
-  e-mail de son cote). Claude n'a pas ces identifiants et n'a pas d'outil FTP branche : **action bloquee tant
-  que Wilfried ne fournit pas les details** (hote, utilisateur, mot de passe, protocole FTP/FTPS/SFTP) ou ne
-  fait pas l'upload lui-meme avec des instructions pas-a-pas. Une fois la migration faite, mettre a jour cette
-  section (nouvel hebergeur, comment publier desormais, devenir de `origin`/`old-origin`).
+- **`roots-co.fr` / migration hors GitHub Pages** : hebergeur identifie le 2026-09-15 = **LWS** (formule
+  Perso, compte client LWS-825594), acces FTP (hote `ftp.roots-co.fr`, port 21, FileZilla recommande) et
+  File Manager web via `panel.lws.fr`. Claude n'a pas d'outil FTP branche dans cette session et ne saisit
+  jamais un mot de passe lui-meme (regle de securite) : **Wilfried doit faire l'upload lui-meme**, procedure
+  pas-a-pas donnee en chat (FileZilla ou File Manager LWS). Point a verifier une fois l'upload fait : le DNS
+  de `roots-co.fr` pointait avant vers une redirection 301 GitHub Pages (voir plus haut) — si le domaine n'a
+  pas ete transfere chez LWS, cette redirection doit etre remplacee par les enregistrements DNS de LWS,
+  sinon le site LWS restera injoignable meme apres l'upload. Une fois la migration confirmee en ligne, mettre
+  a jour cette section (comment publier desormais, devenir de `origin`/`old-origin`/GitHub Pages).
 
 ## Journal des livraisons
 
