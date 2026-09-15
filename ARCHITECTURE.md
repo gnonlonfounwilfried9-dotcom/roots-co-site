@@ -235,10 +235,12 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - Wiring `boutique.html` pour lire le catalogue depuis Supabase au lieu du HTML fige.
 - Publication automatique des posts reseaux sociaux (comptes Meta / LinkedIn Business + revue d'app).
 - Refonte visuelle : palette or/cuivre appliquee le 2026-09-11 (voir section Palette de couleurs). Reste a affiner si besoin : fond de page (motifs/degrades) et redeployer `notifier-suivi` pour que l'e-mail de suivi reprenne aussi la nouvelle couleur.
-- Coller `assets/price-updates-2026-09-11.sql` PUIS `assets/catalog-hp-lenovo.sql` dans Supabase (SQL Editor,
-  Run) pour que les prix Dell corriges, le renommage en references RTS et les 22 nouveaux produits HP/Lenovo
-  apparaissent aussi dans le tableau de bord admin (deja visibles sur `boutique.html`/`catalogue.html`, qui
-  sont en HTML statique).
+- **Fait, mais a corriger** : `assets/price-updates-2026-09-11.sql` et `assets/catalog-hp-lenovo.sql` ont bien
+  ete colles dans Supabase, mais `catalog-hp-lenovo.sql` a ete colle deux fois (2026-09-11 avec les anciennes
+  references courtes, puis 2026-09-14 avec les references RTS) → 22 lignes en double dans la table
+  `products` (66 lignes en base contre 44 references reellement affichees sur le site). Diagnostic et
+  correctif : voir `assets/fix-duplicate-hp-lenovo-2026-09-15.sql` (verification puis suppression des 22
+  anciennes lignes orphelines) — **a coller dans Supabase SQL Editor par Wilfried, pas encore fait**.
 - Demander a Wilfried les vrais codes RTS des 16 produits qui n'en ont pas encore (voir section "References
   produits").
 - **`roots-co.fr` / migration hors GitHub Pages** : Wilfried a indique qu'un nouvel hebergement est "en cours
@@ -283,3 +285,7 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   2026-09-11 n'etaient pas encore visibles en ligne le 2026-09-14 malgre des commits corrects sur `origin`.
   `roots-co.fr` verifie : redirige deja vers le site GitHub Pages actuel, la migration vers un nouvel
   hebergement FTP reste a faire (bloquee, identifiants necessaires cote Wilfried).
+- 2026-09-15 : diagnostic de l'ecart 44 (site) / 66 (Supabase) confirme : `catalog-hp-lenovo.sql` colle deux
+  fois (anciennes references puis RTS) a duplique 22 fiches HP/Lenovo. Correctif livre
+  (`assets/fix-duplicate-hp-lenovo-2026-09-15.sql`), en attente d'execution par Wilfried dans Supabase.
+  Deploiement GitHub Pages du 2026-09-14 confirme reussi (`gh run list`), le site public est bien a jour.
