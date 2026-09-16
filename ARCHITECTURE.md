@@ -237,14 +237,34 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - Wiring `boutique.html` pour lire le catalogue depuis Supabase au lieu du HTML fige.
 - Publication automatique des posts reseaux sociaux (comptes Meta / LinkedIn Business + revue d'app).
 - Refonte visuelle : palette or/cuivre appliquee le 2026-09-11 (voir section Palette de couleurs). Reste a affiner si besoin : fond de page (motifs/degrades) et redeployer `notifier-suivi` pour que l'e-mail de suivi reprenne aussi la nouvelle couleur.
-- **Retrait complet des 22 produits HP/Lenovo, decide en reunion le 2026-09-16** ("on garde uniquement les
-  articles officiellement soumis au catalogue, pas le lot photographie de demonstration") : cartes retirees
-  de `boutique.html` (retour a 22 references Dell, hero/titre/compteurs de filtres corriges), rien a changer
-  cote `admin.html` (lit `products` en direct depuis Supabase). SQL de suppression fourni en chat et livre
-  dans `assets/remove-hp-lenovo-2026-09-16.sql` — supprime a la fois les 22 lignes RTS et les 22 anciennes
-  lignes en double diagnostiquees le 2026-09-15 (`assets/fix-duplicate-hp-lenovo-2026-09-15.sql` devient donc
-  inutile si celui-ci est execute) — **a coller dans Supabase SQL Editor par Wilfried, pas encore fait**.
-  `assets/catalog-hp-lenovo.sql` reste dans le depot pour memoire mais ne doit plus etre relance.
+- **Correction du 2026-09-16 (apres-midi) : le retrait des 22 HP/Lenovo du matin etait une erreur.**
+  Wilfried a confirme en reecoutant/relisant le fichier `Descriptifs de communication_ site e-commerce.xlsx`
+  qu'il contient bien **27 references officielles** (5 Dell + 22 HP/Lenovo, toutes deja codees
+  `RTS_2026360XXX` dans le fichier source lui-meme), pas 22. Les 22 HP/Lenovo ont ete remises en place dans
+  `boutique.html` (recuperees depuis l'historique git, commit `8cc39a1`), plus un second fichier
+  `ROOTS Promo Dell SEPTEMBRE 2026C.xlsx` (184 lignes de stock Dell a liquider en France) a ete fusionne :
+  155 references uniques ajoutees apres dedoublonnage (3 references communes aux deux fichiers ecartees :
+  505474-DC16250, 715987-PV14250, 715986-PV14250 ; consolidation des lignes strictement identiques du
+  fichier stock, ex. plusieurs lots de la meme souris MS116). **Catalogue final : 199 references.**
+  SQL complet (restauration HP/Lenovo + 155 nouvelles) : `assets/catalog-fusion-2026-09-16.sql` — **a coller
+  dans Supabase SQL Editor par Wilfried, pas encore fait**. Idempotent : peut etre relance sans risque quel
+  que soit l'etat actuel de la base (ecrase l'ancien `assets/remove-hp-lenovo-2026-09-16.sql` d'hier matin,
+  qui ne doit plus etre execute).
+  - **Prix des 155 nouvelles references** : calcule (prix EUR du fichier stock) x 655,957 (taux fixe du
+    site) x **1,20** (marge deduite des 3 references communes aux deux fichiers, qui donnaient un ratio
+    reel entre 1,18 et 1,22 une fois converties au prix de vente deja approuve) — **a verifier par Wilfried
+    des que possible**, marge appliquee uniformement en attendant une confirmation ligne par ligne.
+  - **Photos** : reelles et officielles pour les familles a plus forte visibilite, sourcees le 2026-09-16 sur
+    dell.com (`dell-pro-14.png`, `dell-pro-tower.png`, `dell-poweredge-server.png`, plus reutilisation de
+    `S2425HSM.png` deja au depot pour les nouveaux ecrans). **Pour toutes les autres familles nouvelles**
+    (Latitude, OptiPlex, XPS, Pro Essential/Plus/Premium/Max, memoire, cables, cles USB, antivols, etc.),
+    la photo de la famille visuellement la plus proche est reutilisee **a titre temporaire** — ce n'est pas
+    encore une photo dediee par reference comme pour les 27 premieres. A ameliorer en suivant.
+  - **Categories admin vs site** : `categorie_id` en base reste limite aux 5 valeurs existantes
+    (`portables, bureau, ecrans, accessoires, stations` — contrainte de cle etrangere vers `categories`),
+    alors que `boutique.html` affiche desormais 9 filtres plus fins cote client (dont `server`, `memory`,
+    et `accessory` en plus des 6 d'origine) : ce sont deux vocabulaires separes, le filtre fin n'existe que
+    dans le HTML/JS, pas en base.
 - Demander a Wilfried les vrais codes RTS des 16 produits qui n'en ont pas encore (voir section "References
   produits") — question moins urgente maintenant que les produits HP/Lenovo sont retires, mais les 5 Dell
   renommes restent concernes si un futur lot est ajoute.
@@ -307,3 +327,10 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   le vrai logo de marque (chemin SVG officiel Simple Icons) sur les 25 pages publiques. Diagnostic complet du
   blocage `roots-co.fr` : ni un souci d'upload FTP ni de DNS non propage, mais une redirection 301 encore
   active cote LWS vers l'ancien site GitHub Pages (voir "Reste a faire" pour le correctif exact).
+- 2026-09-16 (apres-midi) : correction du retrait des 22 HP/Lenovo du matin (erreur, voir "Reste a faire") —
+  le fichier source contient 27 references, pas 22. Fusion avec le fichier de stock Dell a liquider
+  (`ROOTS Promo Dell SEPTEMBRE 2026C.xlsx`, 184 lignes) : 155 references uniques ajoutees apres
+  dedoublonnage. Catalogue final 199 references, SQL fourni (`assets/catalog-fusion-2026-09-16.sql`), pas
+  encore colle dans Supabase par Wilfried. Marge de vente de 20% appliquee aux nouvelles references
+  (a confirmer), photos officielles Dell sourcees pour les familles les plus visibles, reste temporaire
+  pour les autres (voir "Reste a faire").
