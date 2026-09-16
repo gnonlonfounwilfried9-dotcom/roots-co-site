@@ -1,13 +1,12 @@
--- ROOTS & Co : fusion des deux fichiers catalogue du 2026-09-16 (v2, avec galeries photo)
+-- ROOTS & Co : fusion des deux fichiers catalogue du 2026-09-16 (v3, galeries elargies)
 -- (Descriptifs de communication_ site e-commerce.xlsx = 27 references officielles deja
 -- codees RTS_2026360XXX, ET ROOTS Promo Dell SEPTEMBRE 2026C.xlsx = 184 lignes de stock
 -- Dell a liquider). Decision reunion Wilfried/Richmond : les deux documents doivent
 -- figurer sur le site, sans doublon. Idempotent, relancable sans risque.
--- Remplace catalog-fusion-2026-09-16.sql (v1) : celui-ci corrige un conflit de reference
--- (MS116 existait deja dans le catalogue d'origine, la ligne en double du fichier stock a
--- ete retiree) et ajoute une deuxieme photo (galerie) pour chaque famille qui en a une
--- officiellement disponible chez Dell, pour eviter qu'un meme visuel serve a plusieurs
--- produits differents.
+-- Remplace catalog-fusion-2026-09-16-v2.sql : celui-ci ajoute 4 nouvelles categories de
+-- photos (chargeur, ecouteurs, sac, cable, avant WD25 generique pour tout) et une 3e photo
+-- en rotation pour la famille Dell Pro 14/16 (les cartes ne montrent plus toutes exactement
+-- la meme image). Les prix HT/TTC sont inchanges par rapport a la v2.
 --
 -- Etape 1 : remet en place les 22 produits HP/Lenovo du premier fichier (ils avaient ete
 -- retires par erreur le 2026-09-16 matin : le fichier contient bien 27 references au total,
@@ -53,26 +52,25 @@ on conflict (ref) do update set
 -- Prix calcules : prix_ht_fcfa = prix_eur x 655,957 (taux fixe du site) x 1,20 (marge de
 -- vente, deduite des 3 references communes aux deux fichiers -- a verifier/ajuster).
 -- Photos : chaque famille de produit a sa propre photo officielle Dell quand elle existe
--- (sourcee le 2026-09-16 sur dell.com) ; les familles les plus visibles (Dell Pro 14/16,
--- tours Dell Pro, ecrans, serveurs PowerEdge R760) ont 2 photos (galerie, 2e vue au clic
--- sur "Details"). Les familles sans photo dediee trouvee reutilisent la photo de la famille
--- la plus proche visuellement (a ameliorer en continu).
+-- (sourcee le 2026-09-16 sur dell.com). Note : cote site (boutique.html, pas dans ce SQL),
+-- chaque fiche affiche desormais un bandeau rouge "Prix actuel, susceptible d'evoluer" pour
+-- signaler que ces 154 prix sont indicatifs et peuvent changer.
 
 insert into public.products (ref, nom_fr, categorie_id, spec_fr, desc_fr, prix_ttc_fcfa, prix_ht_fcfa, stock, images) values
   ('504225-DB14250','Dell Plus 14','portables','Dell 14 Plus 14 Cu5-256V 8C 4.8GHz 16GB 512GB WIFIBT W11P 1Y','Dell 14 Plus 14 Cu5-256V 8C 4.8GHz 16GB 512GB WIFIBT W11P 1Y',1173909,994838,15,'["assets/produits/dell-db14250.png"]'::jsonb),
-  ('494116-PC14250','Dell Pro 14','portables','Dell Pro 14 Ci5-120U 10C 5.0GHz 8GB 512GB WIFIBT W11P 1Y','Dell Pro 14 Ci5-120U 10C 5.0GHz 8GB 512GB WIFIBT W11P 1Y',993389,841855,5,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('257097-PC14250','Dell Pro 14','portables','Dell Pro 14 -N Cu5-235U 12C 4.9GHz 12C 4.9GHz 16GB 256GB WIFIBT W11P 4Y','Dell Pro 14 -N Cu5-235U 12C 4.9GHz 12C 4.9GHz 16GB 256GB WIFIBT W11P 4Y',993389,841855,1,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('494117-PC14250','Dell Pro 14','portables','Dell Pro 14 -N Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT UBU 1Y','Dell Pro 14 -N Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT UBU 1Y',1084183,918799,32,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('494115-PC14250','Dell Pro 14','portables','Dell Pro 14 Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT W11P 1Y','Dell Pro 14 Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT W11P 1Y',1233725,1045530,16,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('488873-PC14250','Dell Pro 14','portables','Dell Pro 14 -N Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT UBU 1Y','Dell Pro 14 -N Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT UBU 1Y',1233725,1045530,8,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('488663-PC14250','Dell Pro 14','portables','Dell Pro 14 Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT W11P 1Y','Dell Pro 14 Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT W11P 1Y',1345882,1140578,15,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('495628-PC16250','Dell Pro 16','portables','Dell Pro 16 Ci5-120U-N 10C 5.0GHz 16GB 512GB WIFIBT UBU 1Y','Dell Pro 16 Ci5-120U-N 10C 5.0GHz 16GB 512GB WIFIBT UBU 1Y',1009412,855434,15,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('503550-PC16250','Dell Pro 16','portables','Dell Pro 16 Cu5-120U 10C 5.0GHz 16GB 512GB WIFIBT W11P 1Y','Dell Pro 16 Cu5-120U 10C 5.0GHz 16GB 512GB WIFIBT W11P 1Y',1121569,950482,4,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('503687-PC16250','Dell Pro 16','portables','Dell Pro 16 Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT UBU 1Y','Dell Pro 16 Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT UBU 1Y',1025434,869012,13,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('495626-PC16250','Dell Pro 16','portables','Dell Pro 16 Cu5-235U 12C 4.9GHz 32GB 512GB WIFIBT W11P 1Y','Dell Pro 16 Cu5-235U 12C 4.9GHz 32GB 512GB WIFIBT W11P 1Y',1436676,1217522,10,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('495627-PC16250','Dell Pro 16','portables','Dell Pro 16 Cu7-255U-N 12C 5.2GHz 16GB 512GB WIFIBT UBU 1Y','Dell Pro 16 Cu7-255U-N 12C 5.2GHz 16GB 512GB WIFIBT UBU 1Y',1233725,1045530,5,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('904168-PC16250','Dell Pro 16','portables','Dell Pro 16 -N Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT UBU 3Y','Dell Pro 16 -N Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT UBU 3Y',1255088,1063634,1,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
-  ('503368-PC16250','Dell Pro 16','portables','Dell Pro 16 -N Cu7-255U 12C 5.2GHz 32GB 1TB WIFIBT UBU 1Y','Dell Pro 16 -N Cu7-255U 12C 5.2GHz 32GB 1TB WIFIBT UBU 1Y',1554173,1317096,7,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
+  ('494116-PC14250','Dell Pro 14','portables','Dell Pro 14 Ci5-120U 10C 5.0GHz 8GB 512GB WIFIBT W11P 1Y','Dell Pro 14 Ci5-120U 10C 5.0GHz 8GB 512GB WIFIBT W11P 1Y',993389,841855,5,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png","assets/produits/dell-pro-14-gray.png"]'::jsonb),
+  ('257097-PC14250','Dell Pro 14','portables','Dell Pro 14 -N Cu5-235U 12C 4.9GHz 12C 4.9GHz 16GB 256GB WIFIBT W11P 4Y','Dell Pro 14 -N Cu5-235U 12C 4.9GHz 12C 4.9GHz 16GB 256GB WIFIBT W11P 4Y',993389,841855,1,'["assets/produits/dell-pro-14-b.png","assets/produits/dell-pro-14-gray.png","assets/produits/dell-pro-14.png"]'::jsonb),
+  ('494117-PC14250','Dell Pro 14','portables','Dell Pro 14 -N Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT UBU 1Y','Dell Pro 14 -N Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT UBU 1Y',1084183,918799,32,'["assets/produits/dell-pro-14-gray.png","assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
+  ('494115-PC14250','Dell Pro 14','portables','Dell Pro 14 Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT W11P 1Y','Dell Pro 14 Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT W11P 1Y',1233725,1045530,16,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png","assets/produits/dell-pro-14-gray.png"]'::jsonb),
+  ('488873-PC14250','Dell Pro 14','portables','Dell Pro 14 -N Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT UBU 1Y','Dell Pro 14 -N Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT UBU 1Y',1233725,1045530,8,'["assets/produits/dell-pro-14-b.png","assets/produits/dell-pro-14-gray.png","assets/produits/dell-pro-14.png"]'::jsonb),
+  ('488663-PC14250','Dell Pro 14','portables','Dell Pro 14 Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT W11P 1Y','Dell Pro 14 Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT W11P 1Y',1345882,1140578,15,'["assets/produits/dell-pro-14-gray.png","assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
+  ('495628-PC16250','Dell Pro 16','portables','Dell Pro 16 Ci5-120U-N 10C 5.0GHz 16GB 512GB WIFIBT UBU 1Y','Dell Pro 16 Ci5-120U-N 10C 5.0GHz 16GB 512GB WIFIBT UBU 1Y',1009412,855434,15,'["assets/produits/dell-pro-14-gray.png","assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
+  ('503550-PC16250','Dell Pro 16','portables','Dell Pro 16 Cu5-120U 10C 5.0GHz 16GB 512GB WIFIBT W11P 1Y','Dell Pro 16 Cu5-120U 10C 5.0GHz 16GB 512GB WIFIBT W11P 1Y',1121569,950482,4,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png","assets/produits/dell-pro-14-gray.png"]'::jsonb),
+  ('503687-PC16250','Dell Pro 16','portables','Dell Pro 16 Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT UBU 1Y','Dell Pro 16 Cu5-235U 12C 4.9GHz 16GB 512GB WIFIBT UBU 1Y',1025434,869012,13,'["assets/produits/dell-pro-14-b.png","assets/produits/dell-pro-14-gray.png","assets/produits/dell-pro-14.png"]'::jsonb),
+  ('495626-PC16250','Dell Pro 16','portables','Dell Pro 16 Cu5-235U 12C 4.9GHz 32GB 512GB WIFIBT W11P 1Y','Dell Pro 16 Cu5-235U 12C 4.9GHz 32GB 512GB WIFIBT W11P 1Y',1436676,1217522,10,'["assets/produits/dell-pro-14-gray.png","assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
+  ('495627-PC16250','Dell Pro 16','portables','Dell Pro 16 Cu7-255U-N 12C 5.2GHz 16GB 512GB WIFIBT UBU 1Y','Dell Pro 16 Cu7-255U-N 12C 5.2GHz 16GB 512GB WIFIBT UBU 1Y',1233725,1045530,5,'["assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png","assets/produits/dell-pro-14-gray.png"]'::jsonb),
+  ('904168-PC16250','Dell Pro 16','portables','Dell Pro 16 -N Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT UBU 3Y','Dell Pro 16 -N Cu7-255U 12C 5.2GHz 16GB 512GB WIFIBT UBU 3Y',1255088,1063634,1,'["assets/produits/dell-pro-14-b.png","assets/produits/dell-pro-14-gray.png","assets/produits/dell-pro-14.png"]'::jsonb),
+  ('503368-PC16250','Dell Pro 16','portables','Dell Pro 16 -N Cu7-255U 12C 5.2GHz 32GB 1TB WIFIBT UBU 1Y','Dell Pro 16 -N Cu7-255U 12C 5.2GHz 32GB 1TB WIFIBT UBU 1Y',1554173,1317096,7,'["assets/produits/dell-pro-14-gray.png","assets/produits/dell-pro-14.png","assets/produits/dell-pro-14-b.png"]'::jsonb),
   ('715988-PV14250','Dell Pro Essential 14','portables','Dell Pro 14 Essential Ci3-100U 6C 4.7GHz 8GB 512GB WIFIBT W11P 2Y','Dell Pro 14 Essential Ci3-100U 6C 4.7GHz 8GB 512GB WIFIBT W11P 2Y',737030,624602,3,'["assets/produits/dell-pv15250.png"]'::jsonb),
   ('715985-PV14250','Dell Pro Essential 14','portables','Dell Pro 14 Essential Ci5-220U 10C 5GHz 16GB 512GB WIFIBT W11P 1Y','Dell Pro 14 Essential Ci5-220U 10C 5GHz 16GB 512GB WIFIBT W11P 1Y',945322,801120,5,'["assets/produits/dell-pv15250.png"]'::jsonb),
   ('491062-PV15250','Dell Pro Essential 15','portables','Dell Pro 15 15.6 Ci5-1334U 10C 4.60GHz 16GB 512GB WIFIBT W11P 1Y','Dell Pro 15 15.6 Ci5-1334U 10C 4.60GHz 16GB 512GB WIFIBT W11P 1Y',977367,828277,5,'["assets/produits/dell-pv15250.png"]'::jsonb),
@@ -109,7 +107,7 @@ insert into public.products (ref, nom_fr, categorie_id, spec_fr, desc_fr, prix_t
   ('451568-QCS1250','Dell Pro Slim','bureau','Dell Pro Slim QCS1250 Cu5-235 14C 5.0GHz 16GB 512GB W11P 1Y','Dell Pro Slim QCS1250 Cu5-235 14C 5.0GHz 16GB 512GB W11P 1Y',977367,828277,15,'["assets/produits/dell-qcs1250-slim.png"]'::jsonb),
   ('451488-QCS1250','Dell Pro Slim','bureau','Dell Pro Slim QCS1250-N Cu5-235 14C 5.0GHz 16GB 512GB UBU 1Y','Dell Pro Slim QCS1250-N Cu5-235 14C 5.0GHz 16GB 512GB UBU 1Y',853460,723271,10,'["assets/produits/dell-qcs1250-slim.png"]'::jsonb),
   ('452608-QCT1250','Dell Pro Tower','bureau','Dell Pro Tower QCT1250 Ci5-14500 8GB 512GB W11P 1Y','Dell Pro Tower QCT1250 Ci5-14500 8GB 512GB W11P 1Y',853460,723271,5,'["assets/produits/dell-pro-tower.png","assets/produits/dell-pro-tower-b.png"]'::jsonb),
-  ('487781-QCT1250','Dell Pro Tower','bureau','Dell Pro Tower QCT1250-N Ci3-14100 4C 4.7GHz 8GB 512GB UBU 1Y','Dell Pro Tower QCT1250-N Ci3-14100 4C 4.7GHz 8GB 512GB UBU 1Y',672941,570289,3,'["assets/produits/dell-pro-tower.png","assets/produits/dell-pro-tower-b.png"]'::jsonb),
+  ('487781-QCT1250','Dell Pro Tower','bureau','Dell Pro Tower QCT1250-N Ci3-14100 4C 4.7GHz 8GB 512GB UBU 1Y','Dell Pro Tower QCT1250-N Ci3-14100 4C 4.7GHz 8GB 512GB UBU 1Y',672941,570289,3,'["assets/produits/dell-pro-tower-b.png","assets/produits/dell-pro-tower.png"]'::jsonb),
   ('452610-QCT1250','Dell Pro Tower','bureau','Dell Pro Tower-N Ci5-14500-N 14C 5.0GHz 8GB 512GB UBU 1Y','Dell Pro Tower-N Ci5-14500-N 14C 5.0GHz 8GB 512GB UBU 1Y',746644,632749,9,'["assets/produits/dell-pro-tower.png","assets/produits/dell-pro-tower-b.png"]'::jsonb),
   ('451668-QBT1250','Dell Pro Plus Tower','bureau','Dell Pro Tower Plus QBT1250-N Cu5-235 14C 5.0GHz 8GB 512GB UBU 1Y','Dell Pro Tower Plus QBT1250-N Cu5-235 14C 5.0GHz 8GB 512GB UBU 1Y',790438,669863,5,'["assets/produits/dell-qbt1250-plustower.png"]'::jsonb),
   ('451729-QBT1250','Dell Pro Plus Tower','bureau','Dell Pro Tower P-N Cu5-235 14C 5.0GHz 8GB 512GB UBU 1Y','Dell Pro Tower P-N Cu5-235 14C 5.0GHz 8GB 512GB UBU 1Y',913278,773964,3,'["assets/produits/dell-qbt1250-plustower.png"]'::jsonb),
@@ -135,24 +133,24 @@ insert into public.products (ref, nom_fr, categorie_id, spec_fr, desc_fr, prix_t
   ('238758-P3424WEB','Dell Professional P3424WEB','ecrans','Dell Pro 34 Plus Video Conferencing Monitor, P3424WEB 86.71cm','Dell Pro 34 Plus Video Conferencing Monitor, P3424WEB 86.71cm',683622,579341,5,'["assets/produits/S2425HSM.png","assets/produits/S2425HSM-b.png"]'::jsonb),
   ('693453-MFS22/1','Dell Support ecran MFS22','accessoires','Micro Form Factor All-in-One Stand, MFS22,NO backward compatible','Micro Form Factor All-in-One Stand, MFS22,NO backward compatible',90794,76944,60,'["assets/produits/WD25.png"]'::jsonb),
   ('403753-MFS22','Dell Support ecran MFS22','accessoires','Dell Pro Micro All-in-One Stand, MFS22','Dell Pro Micro All-in-One Stand, MFS22',90794,76944,5,'["assets/produits/WD25.png"]'::jsonb),
-  ('486468-ADAPTER','Dell Adapter','accessoires','Dell Pro 4-in-1 USB-C Travel Hub-DA225','Dell Pro 4-in-1 USB-C Travel Hub-DA225',48067,40735,5,'["assets/produits/WD25.png"]'::jsonb),
+  ('486468-ADAPTER','Dell Adapter','accessoires','Dell Pro 4-in-1 USB-C Travel Hub-DA225','Dell Pro 4-in-1 USB-C Travel Hub-DA225',48067,40735,5,'["assets/produits/dell-power-adapter.png"]'::jsonb),
   ('587507','Dell Barre de son','accessoires','DELL Barre de son Slim | SB521A','DELL Barre de son Slim | SB521A',74771,63365,9,'["assets/produits/WD25.png"]'::jsonb),
   ('712734-FILTER','Dell Filter','accessoires','Dell, Laptop privacy filter - 14-inch, black','Dell, Laptop privacy filter - 14-inch, black',32045,27157,4,'["assets/produits/WD25.png"]'::jsonb),
-  ('485784-BACKPACK','Dell Case','accessoires','Dell 14-16 EcoLoop Backpack CP3724','Dell 14-16 EcoLoop Backpack CP3724',21363,18104,53,'["assets/produits/WD25.png"]'::jsonb),
-  ('942654-BRIEFCASE','Dell Briefcase','accessoires','Dell Pro 11-14 Plus EcoLoop Sleeve CV5426','Dell Pro 11-14 Plus EcoLoop Sleeve CV5426',28840,24441,70,'["assets/produits/WD25.png"]'::jsonb),
-  ('687444-BRIEFCASE','Dell Briefcase','accessoires','Dell Pro 13-14 Plus EcoLoop Briefcase, CC5425C','Dell Pro 13-14 Plus EcoLoop Briefcase, CC5425C',27772,23536,5,'["assets/produits/WD25.png"]'::jsonb),
-  ('574250-BRIEFCASE','Dell Briefcase','accessoires','Dell Pro Slim Briefcase 15 - PO1520CS, Fits most laptops up to 15','Dell Pro Slim Briefcase 15 - PO1520CS, Fits most laptops up to 15',28840,24441,1,'["assets/produits/WD25.png"]'::jsonb),
-  ('962842-HOUSSE','Dell Housse','accessoires','Dell EcoLoop Premier Backpack 15 - PE1520P','Dell EcoLoop Premier Backpack 15 - PE1520P',28840,24441,1,'["assets/produits/WD25.png"]'::jsonb),
-  ('185090-HOUSSE','Dell Housse','accessoires','Dell Essential Backpack-15 - Laptop carrying backpack','Dell Essential Backpack-15 - Laptop carrying backpack',32045,27157,10,'["assets/produits/WD25.png"]'::jsonb),
-  ('981746-HOUSSE','Dell Housse','accessoires','Dell Essential Backpack 15 - ES1520P','Dell Essential Backpack 15 - ES1520P',26705,22631,1,'["assets/produits/WD25.png"]'::jsonb),
+  ('485784-BACKPACK','Dell Case','accessoires','Dell 14-16 EcoLoop Backpack CP3724','Dell 14-16 EcoLoop Backpack CP3724',21363,18104,53,'["assets/produits/dell-backpack.png"]'::jsonb),
+  ('942654-BRIEFCASE','Dell Briefcase','accessoires','Dell Pro 11-14 Plus EcoLoop Sleeve CV5426','Dell Pro 11-14 Plus EcoLoop Sleeve CV5426',28840,24441,70,'["assets/produits/dell-backpack.png"]'::jsonb),
+  ('687444-BRIEFCASE','Dell Briefcase','accessoires','Dell Pro 13-14 Plus EcoLoop Briefcase, CC5425C','Dell Pro 13-14 Plus EcoLoop Briefcase, CC5425C',27772,23536,5,'["assets/produits/dell-backpack.png"]'::jsonb),
+  ('574250-BRIEFCASE','Dell Briefcase','accessoires','Dell Pro Slim Briefcase 15 - PO1520CS, Fits most laptops up to 15','Dell Pro Slim Briefcase 15 - PO1520CS, Fits most laptops up to 15',28840,24441,1,'["assets/produits/dell-backpack.png"]'::jsonb),
+  ('962842-HOUSSE','Dell Housse','accessoires','Dell EcoLoop Premier Backpack 15 - PE1520P','Dell EcoLoop Premier Backpack 15 - PE1520P',28840,24441,1,'["assets/produits/dell-backpack.png"]'::jsonb),
+  ('185090-HOUSSE','Dell Housse','accessoires','Dell Essential Backpack-15 - Laptop carrying backpack','Dell Essential Backpack-15 - Laptop carrying backpack',32045,27157,10,'["assets/produits/dell-backpack.png"]'::jsonb),
+  ('981746-HOUSSE','Dell Housse','accessoires','Dell Essential Backpack 15 - ES1520P','Dell Essential Backpack 15 - ES1520P',26705,22631,1,'["assets/produits/dell-backpack.png"]'::jsonb),
   ('489048-DOCK','Dell Dock','stations','Dell Pro Dock, WD25','Dell Pro Dock, WD25',165565,140309,6,'["assets/produits/WD25.png","assets/produits/WD25-b.png"]'::jsonb),
   ('900842-DOCK','Dell Dock','stations','Dell Pro Dock, WD25 3Y','Dell Pro Dock, WD25 3Y',171974,145741,1,'["assets/produits/WD25.png","assets/produits/WD25-b.png"]'::jsonb),
   ('491946-DOCK','Dell Dock','stations','Dell Pro Thunderbolt 4 Dock, WD25TB4','Dell Pro Thunderbolt 4 Dock, WD25TB4',256359,217253,10,'["assets/produits/WD25.png","assets/produits/WD25-b.png"]'::jsonb),
   ('178795-WD19S','Dell Dock WD19S','stations','Dell Dock WD19S, 180W 3Y','Dell Dock WD19S, 180W 3Y',212564,180139,5,'["assets/produits/WD25.png","assets/produits/WD25-b.png"]'::jsonb),
   ('910476-DOCK','Dell Dock','stations','Dell Pro Smart Dock, SD25 1Y','Dell Pro Smart Dock, SD25 1Y',160224,135783,1,'["assets/produits/WD25.png","assets/produits/WD25-b.png"]'::jsonb),
   ('919732-DOCK','Dell Dock','stations','Dell Pro Thunderbolt 4 Smart Dock, SD25TB4','Dell Pro Thunderbolt 4 Smart Dock, SD25TB4',319380,270661,4,'["assets/produits/WD25.png","assets/produits/WD25-b.png"]'::jsonb),
-  ('491355-EB525','Dell Headset EB525','accessoires','Dell Pro Plus Earbuds, EB525','Dell Pro Plus Earbuds, EB525',186929,158414,2,'["assets/produits/WD25.png"]'::jsonb),
-  ('223201-SL525','Dell Headset SL525','accessoires','Dell Pro Plus Wireless Speakerphone SL525','Dell Pro Plus Wireless Speakerphone SL525',112157,95048,3,'["assets/produits/WD25.png"]'::jsonb),
+  ('491355-EB525','Dell Headset EB525','accessoires','Dell Pro Plus Earbuds, EB525','Dell Pro Plus Earbuds, EB525',186929,158414,2,'["assets/produits/dell-earbuds.png"]'::jsonb),
+  ('223201-SL525','Dell Headset SL525','accessoires','Dell Pro Plus Wireless Speakerphone SL525','Dell Pro Plus Wireless Speakerphone SL525',112157,95048,3,'["assets/produits/dell-earbuds.png"]'::jsonb),
   ('492158-KB216','Dell Keyboard KB216','accessoires','Dell Wired Keyboard, KB216 - French (AZERTY) - Black','Dell Wired Keyboard, KB216 - French (AZERTY) - Black',12818,10863,1,'["assets/produits/KB216.png"]'::jsonb),
   ('140083-KB216/UK','Dell Keyboard KB216','accessoires','Dell Multimedia Keyboard-KB216 - UK','Dell Multimedia Keyboard-KB216 - UK',13886,11768,2,'["assets/produits/KB216.png"]'::jsonb),
   ('905535-KB216/UK','Dell Keyboard KB216','accessoires','Dell Wired Keyboard, KB216- US International (QWERTY) Black','Dell Wired Keyboard, KB216- US International (QWERTY) Black',13886,11768,40,'["assets/produits/KB216.png"]'::jsonb),
@@ -173,10 +171,10 @@ insert into public.products (ref, nom_fr, categorie_id, spec_fr, desc_fr, prix_t
   ('921181-KM5221W','Dell Wireless Mouse KM5221W','accessoires','Dell Pro Wireless Keyboard and Mouse, KM5221W, French (AZERTY)','Dell Pro Wireless Keyboard and Mouse, KM5221W, French (AZERTY)',37386,31683,5,'["assets/produits/KM5221W.png"]'::jsonb),
   ('491500-MS5320W','Dell Wireless Mouse MS5320W','accessoires','Dell Pro Plus Mouse, MS5320W','Dell Pro Plus Mouse, MS5320W',32045,27157,9,'["assets/produits/MS116.png"]'::jsonb),
   ('712247-MOUSE/1','Dell Wireless Mouse','accessoires','Dell Mobile Pro Wireless Mouse, MS5120W, Black','Dell Mobile Pro Wireless Mouse, MS5120W, Black',26705,22631,11,'["assets/produits/MS116.png"]'::jsonb),
-  ('913572-ADAPTER/UK','Dell Power Supply','accessoires','Dell 90W USB-C AC Adapter with Power Cord, United Kingdom','Dell 90W USB-C AC Adapter with Power Cord, United Kingdom',44862,38019,204,'["assets/produits/WD25.png"]'::jsonb),
-  ('249953-ADAPTER','Dell Power Supply','accessoires','Dell 6-in-1 USB-C Multiport Adapter- DA305','Dell 6-in-1 USB-C Multiport Adapter- DA305',80113,67892,1,'["assets/produits/WD25.png"]'::jsonb),
-  ('828572-ADAPTER','Dell Power Supply','accessoires','Dell DA310 USB-C Mobile Adapter','Dell DA310 USB-C Mobile Adapter',96135,81470,2,'["assets/produits/WD25.png"]'::jsonb),
-  ('024026-ADAPTER','Dell Power Supply','accessoires','Dell Adapter USB-C to 2.5G Ethernet','Dell Adapter USB-C to 2.5G Ethernet',25636,21725,1,'["assets/produits/WD25.png"]'::jsonb),
+  ('913572-ADAPTER/UK','Dell Power Supply','accessoires','Dell 90W USB-C AC Adapter with Power Cord, United Kingdom','Dell 90W USB-C AC Adapter with Power Cord, United Kingdom',44862,38019,204,'["assets/produits/dell-power-adapter.png"]'::jsonb),
+  ('249953-ADAPTER','Dell Power Supply','accessoires','Dell 6-in-1 USB-C Multiport Adapter- DA305','Dell 6-in-1 USB-C Multiport Adapter- DA305',80113,67892,1,'["assets/produits/dell-power-adapter.png"]'::jsonb),
+  ('828572-ADAPTER','Dell Power Supply','accessoires','Dell DA310 USB-C Mobile Adapter','Dell DA310 USB-C Mobile Adapter',96135,81470,2,'["assets/produits/dell-power-adapter.png"]'::jsonb),
+  ('024026-ADAPTER','Dell Power Supply','accessoires','Dell Adapter USB-C to 2.5G Ethernet','Dell Adapter USB-C to 2.5G Ethernet',25636,21725,1,'["assets/produits/dell-power-adapter.png"]'::jsonb),
   ('034321-MEM16GB','Dell Memory MEM16GB','accessoires','Dell Memory Upgrade - 16GB - 1RX8 DDR4 UDIMM 3200MHz ECC','Dell Memory Upgrade - 16GB - 1RX8 DDR4 UDIMM 3200MHz ECC',422991,358467,99,'["assets/produits/WD25.png"]'::jsonb),
   ('950423-HD.32GB','Dell Memory','accessoires','Dell Memory Upgrade - 32 GB - 2Rx4 DDR4 RDIMM 3200 MT/s 8 Gb BASE','Dell Memory Upgrade - 32 GB - 2Rx4 DDR4 RDIMM 3200 MT/s 8 Gb BASE',521263,441748,16,'["assets/produits/WD25.png"]'::jsonb),
   ('034322-MEM32GB','Dell Memory MEM32GB','accessoires','Dell Memory Upgrade - 32GB - 2RX8 DDR4 UDIMM 3200MHz ECC','Dell Memory Upgrade - 32GB - 2RX8 DDR4 UDIMM 3200MHz ECC',773348,655380,16,'["assets/produits/WD25.png"]'::jsonb),
@@ -184,13 +182,13 @@ insert into public.products (ref, nom_fr, categorie_id, spec_fr, desc_fr, prix_t
   ('S/DE-AA538491','Dell Memory','accessoires','MMOIRE SQP SPCIFIQUE POUR DELL - 32 GB, DDR4 - SODIMM - 2666 MHZ -','MMOIRE SQP SPCIFIQUE POUR DELL - 32 GB, DDR4 - SODIMM - 2666 MHZ -',186929,158414,1,'["assets/produits/WD25.png"]'::jsonb),
   ('S/DE-AA335287','Dell Memory','accessoires','Dell - 8 Gb, DDR4 - Dimm-2666 Mhz, PC4-21300 - ECC - 1R8 - 1.2V, C','Dell - 8 Gb, DDR4 - Dimm-2666 Mhz, PC4-21300 - ECC - 1R8 - 1.2V, C',53408,45261,1,'["assets/produits/WD25.png"]'::jsonb),
   ('S/DE-A2626066','Dell Memory','accessoires','8 Gb Dimm DDR3 1066 MHz PC3-8500 ECC/Registered 4R8 1.3V','8 Gb Dimm DDR3 1066 MHz PC3-8500 ECC/Registered 4R8 1.3V',48067,40735,6,'["assets/produits/WD25.png"]'::jsonb),
-  ('486024-CB325H','Dell Cable CB325H','accessoires','Dell HDMI 2.0 Cable, CB325H','Dell HDMI 2.0 Cable, CB325H',9613,8147,10,'["assets/produits/WD25.png"]'::jsonb),
-  ('350337-KIT','Dell Cable','accessoires','5M LC-LC Multimode Optical Fibre Cable (Kit)','5M LC-LC Multimode Optical Fibre Cable (Kit)',32045,27157,8,'["assets/produits/WD25.png"]'::jsonb),
-  ('306456-700W','Dell Cable','accessoires','Single, Hot-Plug, Power Supply, 700W MM','Single, Hot-Plug, Power Supply, 700W MM',384537,325879,2,'["assets/produits/WD25.png"]'::jsonb),
-  ('075670-KIT','Dell Cable','accessoires','Power Cord : European Power cord C5 1M (H718C)','Power Cord : European Power cord C5 1M (H718C)',26705,22631,74,'["assets/produits/WD25.png"]'::jsonb),
-  ('301646-CORD','Dell Cable','accessoires','Power Cord : European Power cord 1M (Kit)','Power Cord : European Power cord 1M (Kit)',16022,13578,50,'["assets/produits/WD25.png"]'::jsonb),
-  ('025866-ADAPTER','Dell Cable','accessoires','Kit, E5 65W AC Adapter (EURO)','Kit, E5 65W AC Adapter (EURO)',32045,27157,1,'["assets/produits/WD25.png"]'::jsonb),
-  ('937965-DW316','Dell Cable DW316','accessoires','Dell external USB DVD+/- RW Drive- DW316','Dell external USB DVD+/- RW Drive- DW316',48067,40735,85,'["assets/produits/WD25.png"]'::jsonb),
+  ('486024-CB325H','Dell Cable CB325H','accessoires','Dell HDMI 2.0 Cable, CB325H','Dell HDMI 2.0 Cable, CB325H',9613,8147,10,'["assets/produits/dell-cable-hdmi.png"]'::jsonb),
+  ('350337-KIT','Dell Cable','accessoires','5M LC-LC Multimode Optical Fibre Cable (Kit)','5M LC-LC Multimode Optical Fibre Cable (Kit)',32045,27157,8,'["assets/produits/dell-cable-hdmi.png"]'::jsonb),
+  ('306456-700W','Dell Cable','accessoires','Single, Hot-Plug, Power Supply, 700W MM','Single, Hot-Plug, Power Supply, 700W MM',384537,325879,2,'["assets/produits/dell-cable-hdmi.png"]'::jsonb),
+  ('075670-KIT','Dell Cable','accessoires','Power Cord : European Power cord C5 1M (H718C)','Power Cord : European Power cord C5 1M (H718C)',26705,22631,74,'["assets/produits/dell-cable-hdmi.png"]'::jsonb),
+  ('301646-CORD','Dell Cable','accessoires','Power Cord : European Power cord 1M (Kit)','Power Cord : European Power cord 1M (Kit)',16022,13578,50,'["assets/produits/dell-cable-hdmi.png"]'::jsonb),
+  ('025866-ADAPTER','Dell Cable','accessoires','Kit, E5 65W AC Adapter (EURO)','Kit, E5 65W AC Adapter (EURO)',32045,27157,1,'["assets/produits/dell-cable-hdmi.png"]'::jsonb),
+  ('937965-DW316','Dell Cable DW316','accessoires','Dell external USB DVD+/- RW Drive- DW316','Dell external USB DVD+/- RW Drive- DW316',48067,40735,85,'["assets/produits/dell-cable-hdmi.png"]'::jsonb),
   ('039177-PW7015L','Dell Power Bank PW7015L','accessoires','Dell 4.5 mm/7.4 mm barrel Laptop Power Bank Plus 65 Wh, EMEA, PW701','Dell 4.5 mm/7.4 mm barrel Laptop Power Bank Plus 65 Wh, EMEA, PW701',96135,81470,5,'["assets/produits/WD25.png"]'::jsonb),
   ('614037-USB','Dell Cle USB','accessoires','Dell 64GB USB 3.0 Type-A and Type-C Combo Flash Drive','Dell 64GB USB 3.0 Type-A and Type-C Combo Flash Drive',37386,31683,5,'["assets/produits/WD25.png"]'::jsonb),
   ('403753-KIT/1','Dell Locks','accessoires','Kensington Desktop Peripheral Locking kit','Kensington Desktop Peripheral Locking kit',32045,27157,30,'["assets/produits/WD25.png"]'::jsonb),

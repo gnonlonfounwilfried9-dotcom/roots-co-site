@@ -341,9 +341,19 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   visibles (Dell Pro 14, tour Dell Pro, ecran S2425HSM, serveur PowerEdge R760, dock WD25) ont 2 photos en
   galerie. Un vrai doublon de reference a ete corrige au passage : le code `MS116` du fichier stock entrait
   en collision avec le `MS116` deja au catalogue (meme souris) — retire, catalogue final **198** references
-  (pas 199). Nouveau SQL de migration : `assets/catalog-fusion-2026-09-16-v2.sql` (remplace la v1 du
-  matin), toujours pas colle dans Supabase.
-  **Reste a faire (photos)** : les produits accessoires (memoire, cables, alimentations, cadenas, etc.)
-  n'ont pas encore de photo dediee, ils reutilisent une photo de station d'accueil ou de dock a titre de
-  neutre — a ameliorer si besoin, mais moins prioritaire que les portables/tours qui etaient le vrai
-  probleme signale.
+  (pas 199).
+- 2026-09-16 (soir, suite) : deuxieme retour de Wilfried sur les photos ("des produits differents avec
+  exactement la meme photo, ce n'est pas pro"). Ajouts : 4 nouvelles categories de photos officielles Dell
+  (chargeur `dell-power-adapter.png`, ecouteurs `dell-earbuds.png`, sac `dell-backpack.png`, cable
+  `dell-cable-hdmi.png`) qui remplacent la reutilisation generique de la photo du dock WD25 ; 3e photo
+  (`dell-pro-14-gray.png`) pour la famille Dell Pro 14/16, avec **rotation** de l'image de couverture d'une
+  fiche a l'autre (`FAM_ROTATE_COUNTER` dans le generateur) pour que les 13 fiches de cette famille ne
+  montrent plus toutes exactement la meme image en premier. **Bandeau rouge ajoute sur les 154 nouvelles
+  fiches** (`.bxpromo` en CSS, texte "Prix actuel, susceptible d'evoluer") : ces prix sont calcules
+  automatiquement (regle de marge 1,20, voir plus haut) et pas encore valides ligne par ligne, contrairement
+  aux 27 references d'origine qui n'ont pas ce bandeau. Nouveau SQL : `assets/catalog-fusion-2026-09-16-v3.sql`
+  (remplace v1 et v2), toujours pas colle dans Supabase — Wilfried confirme n'avoir encore rien colle des
+  fichiers SQL livres aujourd'hui.
+  **Reste a faire (photos)** : memoire, cadenas, batteries externes, cles USB n'ont pas encore de photo
+  dediee (recherche infructueuse sur dell.com, probablement des references qui ne sont plus vendues neuves
+  par Dell), ils reutilisent la photo du dock WD25 a titre neutre.
