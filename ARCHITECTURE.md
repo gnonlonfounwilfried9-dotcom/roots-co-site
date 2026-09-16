@@ -243,14 +243,13 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   `RTS_2026360XXX` dans le fichier source lui-meme), pas 22. Les 22 HP/Lenovo ont ete remises en place dans
   `boutique.html` (recuperees depuis l'historique git, commit `8cc39a1`), plus un second fichier
   `ROOTS Promo Dell SEPTEMBRE 2026C.xlsx` (184 lignes de stock Dell a liquider en France) a ete fusionne :
-  155 references uniques ajoutees apres dedoublonnage (3 references communes aux deux fichiers ecartees :
+  154 references uniques ajoutees apres dedoublonnage (3 references communes aux deux fichiers ecartees :
   505474-DC16250, 715987-PV14250, 715986-PV14250 ; consolidation des lignes strictement identiques du
-  fichier stock, ex. plusieurs lots de la meme souris MS116). **Catalogue final : 199 references.**
-  SQL complet (restauration HP/Lenovo + 155 nouvelles) : `assets/catalog-fusion-2026-09-16.sql` — **a coller
-  dans Supabase SQL Editor par Wilfried, pas encore fait**. Idempotent : peut etre relance sans risque quel
-  que soit l'etat actuel de la base (ecrase l'ancien `assets/remove-hp-lenovo-2026-09-16.sql` d'hier matin,
-  qui ne doit plus etre execute).
-  - **Prix des 155 nouvelles references** : calcule (prix EUR du fichier stock) x 655,957 (taux fixe du
+  fichier stock ; 1 collision de reference retiree, voir plus bas). **Catalogue final : 198 references.**
+  SQL complet (restauration HP/Lenovo + 154 nouvelles, galerie photo incluse) :
+  `assets/catalog-fusion-2026-09-16-v2.sql` — **a coller dans Supabase SQL Editor par Wilfried, pas encore
+  fait**. Idempotent : peut etre relance sans risque quel que soit l'etat actuel de la base.
+  - **Prix des 154 nouvelles references** : calcule (prix EUR du fichier stock) x 655,957 (taux fixe du
     site) x **1,20** (marge deduite des 3 references communes aux deux fichiers, qui donnaient un ratio
     reel entre 1,18 et 1,22 une fois converties au prix de vente deja approuve) — **a verifier par Wilfried
     des que possible**, marge appliquee uniformement en attendant une confirmation ligne par ligne.
@@ -330,7 +329,21 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 - 2026-09-16 (apres-midi) : correction du retrait des 22 HP/Lenovo du matin (erreur, voir "Reste a faire") —
   le fichier source contient 27 references, pas 22. Fusion avec le fichier de stock Dell a liquider
   (`ROOTS Promo Dell SEPTEMBRE 2026C.xlsx`, 184 lignes) : 155 references uniques ajoutees apres
-  dedoublonnage. Catalogue final 199 references, SQL fourni (`assets/catalog-fusion-2026-09-16.sql`), pas
-  encore colle dans Supabase par Wilfried. Marge de vente de 20% appliquee aux nouvelles references
-  (a confirmer), photos officielles Dell sourcees pour les familles les plus visibles, reste temporaire
-  pour les autres (voir "Reste a faire").
+  dedoublonnage. Catalogue final 199 references, SQL fourni, pas encore colle dans Supabase par Wilfried.
+  Marge de vente de 20% appliquee aux nouvelles references (a confirmer), photos officielles Dell sourcees
+  pour les familles les plus visibles, reste temporaire pour les autres.
+- 2026-09-16 (soir) : Wilfried signale qu'un meme visuel etait reutilise sur trop de produits differents —
+  **galerie photo ajoutee** (`.bxd-thumbs` en CSS/JS, `assets/style.css` et `assets/shop.js`) : la fiche
+  detail d'un produit peut desormais afficher plusieurs photos (vignettes cliquables sous la photo
+  principale, `data-full` sur chaque vignette). 20 nouvelles photos officielles Dell sourcees pour separer
+  les familles qui partageaient une meme image (Dell Pro 14/16/Plus/Premium/Max, Dell Plus 14, Latitude,
+  XPS 14, tours Essential/Micro/Slim/Plus/Max Micro, OptiPlex, ecran S2725HSM) ; les familles les plus
+  visibles (Dell Pro 14, tour Dell Pro, ecran S2425HSM, serveur PowerEdge R760, dock WD25) ont 2 photos en
+  galerie. Un vrai doublon de reference a ete corrige au passage : le code `MS116` du fichier stock entrait
+  en collision avec le `MS116` deja au catalogue (meme souris) — retire, catalogue final **198** references
+  (pas 199). Nouveau SQL de migration : `assets/catalog-fusion-2026-09-16-v2.sql` (remplace la v1 du
+  matin), toujours pas colle dans Supabase.
+  **Reste a faire (photos)** : les produits accessoires (memoire, cables, alimentations, cadenas, etc.)
+  n'ont pas encore de photo dediee, ils reutilisent une photo de station d'accueil ou de dock a titre de
+  neutre — a ameliorer si besoin, mais moins prioritaire que les portables/tours qui etaient le vrai
+  probleme signale.

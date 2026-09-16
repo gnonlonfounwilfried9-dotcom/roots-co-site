@@ -114,6 +114,16 @@ if (modal) {
 
 /* ---------------- clics ---------------- */
 document.addEventListener('click', function (e) {
+  var th = e.target.closest('.bxd-thumbs img');
+  if (th) {
+    var scope = th.closest('.bxd-head');
+    var main = scope && scope.querySelector('.bxd-mainimg');
+    if (main) main.src = th.dataset.full || th.src;
+    var sibs = th.parentNode.querySelectorAll('img');
+    for (var s = 0; s < sibs.length; s++) sibs[s].classList.remove('on');
+    th.classList.add('on');
+    return;
+  }
   var z = e.target.closest('.bxzoom, .bxinfo');
   if (z) { openDetail(z.dataset.ref); return; }
   var pk = e.target.closest('.bxpackadd');
