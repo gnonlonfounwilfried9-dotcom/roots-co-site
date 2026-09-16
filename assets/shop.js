@@ -1,12 +1,13 @@
 /* ROOTS - boutique : panier, filtres, recherche, tri, fiche detaillee, commande */
 (function () {
-var K = 'roots_cart', XOF = 655.957, WA = '22901995652', MAIL = 'sales@roots.ws';
+var K = 'roots_cart', XOF = 655.957, MAIL = 'sales@roots.ws';
 var NL = String.fromCharCode(10);
 
-/* le panier, le catalogue et le tunnel de commande sont pleinement actifs : on ne bloque
-   qu'au tout dernier geste (bouton "Envoyer ma commande"), le temps que le paiement soit
-   branche. Remettre a true des que le compte marchand est pret pour un envoi reel. */
-var CART_ENABLED = false;
+/* la commande part toujours vers le tableau de bord (decision reunion du 2026-09-16 :
+   une commande doit pouvoir passer et etre vue cote admin meme sans paiement automatique).
+   Seul le paiement en ligne reste suspendu : aucune passerelle de paiement n'est branchee
+   ici, le client choisit juste un mode (virement, mobile money...) regle hors ligne avec lui. */
+var CART_ENABLED = true;
 
 /* taux de change pilote depuis le tableau de bord (Reglages) */
 (function () {

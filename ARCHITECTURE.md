@@ -229,29 +229,37 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 
 ## Reste a faire
 
-- Brancher le compte marchand de paiement quand ouvert (0,5 a 1 j par prestataire), puis remettre `CART_ENABLED = true`.
+- Brancher le compte marchand de paiement quand ouvert (0,5 a 1 j par prestataire). **`CART_ENABLED` remis a
+  `true` le 2026-09-16** (decision reunion : une commande doit atteindre le tableau de bord admin meme sans
+  paiement automatique, seul le paiement en ligne reste manuel — virement/mobile money regles hors ligne).
 - Coller `assets/cron.sql` dans Supabase pour planifier `taux-change` (pas encore fait).
 - Verifier le domaine Resend (`roots.services` ou `roots.ws`) pour pouvoir notifier les vrais clients, pas seulement le compte Resend.
 - Wiring `boutique.html` pour lire le catalogue depuis Supabase au lieu du HTML fige.
 - Publication automatique des posts reseaux sociaux (comptes Meta / LinkedIn Business + revue d'app).
 - Refonte visuelle : palette or/cuivre appliquee le 2026-09-11 (voir section Palette de couleurs). Reste a affiner si besoin : fond de page (motifs/degrades) et redeployer `notifier-suivi` pour que l'e-mail de suivi reprenne aussi la nouvelle couleur.
-- **Fait, mais a corriger** : `assets/price-updates-2026-09-11.sql` et `assets/catalog-hp-lenovo.sql` ont bien
-  ete colles dans Supabase, mais `catalog-hp-lenovo.sql` a ete colle deux fois (2026-09-11 avec les anciennes
-  references courtes, puis 2026-09-14 avec les references RTS) → 22 lignes en double dans la table
-  `products` (66 lignes en base contre 44 references reellement affichees sur le site). Diagnostic et
-  correctif : voir `assets/fix-duplicate-hp-lenovo-2026-09-15.sql` (verification puis suppression des 22
-  anciennes lignes orphelines) — **a coller dans Supabase SQL Editor par Wilfried, pas encore fait**.
+- **Retrait complet des 22 produits HP/Lenovo, decide en reunion le 2026-09-16** ("on garde uniquement les
+  articles officiellement soumis au catalogue, pas le lot photographie de demonstration") : cartes retirees
+  de `boutique.html` (retour a 22 references Dell, hero/titre/compteurs de filtres corriges), rien a changer
+  cote `admin.html` (lit `products` en direct depuis Supabase). SQL de suppression fourni en chat et livre
+  dans `assets/remove-hp-lenovo-2026-09-16.sql` — supprime a la fois les 22 lignes RTS et les 22 anciennes
+  lignes en double diagnostiquees le 2026-09-15 (`assets/fix-duplicate-hp-lenovo-2026-09-15.sql` devient donc
+  inutile si celui-ci est execute) — **a coller dans Supabase SQL Editor par Wilfried, pas encore fait**.
+  `assets/catalog-hp-lenovo.sql` reste dans le depot pour memoire mais ne doit plus etre relance.
 - Demander a Wilfried les vrais codes RTS des 16 produits qui n'en ont pas encore (voir section "References
-  produits").
-- **`roots-co.fr` / migration hors GitHub Pages** : hebergeur identifie le 2026-09-15 = **LWS** (formule
-  Perso, compte client LWS-825594), acces FTP (hote `ftp.roots-co.fr`, port 21, FileZilla recommande) et
-  File Manager web via `panel.lws.fr`. Claude n'a pas d'outil FTP branche dans cette session et ne saisit
-  jamais un mot de passe lui-meme (regle de securite) : **Wilfried doit faire l'upload lui-meme**, procedure
-  pas-a-pas donnee en chat (FileZilla ou File Manager LWS). Point a verifier une fois l'upload fait : le DNS
-  de `roots-co.fr` pointait avant vers une redirection 301 GitHub Pages (voir plus haut) — si le domaine n'a
-  pas ete transfere chez LWS, cette redirection doit etre remplacee par les enregistrements DNS de LWS,
-  sinon le site LWS restera injoignable meme apres l'upload. Une fois la migration confirmee en ligne, mettre
-  a jour cette section (comment publier desormais, devenir de `origin`/`old-origin`/GitHub Pages).
+  produits") — question moins urgente maintenant que les produits HP/Lenovo sont retires, mais les 5 Dell
+  renommes restent concernes si un futur lot est ajoute.
+- **`roots-co.fr` / migration hors GitHub Pages** : hebergeur = **LWS** (formule Perso, compte LWS-825594).
+  Diagnostic du 2026-09-16 : les identifiants FTP recus par mail (`ftp.roots-co.fr`) sont corrects, ET les
+  nameservers du domaine pointent deja bien chez LWS (`ns17-20.lwsdns.com`, verifie par `nslookup -type=NS`).
+  Le blocage n'est PAS un probleme d'upload ni de DNS non propage : `roots-co.fr` et `www.roots-co.fr`
+  renvoient tous les deux un **301 HTTP servi par LWS lui-meme** vers `https://rootsandcotech-create.github.io/Roots-Co/`
+  (verifie par `curl -I`, IP `83.229.19.94`, en-tete `Edge-Cache-Engine-Mode`). C'est une regle de
+  redirection/parking configuree dans la zone DNS ou le panel LWS (probablement mise en place avant l'achat
+  de l'hebergement, quand le domaine ne faisait que pointer vers l'ancien site GitHub Pages) qui prend le pas
+  sur les fichiers uploades en FTP. **Correctif a faire par Wilfried dans `panel.lws.fr`** : section domaine
+  `roots-co.fr` → chercher une redirection d'URL / "Web Redirect" existante et la supprimer (ou la remplacer
+  par "pointer vers l'hebergement") pour que le DNS serve enfin les fichiers FTP au lieu de rediriger. Une
+  fois corrige, mettre a jour cette section (comment publier desormais, devenir de `origin`/`old-origin`).
 
 ## Journal des livraisons
 
@@ -292,3 +300,10 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   fois (anciennes references puis RTS) a duplique 22 fiches HP/Lenovo. Correctif livre
   (`assets/fix-duplicate-hp-lenovo-2026-09-15.sql`), en attente d'execution par Wilfried dans Supabase.
   Deploiement GitHub Pages du 2026-09-14 confirme reussi (`gh run list`), le site public est bien a jour.
+- 2026-09-16 : suite reunion Wilfried/Richmond. Retrait complet des 22 produits HP/Lenovo (site + Supabase,
+  voir "Reste a faire"), boutique repassee a 22 references Dell. `CART_ENABLED` remis a `true` : une commande
+  passe desormais toujours vers le tableau de bord admin, seul le paiement en ligne reste manuel/suspendu.
+  Icone assistant remplacee par un avatar robot (au lieu d'une bulle generique), icone WhatsApp remplacee par
+  le vrai logo de marque (chemin SVG officiel Simple Icons) sur les 25 pages publiques. Diagnostic complet du
+  blocage `roots-co.fr` : ni un souci d'upload FTP ni de DNS non propage, mais une redirection 301 encore
+  active cote LWS vers l'ancien site GitHub Pages (voir "Reste a faire" pour le correctif exact).
