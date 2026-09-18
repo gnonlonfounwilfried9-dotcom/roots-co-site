@@ -357,3 +357,23 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   **Reste a faire (photos)** : memoire, cadenas, batteries externes, cles USB n'ont pas encore de photo
   dediee (recherche infructueuse sur dell.com, probablement des references qui ne sont plus vendues neuves
   par Dell), ils reutilisent la photo du dock WD25 a titre neutre.
+- 2026-09-18 : Wilfried signale que le bandeau prix n'est pas assez visible (petit texte rouge) et que la
+  galerie photo ne fonctionne toujours pas ("une seule photo" en boutique et en admin). Diagnostic : la
+  fonctionnalite de galerie marchait deja techniquement (verifie en direct par capture d'ecran), mais
+  seulement **37 des 154** nouvelles fiches avaient reellement une 2e/3e photo differente sourcee ; les 117
+  autres n'avaient qu'une seule image (donc une seule vignette, pas de galerie visible) — un manque de
+  contenu, pas un bug. Correctif : **15 nouvelles photos officielles Dell** sourcees (2e angle par famille :
+  OptiPlex, Latitude, PowerEdge, cable HDMI, sac a dos, chargeur, souris MS116, Pro 14 Slim/Micro/Max,
+  Pro Premium 13, XPS 14, tour Plus...) portant la couverture a **139/154** (90 %) fiches avec galerie
+  2-3 photos. Bandeau prix refondu en vrai bandeau visible (`.bxpromo` : fond rouge plein, icone triangle
+  d'alerte, police EB Garamond agrandie a 15-16px, ombre portee) au lieu du petit texte 11px illisible.
+  `boutique.html` regenere (154 fiches, memes refs/ordre, verifie), anti-cache relance (`202609181307`),
+  `scripts/verif.py` passe, deploiement GitHub Pages confirme reussi. **Fichiers SQL etape-2 a etape-5
+  regeneres et relivres** avec les memes galeries etendues (colonne `images`), a recoller dans Supabase par
+  Wilfried pour que le tableau de bord admin (qui lit `images` depuis Supabase, pas depuis le HTML
+  statique) affiche lui aussi les galeries.
+  **Reste a faire** : KB216 (clavier, 7 fiches), KM5221W (3 fiches), DB14250 (1) et FCM2250-maxmicro (1)
+  restent a une seule photo — pas de 2e angle officiel trouve sur dell.com sans risquer d'associer la
+  mauvaise photo a la mauvaise reference. Acces Chrome/Drive de Wilfried (`claude-in-chrome`) toujours
+  deconnecte a cette date : resynchronisation complete du classeur Google Sheets
+  "ROOTS_Centralisation_Projets" (dates + contenu de toute la conversation) en attente de reconnexion.
