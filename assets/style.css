@@ -816,7 +816,13 @@ footer .logo img{height:38px;}
 .bxspecs li{background:var(--surface);border:1px solid var(--line);color:var(--body);
   font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:7px;}
 .bxprice{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);}
-.bxpromo{color:#c0272d;font-size:11px;font-weight:700;margin-top:4px;}
+.bxpromo{display:flex;align-items:center;gap:8px;background:#c0272d;color:#fff;
+  font-family:'EB Garamond',Garamond,Cambria,Georgia,serif;font-size:15px;font-weight:700;
+  line-height:1.25;letter-spacing:.01em;padding:8px 12px;border-radius:8px;margin:10px 0;
+  box-shadow:0 2px 6px rgba(192,39,45,.35);}
+.bxpromo svg{flex:none;width:17px;height:17px;stroke:#fff;}
+.bxdetail .bxpromo{font-size:16.5px;padding:10px 14px;margin:12px 0;}
+@media (max-width:560px){.bxpromo{font-size:13.5px;padding:7px 10px;}.bxpromo svg{width:15px;height:15px;}}
 .bxxof{display:block;font-family:var(--head);font-size:25px;font-weight:800;color:var(--ink);letter-spacing:-.01em;line-height:1.2;}
 .bxxof span{font-size:14px;font-weight:700;color:var(--teal);margin-left:3px;}
 :root[data-theme="dark"] .bxxof span{color:var(--cyan);}
