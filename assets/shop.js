@@ -9,6 +9,22 @@ var NL = String.fromCharCode(10);
    ici, le client choisit juste un mode (virement, mobile money...) regle hors ligne avec lui. */
 var CART_ENABLED = true;
 
+/* commande par WhatsApp (decision du 2026-09-25) : le panier est masque, pas supprime.
+   Un clic sur un article ouvre WhatsApp avec le produit, sa reference et son prix.
+   Remettre WA_MODE a false pour reafficher le panier et le parcours avec compte client. */
+var WA_MODE = true, WA_NUM = '22999565252';
+var WA_ICON = '<svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg>';
+function waOpen(btn) {
+  var ht = parseFloat(btn.dataset.ht) || 0;
+  var fc = Math.round(ht * XOF).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  var msg = 'Bonjour ROOTS, je souhaite commander cet article vu sur votre boutique :' + NL + NL
+    + btn.dataset.name + NL + 'Référence : ' + btn.dataset.ref + NL
+    + 'Prix affiché : ' + fc + ' FCFA HT' + NL + NL
+    + 'Quantité souhaitée : ' + NL + 'Ville de livraison : ' + NL + NL
+    + 'Merci de me confirmer la disponibilité et le délai.';
+  window.open('https://wa.me/' + WA_NUM + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+}
+
 /* 1 EUR = 655,957 FCFA : parite fixe, jamais lue depuis la base pour qu'un reglage
    ne puisse pas desynchroniser le panier des prix affiches sur les fiches */
 
@@ -97,6 +113,7 @@ if (modal) {
     if (!currentRef) return;
     var b = document.querySelector('.sadd[data-ref="' + currentRef + '"]');
     if (!b) return;
+    if (WA_MODE) { waOpen(b); return; }
     addBtn(b, true); closeDetail(); goStep(1); openCart();
   });
 }
@@ -127,7 +144,14 @@ document.addEventListener('click', function (e) {
     return;
   }
   var a = e.target.closest('.sadd');
+  if (a && WA_MODE) { waOpen(a); return; }
   if (a) { addBtn(a, false); return; }
+  /* mode WhatsApp : un clic n'importe ou sur la fiche (hors bouton Details) ouvre WhatsApp */
+  var card = WA_MODE && e.target.closest('.bxcard');
+  if (card && !e.target.closest('a, button')) {
+    var cb = card.querySelector('.sadd');
+    if (cb) { waOpen(cb); return; }
+  }
   var m = e.target.closest('[data-m]');
   if (m) { var cm = get(), im = +m.dataset.m; cm[im].q--; if (cm[im].q < 1) cm.splice(im, 1); set(cm); return; }
   var p = e.target.closest('[data-p]');
@@ -690,8 +714,17 @@ if (so) so.addEventListener('change', function () { sortBy(this.value); });
 render();
 goStep(1);
 
+if (WA_MODE) {
+  document.body.classList.add('wa-mode');
+  [].slice.call(document.querySelectorAll('.sadd')).forEach(function (b) {
+    b.innerHTML = WA_ICON + '<span>Commander</span>';
+    b.setAttribute('aria-label', 'Commander ' + b.dataset.name + ' sur WhatsApp');
+  });
+  if (modalAdd) modalAdd.innerHTML = WA_ICON + '<span>Commander sur WhatsApp</span>';
+}
+
 /* retour depuis le lien de confirmation d'e-mail : on rouvre le panier a l'etape des coordonnees */
-if (/[?&]commande=1/.test(location.search) || /access_token=/.test(location.hash)) {
+if (!WA_MODE && (/[?&]commande=1/.test(location.search) || /access_token=/.test(location.hash))) {
   client();
   setTimeout(function () {
     session(function (s) {

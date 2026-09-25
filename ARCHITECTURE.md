@@ -325,6 +325,7 @@ Six points bloquants remontes par l'equipe apres test de www.roots-co.fr, tous t
 
 ## Journal des livraisons
 
+- 2026-09-25 (soir) : commande par WhatsApp. Panier masque (pas supprime) via `WA_MODE = true` dans `shop.js` (classe `wa-mode` sur body). Clic sur une fiche, sur son bouton Commander ou sur le bouton de la fenetre Details : ouverture de wa.me/22999565252 avec nom, reference et prix FCFA HT pre-remplis. Remettre `WA_MODE = false` pour revenir au panier avec compte client (tout le code reste en place).
 - 2026-09-25 : refonte suite au retour "Elements de correction site e-commerce 20260924" : prix Dell recalcules depuis l'Excel (erreur x1,2), 18 doublons retires, 88 noms corriges, recherche par themes, compte obligatoire avant commande, rattachement des anciennes commandes, notifications e-mail commandes et devis, devis par formulaire (plus WhatsApp), ouverture de boutique allegee. Voir section "Refonte du 2026-09-25".
 - 2026-09-10 : choix Supabase, doc d'architecture, catalogue pilote (etape 1), commande sans WhatsApp (etape 2), prix HT FCFA (etape 3).
 - 2026-09-10 : declencheurs stock, tableau de bord Analyse + comptage visites et questions (etape 4), module Clients (etape 5).

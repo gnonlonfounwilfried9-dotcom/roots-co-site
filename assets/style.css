@@ -1749,3 +1749,10 @@ body:has(.rc-panel.show) #rcBtn{opacity:0;pointer-events:none;}
 .bxhero-lean{grid-template-columns:1fr !important;}
 .bxhero-lean .slead{max-width:720px;}
 .field label b{color:var(--cyan-d);}
+
+/* ---------- commande par WhatsApp : panier masque (2026-09-25) ---------- */
+.wa-mode #cartBtn,.wa-mode #cartPanel,.wa-mode #cartVeil{display:none !important;}
+.wa-mode .bxcard{cursor:pointer;}
+.wa-mode .sadd{background:#1fa855;border-color:#1fa855;color:#fff;display:inline-flex;align-items:center;gap:7px;box-shadow:none;}
+.wa-mode .sadd:hover{background:#178a45;border-color:#178a45;}
+.wa-mode #bxModalAdd{background:#1fa855;border-color:#1fa855;color:#fff;display:inline-flex;align-items:center;gap:8px;}
