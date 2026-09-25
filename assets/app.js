@@ -167,22 +167,43 @@ function initCarousel(root){
   size(); draw(); window.addEventListener('resize',function(){cancelAnimationFrame(raf);size();draw();});
 })();
 
-/* ---------- contact form -> WhatsApp ---------- */
+/* ---------- demande de devis -> base (table devis) -> e-mail a l'equipe commerciale ---------- */
 (function(){
   var box=document.getElementById('quoteForm'); if(!box) return;
   var btn=box.querySelector('[data-send]'); if(!btn) return;
+  var err=document.getElementById('quoteErr'), ok=document.getElementById('quoteOk');
+  function v(n){var el=box.querySelector('[name='+n+']');return el?el.value.trim():'';}
+  function fail(t){ if(err){err.hidden=false;err.textContent=t;} }
+  /* secours si la base ne repond pas : la meme demande, pre-remplie, par e-mail */
+  function failMail(){
+    if(!err) return;
+    var body='Demande de devis\n\nNom : '+v('name')+'\nE-mail : '+v('email')+'\nTéléphone : '+v('tel')+'\nSociété : '+v('company')+'\n\nBesoin :\n'+v('need');
+    err.hidden=false;
+    err.innerHTML='Envoi automatique indisponible pour le moment. <a href="mailto:sales@roots.ws?subject='
+      +encodeURIComponent('Demande de devis : '+v('name'))+'&body='+encodeURIComponent(body)+'">Envoyer cette demande par e-mail</a>.';
+  }
   btn.addEventListener('click',function(){
-    var v=function(sel){var el=box.querySelector(sel);return el?el.value.trim():'';};
-    var lang=document.documentElement.lang==='en'?'en':'fr';
-    var L=lang==='en'
-      ?{h:'Quote request',n:'Name',c:'Company',m:'Need'}
-      :{h:'Demande de devis',n:'Nom',c:'Societe',m:'Besoin'};
-    var txt=L.h+' - Roots & Co%0A'
-      +L.n+': '+v('[name=name]')+'%0A'
-      +'Email: '+v('[name=email]')+'%0A'
-      +L.c+': '+v('[name=company]')+'%0A'
-      +L.m+': '+v('[name=need]');
-    window.open('https://wa.me/22999565252?text='+txt,'_blank');
+    if(err) err.hidden=true;
+    if(v('website')) return;
+    var mail=v('email');
+    if(!v('name')) return fail('Indiquez votre nom.');
+    if(!mail||mail.indexOf('@')<1||mail.lastIndexOf('.')<mail.indexOf('@')) return fail('Indiquez une adresse e-mail valide.');
+    if(v('need').length<5) return fail('Décrivez votre besoin en quelques mots.');
+    var cfg=window.ROOTS_SUPABASE;
+    if(!cfg||!cfg.url||!cfg.anonKey) return failMail();
+    var d=new Date(), p=function(x){return ('0'+x).slice(-2);};
+    var ref='DV-'+String(d.getFullYear()).slice(2)+p(d.getMonth()+1)+p(d.getDate())+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+    btn.disabled=true;
+    fetch(cfg.url+'/rest/v1/devis',{method:'POST',headers:{'apikey':cfg.anonKey,'Authorization':'Bearer '+cfg.anonKey,
+      'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({ref:ref,nom:v('name'),email:mail,tel:v('tel')||null,societe:v('company')||null,besoin:v('need'),page:location.pathname})
+    }).then(function(r){
+      btn.disabled=false;
+      if(!r.ok) return failMail();
+      [].slice.call(box.querySelectorAll('.field, [data-send], .formnote')).forEach(function(el){el.style.display='none';});
+      var rf=document.getElementById('quoteRef'); if(rf) rf.textContent=ref;
+      if(ok) ok.hidden=false;
+    },function(){ btn.disabled=false; failMail(); });
   });
 })();
 

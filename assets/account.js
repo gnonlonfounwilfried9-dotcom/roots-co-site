@@ -75,7 +75,10 @@
     var mail = document.getElementById('regMail').value.trim();
     var tel = document.getElementById('regTel').value.trim();
     var pass = document.getElementById('regPass').value;
-    sb.auth.signUp({ email: mail, password: pass, options: { data: { full_name: name, tel: tel } } }).then(function (r) {
+    sb.auth.signUp({ email: mail, password: pass, options: {
+      data: { full_name: name, tel: tel },
+      emailRedirectTo: location.href.split('#')[0].split('?')[0]
+    } }).then(function (r) {
       if (r.error) { showErr('Inscription impossible : ' + r.error.message); return; }
       if (r.data.session) { showDash(r.data.session); return; }
       showMsg('Compte créé. Vérifiez votre e-mail pour confirmer votre adresse, puis connectez-vous.');
@@ -90,7 +93,12 @@
   var emptyBox = document.getElementById('acctEmpty');
   var tpl = document.getElementById('acctRowTpl');
 
+  /* les commandes passees avant la creation du compte, avec la meme adresse e-mail
+     confirmee, sont rattachees au compte cote base (fonction rattacher_mes_commandes) */
   function loadOrders(uid) {
+    sb.rpc('rattacher_mes_commandes').then(function () { listOrders(uid); }, function () { listOrders(uid); });
+  }
+  function listOrders(uid) {
     sb.from('orders').select('*').eq('user_id', uid).order('created_at', { ascending: false }).then(function (r) {
       if (r.error) { console.warn('ROOTS compte: lecture impossible', r.error.message); return; }
       var rows = r.data || [];
@@ -98,7 +106,8 @@
       if (emptyBox) emptyBox.hidden = rows.length > 0;
       rows.forEach(function (o) {
         var node = tpl.content.cloneNode(true);
-        node.querySelector('.adm-name').textContent = (o.items || []).map(function (it) { return it.qty + ' × ' + it.name; }).join(', ');
+        node.querySelector('.adm-name').textContent = (o.ref ? 'Commande ' + o.ref + ' · ' : '')
+          + (o.items || []).map(function (it) { return it.qty + ' × ' + it.name; }).join(', ');
         node.querySelector('.adm-date').textContent = fmtDate(o.created_at);
         node.querySelector('.adm-amt').textContent = fcfa(o.total_fcfa) + ' · ' + eur(o.total_eur);
         var badge = node.querySelector('.acct-badge');

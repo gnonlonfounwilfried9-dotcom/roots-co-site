@@ -117,7 +117,50 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
   depot Git n'est pas relie automatiquement). Si la couleur doit encore changer un jour, chercher `217,164,65`
   et `230,190,120` (residus de l'essai or/cuivre) pour verifier qu'aucune trace ne reste.
 
+## Refonte du 2026-09-25 (retour "Elements de correction site e-commerce 20260924")
+
+Six points bloquants remontes par l'equipe apres test de www.roots-co.fr, tous traites.
+
+- **Prix (bloquant)** : les 155 articles Dell importes le 2026-09-16 avaient ete convertis en
+  `euros x 655,957 x 1,2` (une TVA de 20 % ajoutee par erreur) puis affiches "HT". Tous faux. Regle
+  definitive : **FCFA HT = colonne PRIX de `ROOTS Promo Dell SEPTEMBRE 2026C.xlsx` (euros HT) x 655,957**,
+  sans aucun coefficient. Verifie article par article : 158 fiches Dell conformes a l'Excel. Les 22 HP/Lenovo
+  gardent le prix du fichier Descriptifs (colonne `PRIX EN VENTE HT`, seule source disponible pour ces
+  marques). Le taux 655,957 est code en dur dans `shop.js` (plus lu depuis `parametres`, pour qu'un reglage
+  ne puisse plus desynchroniser le panier des fiches). Le panier deja enregistre dans le navigateur d'un
+  visiteur est resynchronise au chargement (prix repris des fiches, articles retires supprimes).
+- **Doublons** : 18 fiches retirees (16 fiches historiques qui doublonnaient une fiche construite depuis
+  l'Excel, a un ancien prix ; RTS_2026360028 doublon de 715988-PV14250 ; RTS_2026360026 absent de l'Excel
+  de septembre). Boutique : 198 -> 180 fiches. Desactivees (`actif = false`), pas supprimees, en base.
+- **Noms et categories** : 88 fiches renommees d'apres le libelle Excel (ex. "Dell Accessories Apc" ->
+  "Etagere fixe 1U pour baie", "Dell Cable" -> "Alimentation serveur Dell 700 W"). Stockage, reseau et baies
+  ranges avec les serveurs (filtre "Serveurs, stockage et reseau").
+- **Recherche** : chaque fiche porte un index (`data-search`) : nom, caracteristiques, synonymes de categorie,
+  themes d'usage (bureautique, comptabilite, graphisme, mobilite...). `shop.js` cherche mot par mot (tous les
+  mots doivent se retrouver), accepte les debuts de mot, les pluriels, "16 Go" = "16go", ignore les mots vides.
+- **Compte obligatoire** : "Valider ma commande" ouvre une etape "Votre compte client" (connexion ou
+  creation). Plus aucune commande sans compte (politique RLS `anon insert` supprimee). L'e-mail de la
+  commande est celui du compte (non modifiable). Le lien de confirmation d'e-mail ramene au panier
+  (`?commande=1`). A la connexion, `rattacher_mes_commandes()` rattache au compte les anciennes commandes
+  passees sans compte avec la meme adresse e-mail confirmee. La reference `RC-...` est visible dans l'espace client.
+- **Notifications** : declencheurs `notifier_commande` / `notifier_devis` (pg_net) -> fonction Edge
+  `notifier-admin` -> e-mail a l'equipe (ADMIN_EMAILS) + accuse de reception au client (Resend). Secret
+  partage dans la table privee `interne_config` et le secret Edge `NOTIF_SECRET` (valeur jamais dans le depot).
+- **Devis** : le formulaire de contact enregistre la demande dans la table `devis` (plus de WhatsApp), reference
+  `DV-...`, champ anti-robot cache. Secours : si l'enregistrement echoue, lien mailto pre-rempli vers sales@roots.ws.
+- **Lien de validation "localhost"** : reglage Supabase (Authentication > URL Configuration > Site URL),
+  pas du code. `emailRedirectTo` ajoute dans `shop.js` et `account.js`.
+- **Presentation** : ouverture de la boutique allegee (encart "Comment lire les prix", bloc "Ce que ce statut
+  change pour vous", etapes, packs et guide retires). Promesse "toutes les references disponibles, quelle que
+  soit la quantite" retiree (fausse). `catalogue.html` : vitrines reconstruites depuis les fiches corrigees,
+  "Nos meilleures ventes" renomme "Une selection de la boutique" (aucune donnee de ventes). Assistant :
+  21 fiches produit reecrites (prix Excel), "disponible en toute quantite" retire.
+- SQL : `assets/refonte-2026-09-25-structure.sql` (bloc 1) puis `assets/refonte-2026-09-25-prix.sql` (bloc 2).
+- Scripts de travail (hors depot) : `truth.py` (table de verite prix/noms), `patch_boutique.py`, `patch_catalogue.py`.
+
 ## Prix : hors taxes (HT) uniquement, depuis le 2026-09-11
+
+> Remplace en partie par la refonte du 2026-09-25 ci-dessus : les prix Dell listes ci-dessous sont perimes.
 
 - Decision de Wilfried : **plus aucun prix TTC affiche sur le site**, ni cote client ni dans les reponses de
   l'assistant. Le fichier `Downloads/Descriptifs de communication_ site e-commerce.xlsx` fourni par Wilfried
@@ -282,6 +325,7 @@ hebergeur payant + plusieurs semaines pour refaire ce que Supabase donne d'origi
 
 ## Journal des livraisons
 
+- 2026-09-25 : refonte suite au retour "Elements de correction site e-commerce 20260924" : prix Dell recalcules depuis l'Excel (erreur x1,2), 18 doublons retires, 88 noms corriges, recherche par themes, compte obligatoire avant commande, rattachement des anciennes commandes, notifications e-mail commandes et devis, devis par formulaire (plus WhatsApp), ouverture de boutique allegee. Voir section "Refonte du 2026-09-25".
 - 2026-09-10 : choix Supabase, doc d'architecture, catalogue pilote (etape 1), commande sans WhatsApp (etape 2), prix HT FCFA (etape 3).
 - 2026-09-10 : declencheurs stock, tableau de bord Analyse + comptage visites et questions (etape 4), module Clients (etape 5).
 - 2026-09-10 : onglet Reglages, roles et journal (etape 6), TVA/devises/zones de livraison (etape 7).

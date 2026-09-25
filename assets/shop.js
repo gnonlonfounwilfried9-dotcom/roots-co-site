@@ -9,19 +9,8 @@ var NL = String.fromCharCode(10);
    ici, le client choisit juste un mode (virement, mobile money...) regle hors ligne avec lui. */
 var CART_ENABLED = true;
 
-/* taux de change pilote depuis le tableau de bord (Reglages) */
-(function () {
-  var cfg = window.ROOTS_SUPABASE;
-  if (!cfg || !cfg.url || !cfg.anonKey) return;
-  fetch(cfg.url + '/rest/v1/parametres?select=cle,valeur&cle=eq.taux_eur_fcfa', {
-    headers: { 'apikey': cfg.anonKey }
-  }).then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
-    if (rows && rows[0] && parseFloat(rows[0].valeur) > 0) {
-      XOF = parseFloat(rows[0].valeur);
-      if (typeof render === 'function') render();
-    }
-  }).catch(function () {});
-})();
+/* 1 EUR = 655,957 FCFA : parite fixe, jamais lue depuis la base pour qu'un reglage
+   ne puisse pas desynchroniser le panier des prix affiches sur les fiches */
 
 function get() { try { return JSON.parse(localStorage.getItem(K)) || []; } catch (e) { return []; } }
 function set(c) { try { localStorage.setItem(K, JSON.stringify(c)); } catch (e) {} render(); }
@@ -169,8 +158,48 @@ var doneClose = document.getElementById('cartDoneClose');
 var footNote = document.getElementById('cartFootNote');
 var cartTitle = document.getElementById('cartTitle');
 
+var stepAuth = document.getElementById('cartStepAuth');
+
+/* un seul client Supabase pour la page : il lit aussi le jeton present dans l'adresse
+   quand le client revient du lien de confirmation de son e-mail */
+var SB = null;
+function client() {
+  var cfg = window.ROOTS_SUPABASE;
+  if (SB) return SB;
+  if (!cfg || !cfg.url || !cfg.anonKey || !window.supabase) return null;
+  try { SB = window.supabase.createClient(cfg.url, cfg.anonKey); } catch (e) { SB = null; }
+  return SB;
+}
+function session(cb) {
+  var sb = client();
+  if (!sb) { cb(null); return; }
+  sb.auth.getSession().then(function (r) { cb(r.data && r.data.session ? r.data.session : null); }, function () { cb(null); });
+}
+
+/* coordonnees pre-remplies depuis le compte ; l'e-mail est celui du compte, non modifiable,
+   pour que la commande apparaisse toujours dans l'espace client */
+function fillFromAccount(s) {
+  var u = s.user, md = u.user_metadata || {};
+  var f = function (id, v) { var el = document.getElementById(id); if (el && v && !el.value) el.value = v; };
+  f('cfName', md.full_name); f('cfTel', md.tel);
+  var m = document.getElementById('cfMail');
+  if (m) { m.value = u.email; m.readOnly = true; }
+  var who = document.getElementById('cfWho');
+  if (who) {
+    who.hidden = false;
+    who.innerHTML = 'Connect&eacute; : <b>' + u.email.replace(/[<>&"]/g, '') + '</b> &middot; <button type="button" id="cfLogout">Changer de compte</button>';
+  }
+}
+function toCheckout() {
+  session(function (s) {
+    if (s) { fillFromAccount(s); goStep(2); var f = document.getElementById('cfName'); if (f && !f.value) f.focus(); }
+    else goStep('auth');
+  });
+}
+
 function goStep(n) {
   if (!step2) return;
+  if (stepAuth) stepAuth.hidden = (n !== 'auth');
   step1.hidden = (n !== 1);
   step2.hidden = (n !== 2);
   if (step3) step3.hidden = (n !== 3);
@@ -178,20 +207,90 @@ function goStep(n) {
   if (nextBtn) nextBtn.hidden = (n !== 1);
   if (reviewBtn) reviewBtn.hidden = (n !== 2);
   if (confirmBtn) confirmBtn.hidden = (n !== 3);
-  if (backBtn) backBtn.hidden = (n !== 2);
+  if (backBtn) backBtn.hidden = (n !== 2 && n !== 'auth');
   if (backBtn2) backBtn2.hidden = (n !== 3);
   if (doneClose) doneClose.hidden = (n !== 4);
   if (footNote) footNote.hidden = (n === 4);
   [].slice.call(document.querySelectorAll('.cart-foot .cart-tot')).forEach(function (el) { el.hidden = (n === 4); });
   if (cartTitle) cartTitle.textContent =
-    (n === 4) ? 'Merci' : (n === 3) ? 'Vérifiez et envoyez' : (n === 2) ? 'Vos coordonnées' : 'Votre panier';
+    (n === 4) ? 'Merci' : (n === 3) ? 'Vérifiez et envoyez' : (n === 2) ? 'Vos coordonnées'
+    : (n === 'auth') ? 'Votre compte client' : 'Votre panier';
   var pan = document.getElementById('cartPanel');
   if (pan) pan.scrollTop = 0;
 }
 if (nextBtn) nextBtn.addEventListener('click', function () {
   if (!get().length) return;
-  goStep(2);
-  var f = document.getElementById('cfName'); if (f) f.focus();
+  toCheckout();
+});
+
+/* ------- connexion ou creation de compte, obligatoire avant toute commande ------- */
+var authMode = 'in';
+function authMsg(id, txt) {
+  ['caErr', 'caOk'].forEach(function (k) { var e = document.getElementById(k); if (e) e.hidden = true; });
+  var el = document.getElementById(id);
+  if (el && txt) { el.hidden = false; el.textContent = txt; }
+}
+[].slice.call(document.querySelectorAll('.cf-tab')).forEach(function (t) {
+  t.addEventListener('click', function () {
+    authMode = t.dataset.mode;
+    [].slice.call(document.querySelectorAll('.cf-tab')).forEach(function (x) { x.classList.toggle('on', x === t); });
+    [].slice.call(document.querySelectorAll('.cf-up-only')).forEach(function (x) { x.hidden = authMode !== 'up'; });
+    var go = document.getElementById('caGo');
+    if (go) go.textContent = authMode === 'up' ? 'Créer mon compte' : 'Me connecter et continuer';
+    var pw = document.getElementById('caPass');
+    if (pw) pw.autocomplete = authMode === 'up' ? 'new-password' : 'current-password';
+    authMsg();
+  });
+});
+var caGo = document.getElementById('caGo');
+if (caGo) caGo.addEventListener('click', function () {
+  var sb = client();
+  if (!sb) { authMsg('caErr', 'Service de compte momentanément indisponible. Réessayez dans un instant.'); return; }
+  var mail = val('caMail'), pass = (document.getElementById('caPass') || {}).value || '';
+  if (!mail || mail.indexOf('@') < 1) { authMsg('caErr', 'Indiquez une adresse e-mail valide.'); return; }
+  if (pass.length < 8) { authMsg('caErr', 'Le mot de passe doit contenir au moins 8 caractères.'); return; }
+  caGo.disabled = true;
+  var done = function () { caGo.disabled = false; };
+  if (authMode === 'in') {
+    sb.auth.signInWithPassword({ email: mail, password: pass }).then(function (r) {
+      done();
+      if (r.error) {
+        authMsg('caErr', /confirm/i.test(r.error.message)
+          ? 'Votre adresse e-mail n’est pas encore confirmée. Cliquez sur le lien reçu par e-mail, puis réessayez.'
+          : 'E-mail ou mot de passe incorrect.');
+        return;
+      }
+      toCheckout();
+    }, function () { done(); authMsg('caErr', 'Connexion impossible pour le moment. Réessayez.'); });
+    return;
+  }
+  var name = val('caName'), tel = val('caTel');
+  if (!name || !tel) { done(); authMsg('caErr', 'Indiquez votre nom et votre téléphone.'); return; }
+  sb.auth.signUp({ email: mail, password: pass, options: {
+    data: { full_name: name, tel: tel },
+    emailRedirectTo: location.href.split('#')[0].split('?')[0] + '?commande=1'
+  } }).then(function (r) {
+    done();
+    if (r.error) {
+      authMsg('caErr', /registered|exists/i.test(r.error.message)
+        ? 'Un compte existe déjà avec cette adresse. Choisissez « J’ai déjà un compte ».'
+        : 'Création du compte impossible : ' + r.error.message);
+      return;
+    }
+    if (r.data && r.data.session) { toCheckout(); return; }
+    authMsg('caOk', 'Compte créé. Un e-mail de confirmation vient d’être envoyé à ' + mail
+      + '. Cliquez sur le lien qu’il contient : vous reviendrez ici, avec votre panier, pour terminer la commande.');
+  }, function () { done(); authMsg('caErr', 'Création du compte impossible pour le moment. Réessayez.'); });
+});
+document.addEventListener('click', function (e) {
+  if (!e.target.closest || !e.target.closest('#cfLogout')) return;
+  var sb = client();
+  if (!sb) return;
+  sb.auth.signOut().then(function () {
+    var m = document.getElementById('cfMail'); if (m) { m.readOnly = false; m.value = ''; }
+    var who = document.getElementById('cfWho'); if (who) who.hidden = true;
+    goStep('auth');
+  });
 });
 var backBtn = document.getElementById('cartBack');
 if (backBtn) backBtn.addEventListener('click', function () { goStep(1); });
@@ -236,6 +335,7 @@ if (confirmBtn) confirmBtn.addEventListener('click', function () {
   submitOrder(rec, function (ok, msg) {
     confirmBtn.disabled = false;
     confirmBtn.textContent = 'Envoyer ma commande';
+    if (!ok && msg === 'auth') { goStep('auth'); return; }
     if (!ok) {
       if (errBox) {
         errBox.hidden = false;
@@ -483,16 +583,14 @@ function buildRecord(d) {
 }
 /* la commande part au tableau de bord (Supabase). done(ok, message) est rappele ensuite. */
 function submitOrder(record, done) {
-  var cfg = window.ROOTS_SUPABASE;
-  if (!cfg || !cfg.url || !cfg.anonKey || !window.supabase) { done(false, 'non configure'); return; }
-  var sb;
-  try { sb = window.supabase.createClient(cfg.url, cfg.anonKey); }
-  catch (e) { done(false, String(e)); return; }
-  // si un client est connecte a son espace dans ce navigateur, la commande est
-  // rattachee a son compte pour apparaitre dans son historique
+  var sb = client();
+  if (!sb) { done(false, 'non configure'); return; }
+  // compte obligatoire : la commande est toujours rattachee au compte connecte
   sb.auth.getSession().then(function (s) {
-    var uid = s.data && s.data.session ? s.data.session.user.id : null;
-    if (uid) record.user_id = uid;
+    var ses = s.data && s.data.session;
+    if (!ses) { done(false, 'auth'); return; }
+    record.user_id = ses.user.id;
+    record.customer_mail = ses.user.email;
     function tryInsert(rec, allowRetry) {
       sb.from('orders').insert(rec).then(function (res) {
         if (!res.error) { done(true); return; }
@@ -520,15 +618,32 @@ var order = cards.slice();
 var cat = 'all', q = '';
 
 function norm(s) {
-  s = (s || '').toLowerCase();
+  s = (s || '').toLowerCase().replace(/œ/g, 'oe');
   try { s = s.normalize('NFD').replace(/[̀-ͯ]/g, ''); } catch (e) {}
+  s = s.replace(/(\d+)\s*(go|gb)\b/g, '$1go').replace(/(\d+)\s*(to|tb)\b/g, '$1to');
   return s.replace(/[^a-z0-9]+/g, ' ');
 }
+/* mots vides ignores dans la recherche, pour que "un ecran pour la compta" fonctionne */
+var STOP = ' de des du la le les un une pour avec et en a au aux d l sur par mon ma mes je cherche besoin ';
+/* chaque mot tape doit se retrouver dans la fiche (debut de mot accepte, pluriel tolere) */
+function words(c) {
+  if (!c._w) c._w = norm(c.dataset.search + ' ' + c.dataset.name).split(' ').filter(Boolean);
+  return c._w;
+}
+function hit(ws, tok) {
+  var alt = tok.length > 3 && tok.slice(-1) === 's' ? tok.slice(0, -1) : tok;
+  for (var i = 0; i < ws.length; i++) {
+    if (ws[i].indexOf(tok) === 0 || ws[i].indexOf(alt) === 0) return true;
+  }
+  return false;
+}
 function apply() {
-  var nq = norm(q).trim(), shown = 0;
+  var toks = norm(q).split(' ').filter(function (t) { return t && STOP.indexOf(' ' + t + ' ') < 0; });
+  var shown = 0;
   cards.forEach(function (c) {
     var okc = (cat === 'all' || c.dataset.cat === cat);
-    var oks = !nq || norm(c.dataset.search + ' ' + c.dataset.name).indexOf(nq) > -1;
+    var ws = words(c);
+    var oks = toks.every(function (t) { return hit(ws, t); });
     var on = okc && oks;
     c.style.display = on ? '' : 'none';
     if (on) shown++;
@@ -557,6 +672,32 @@ if (qi) qi.addEventListener('input', function () { q = this.value; apply(); });
 var so = document.getElementById('bxsort');
 if (so) so.addEventListener('change', function () { sortBy(this.value); });
 
+/* panier enregistre avant une mise a jour du catalogue : prix et noms repris de la page,
+   articles qui n'existent plus retires (sinon un ancien prix partirait avec la commande) */
+(function () {
+  if (!cards.length) return;
+  var c = get(), changed = false;
+  c = c.filter(function (it) {
+    var b = document.querySelector('.sadd[data-ref="' + it.ref + '"]');
+    if (!b) { changed = true; return false; }
+    var ht = parseFloat(b.dataset.ht);
+    if (it.ht !== ht || it.name !== b.dataset.name) { it.ht = ht; it.name = b.dataset.name; changed = true; }
+    return true;
+  });
+  if (changed) { try { localStorage.setItem(K, JSON.stringify(c)); } catch (e) {} }
+})();
+
 render();
 goStep(1);
+
+/* retour depuis le lien de confirmation d'e-mail : on rouvre le panier a l'etape des coordonnees */
+if (/[?&]commande=1/.test(location.search) || /access_token=/.test(location.hash)) {
+  client();
+  setTimeout(function () {
+    session(function (s) {
+      if (s && get().length) { openCart(); toCheckout(); }
+      try { history.replaceState(null, '', location.pathname); } catch (e) {}
+    });
+  }, 300);
+}
 })();

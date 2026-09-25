@@ -1732,3 +1732,20 @@ body:has(.rc-panel.show) #rcBtn{opacity:0;pointer-events:none;}
 .adm-del-bulk{border-color:rgba(201,75,40,.4);color:#c94b28;font-size:12.5px;padding:8px 14px;}
 .adm-del-bulk:hover{background:rgba(201,75,40,.08);}
 :root[data-theme="dark"] .adm-del-bulk{color:#fb7185;border-color:rgba(251,113,133,.4);}
+
+/* ---------- refonte 2026-09-25 : compte obligatoire au panier, devis par e-mail ---------- */
+.cf-tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;margin:4px 0 16px;}
+.cf-tab{flex:1;border:0;background:transparent;border-radius:9px;padding:10px 8px;font-family:var(--head);font-size:14px;font-weight:600;color:var(--body);cursor:pointer;}
+.cf-tab.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(7,22,42,.12);}
+.cf-authbtn{width:100%;justify-content:center;margin-top:6px;}
+.cf-ok{background:rgba(34,195,230,.1);border:1px solid rgba(34,195,230,.35);color:var(--ink);border-radius:10px;padding:11px 13px;font-size:14px;line-height:1.5;}
+.cf-who{font-size:13.5px;color:var(--body);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:12px;}
+.cf-who button{border:0;background:none;color:var(--cyan-d);font:inherit;cursor:pointer;text-decoration:underline;padding:0;}
+.cart-form input[readonly]{opacity:.75;cursor:not-allowed;}
+.field.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+.formerr{color:#c0392b;font-size:14px;margin:4px 0 10px;}
+.formok{border:1px solid rgba(34,195,230,.4);background:rgba(34,195,230,.08);border-radius:14px;padding:18px 20px;}
+.formok h4{margin-bottom:6px;}
+.bxhero-lean{grid-template-columns:1fr !important;}
+.bxhero-lean .slead{max-width:720px;}
+.field label b{color:var(--cyan-d);}
