@@ -277,6 +277,13 @@ Six points bloquants remontes par l'equipe apres test de www.roots-co.fr, tous t
   paiement automatique, seul le paiement en ligne reste manuel — virement/mobile money regles hors ligne).
 - Coller `assets/cron.sql` dans Supabase pour planifier `taux-change` (pas encore fait).
 - Verifier le domaine Resend (`roots.services` ou `roots.ws`) pour pouvoir notifier les vrais clients, pas seulement le compte Resend.
+- **2026-10-20 : coller `assets/refonte-2026-10-20-notif-whatsapp.sql` dans Supabase** (cree la
+  table `intentions_whatsapp` + son declencheur, resynchronise `interne_config.notif_secret`),
+  reporter la meme valeur de secret dans Edge Functions > notifier-admin > Secrets > NOTIF_SECRET,
+  redeployer `notifier-admin` (nouvelle branche `whatsapp`), et regler `ADMIN_EMAILS` sur une
+  adresse qui fonctionne reellement tant que le domaine Resend n'est pas verifie (voir journal du
+  2026-10-20 : l'e-mail cote equipe n'est pas arrive lors du test, probablement un mauvais
+  destinataire pour le mode test Resend).
 - Wiring `boutique.html` pour lire le catalogue depuis Supabase au lieu du HTML fige.
 - Publication automatique des posts reseaux sociaux (comptes Meta / LinkedIn Business + revue d'app).
 - Refonte visuelle : palette or/cuivre appliquee le 2026-09-11 (voir section Palette de couleurs). Reste a affiner si besoin : fond de page (motifs/degrades) et redeployer `notifier-suivi` pour que l'e-mail de suivi reprenne aussi la nouvelle couleur.
@@ -325,6 +332,27 @@ Six points bloquants remontes par l'equipe apres test de www.roots-co.fr, tous t
 
 ## Journal des livraisons
 
+- 2026-10-20 : verification en direct du circuit de notification e-mail (commande/devis mis en
+  place le 2026-09-25) : un vrai devis de test a ete insere dans Supabase, l'accuse de reception
+  client est bien arrive par e-mail (via Resend), confirmant que la fonction `notifier-admin` est
+  deployee, que "Verify JWT" est bien desactive dessus et que le secret partage fonctionnait pour
+  cet envoi. **Point trouve** : l'e-mail cote equipe (`ADMIN_EMAILS`) n'est pas arrive dans le meme
+  essai, probablement parce que cette adresse n'est pas celle du compte Resend et que Resend, tant
+  que le domaine `roots.services`/`roots.ws` n'est pas verifie, ne delivre qu'a l'adresse exacte du
+  compte Resend (`marketing-digital@roots.services`). A faire par Wilfried : verifier/regler
+  `ADMIN_EMAILS` sur cette adresse en attendant la verification du domaine. Ligne de test
+  `DV-TEST-1223` nettoyee par `assets/refonte-2026-10-20-notif-whatsapp.sql`.
+- 2026-10-20 : alerte e-mail ajoutee pour les commandes WhatsApp. Jusqu'ici, le mode WhatsApp
+  (`WA_MODE`, depuis le 2026-09-25) n'ecrivait plus rien dans Supabase : aucune notification
+  n'etait donc possible pour une commande, seul le message WhatsApp lui-meme prevenait l'equipe.
+  Ajout : un clic sur "Commander" enregistre maintenant aussi, en silence (`notifyWA` dans
+  `shop.js`, sans bloquer ni ralentir l'ouverture de WhatsApp), une ligne dans la nouvelle table
+  `intentions_whatsapp` (produit, reference, prix, page). Meme declencheur et meme fonction Edge
+  que les commandes/devis (`notifier_admin('whatsapp')`), nouvelle branche `whatsapp` ajoutee dans
+  `supabase/functions/notifier-admin/index.ts` : un e-mail d'alerte anticipee part vers
+  `ADMIN_EMAILS` a chaque clic, avant meme que le client n'envoie son message WhatsApp. SQL :
+  `assets/refonte-2026-10-20-notif-whatsapp.sql` (cree la table, le declencheur, resynchronise le
+  secret `interne_config.notif_secret` avec un nouveau secret donne a Wilfried hors depot).
 - 2026-09-25 (soir) : commande par WhatsApp. Panier masque (pas supprime) via `WA_MODE = true` dans `shop.js` (classe `wa-mode` sur body). Clic sur une fiche, sur son bouton Commander ou sur le bouton de la fenetre Details : ouverture de wa.me/22999565252 avec nom, reference et prix FCFA HT pre-remplis. Remettre `WA_MODE = false` pour revenir au panier avec compte client (tout le code reste en place).
 - 2026-09-25 : refonte suite au retour "Elements de correction site e-commerce 20260924" : prix Dell recalcules depuis l'Excel (erreur x1,2), 18 doublons retires, 88 noms corriges, recherche par themes, compte obligatoire avant commande, rattachement des anciennes commandes, notifications e-mail commandes et devis, devis par formulaire (plus WhatsApp), ouverture de boutique allegee. Voir section "Refonte du 2026-09-25".
 - 2026-09-10 : choix Supabase, doc d'architecture, catalogue pilote (etape 1), commande sans WhatsApp (etape 2), prix HT FCFA (etape 3).

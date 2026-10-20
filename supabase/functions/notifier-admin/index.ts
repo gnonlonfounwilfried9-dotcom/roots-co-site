@@ -90,6 +90,11 @@ Deno.serve(async (req) => {
          <p style="white-space:pre-wrap;background:#f5f8fb;border-radius:8px;padding:12px">${esc(r.besoin)}</p>`);
       out.client = await send([r.email], `Votre demande de devis ${r.ref ?? ""}`, client);
     }
+  } else if (b.type === "whatsapp") {
+    const admin = frame("Intention de commande WhatsApp",
+      `<p><strong>Un visiteur vient d'ouvrir WhatsApp pour commander cet article.</strong> Rien n'est encore confirmé : il doit encore vous envoyer son message. Ceci est une alerte anticipée, pour que vous suiviez l'intérêt même si le message WhatsApp n'arrive jamais.</p>
+       ${rows([["Produit", r.produit_nom], ["Référence", r.produit_ref], ["Prix affiché", fcfa(r.prix_ht_fcfa)], ["Page", r.page]])}`);
+    out.admin = await send(ADMINS, `Intention de commande WhatsApp : ${r.produit_nom ?? ""}`, admin);
   } else {
     return new Response("Type inconnu", { status: 400 });
   }
