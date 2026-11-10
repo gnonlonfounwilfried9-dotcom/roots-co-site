@@ -58,3 +58,12 @@ body.hm-ready .hm-logo{animation-delay:.05s}
 .hm-hero-in{position:relative;z-index:3}
 .hm-h1{text-shadow:0 8px 34px rgba(0,0,0,.55)}
 .hm-sub{text-shadow:0 2px 14px rgba(0,0,0,.6)}
+
+.hm-hub.logo{width:236px;height:98px;margin:-49px 0 0 -118px;border-radius:50px}
+.hm-hub.logo img{width:176px;height:auto;position:relative;z-index:2;filter:drop-shadow(0 0 14px rgba(34,195,230,.55))}
+.hm-hub.logo i{border-radius:50px}
+.hm-map{margin-top:30px}
+.hm-hero .lp-host{opacity:.7}
+
+.hm-map{height:440px;margin-bottom:calc((var(--s,1) - 1) * 440px)}
+.hm-hub{top:218px}

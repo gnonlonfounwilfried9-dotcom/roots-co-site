@@ -2,13 +2,6 @@
 (function () {
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (window.rootsNet) window.rootsNet(document.getElementById('hmNet'), { max: 120, density: 13000, link: 140 });
-  var loop = document.getElementById('hmLoop');
-  if (loop && window.rootsLoop) {
-    window.rootsLoop(loop, [
-      { icon: 'cpu', label: 'Ordinateurs' }, { icon: 'printer', label: 'Imprimantes' }, { icon: 'stack', label: 'Serveurs' }, { logo: 1 },
-      { icon: 'wifi', label: 'Réseau' }, { icon: 'shield', label: 'Cybersécurité' }, { icon: 'gear', label: 'Infogérance' }, { icon: 'eye', label: 'Vidéosurveillance' }, { icon: 'chart', label: 'Gestion' }
-    ], { rx: .45, ry: .4, speed: .00006 });
-  }
   /* décor vivant sur toutes les sections de la page */
   if (window.rootsLive) document.querySelectorAll('.hm-dark:not(.hm-end),.hm-light').forEach(function (s) { window.rootsLive(s, s.classList.contains('hm-dark')); });
   document.querySelectorAll('.hm-dark').forEach(function (s) {

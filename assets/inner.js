@@ -30,11 +30,21 @@
     var loop = document.createElement('div'); loop.className = 'lp-host';
     hero.insertBefore(loop, hero.firstChild); hero.insertBefore(glow, hero.firstChild); hero.insertBefore(grid, hero.firstChild); hero.insertBefore(net, hero.firstChild);
     if (window.rootsNet) window.rootsNet(net, { max: 80, density: 15000, link: 130 });
-    var items;
-    if (path === 'partenaires.html') items = PARTNERS.slice(0, 10).map(function (p) { return { img: 'assets/partners/' + p + '.png', label: p }; });
-    else if (path === 'references.html') { items = Array.prototype.slice.call(document.querySelectorAll('.rwtile img')).slice(0, 10).map(function (im) { return { img: im.getAttribute('src'), label: im.alt }; }); }
-    else items = (SETS[path] || SETS['informatique.html']).map(function (x) { return { icon: x[0], label: x[1] }; });
-    if (items.length && window.rootsLoop) window.rootsLoop(loop, items, { rx: .47, ry: .43, speed: .00006 });
+    var KIND = { 'import-export.html': 'routes', 'blog.html': 'news', 'contact.html': 'radar', 'a-propos.html': 'globe', 'references.html': 'logos' }[path] || 'loop';
+    if (KIND === 'routes' && window.rootsRoutes) window.rootsRoutes(loop);
+    else if (KIND === 'news' && window.rootsNewsWall) window.rootsNewsWall(loop);
+    else if (KIND === 'radar' && window.rootsRadar) window.rootsRadar(loop);
+    else if (KIND === 'globe' && window.rootsGlobe) window.rootsGlobe(loop);
+    else if (KIND === 'logos' && window.rootsLogoRows) {
+      var li = Array.prototype.slice.call(document.querySelectorAll('.rwtile img')).map(function (im) { return im.getAttribute('src'); }).slice(0, 12);
+      if (li.length < 6) li = li.concat(PARTNERS.map(function (x) { return 'assets/partners/' + x + '.png'; }));
+      window.rootsLogoRows(loop, li);
+    } else {
+      var items;
+      if (path === 'partenaires.html') items = PARTNERS.slice(0, 10).map(function (p) { return { img: 'assets/partners/' + p + '.png', label: p }; });
+      else items = (SETS[path] || SETS['informatique.html']).map(function (x) { return { icon: x[0], label: x[1] }; });
+      if (items.length && window.rootsLoop) window.rootsLoop(loop, items, { rx: .47, ry: .43, speed: .00006 });
+    }
   }
   /* décor vivant sur toute la page : toutes les sections */
   if (window.rootsLive) document.querySelectorAll('.sec').forEach(function (s) { window.rootsLive(s, s.classList.contains('dark')); });
