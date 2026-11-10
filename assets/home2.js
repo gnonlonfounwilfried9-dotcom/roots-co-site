@@ -1,15 +1,21 @@
-/* Accueil : constellation, mise à l'échelle du réseau, vitrine des solutions en rotation continue */
+/* Accueil : constellation, boucle de produits autour du texte, décor vivant, vitrine des solutions en rotation continue */
 (function () {
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (window.rootsNet) window.rootsNet(document.getElementById('hmNet'), { max: 110, density: 14000, link: 140 });
-  var map = document.getElementById('hmMap');
-  function scale() {
-    if (!map) return;
-    var host = map.parentElement.clientWidth, s = Math.max(1, Math.min(1.45, (host * .92) / 1040));
-    if (innerWidth < 761) s = 1;
-    map.style.setProperty('--s', s.toFixed(3));
+  if (window.rootsNet) window.rootsNet(document.getElementById('hmNet'), { max: 120, density: 13000, link: 140 });
+  var loop = document.getElementById('hmLoop');
+  if (loop && window.rootsLoop) {
+    window.rootsLoop(loop, [
+      { icon: 'cpu', label: 'Ordinateurs' }, { icon: 'printer', label: 'Imprimantes' }, { icon: 'stack', label: 'Serveurs' }, { logo: 1 },
+      { icon: 'wifi', label: 'Réseau' }, { icon: 'shield', label: 'Cybersécurité' }, { icon: 'gear', label: 'Infogérance' }, { icon: 'eye', label: 'Vidéosurveillance' }, { icon: 'chart', label: 'Gestion' }
+    ], { rx: .45, ry: .4, speed: .00006 });
   }
-  scale(); addEventListener('resize', scale);
+  /* décor vivant sur toutes les sections de la page */
+  if (window.rootsLive) document.querySelectorAll('.hm-dark:not(.hm-end),.hm-light').forEach(function (s) { window.rootsLive(s, s.classList.contains('hm-dark')); });
+  document.querySelectorAll('.hm-dark').forEach(function (s) {
+    if (s.querySelector(':scope > canvas')) return;
+    var c = document.createElement('canvas'); c.className = 'ix-net sec-net'; s.insertBefore(c, s.firstChild);
+    if (window.rootsNet) window.rootsNet(c, { max: 70, density: 16000, link: 130 });
+  });
   var show = document.getElementById('hsShow'); if (!show) return;
   var tabs = show.querySelectorAll('.hs-tab'), panes = show.querySelectorAll('.hs-pane'), cur = 0, timer = null, DUR = 5500;
   show.style.setProperty('--dur', DUR + 'ms');

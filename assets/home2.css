@@ -49,3 +49,12 @@
 @media (max-width:760px){.hs-stage{min-height:640px}.hs-body p{font-size:16px}}
 @media (prefers-reduced-motion:reduce){.hs-pane img,.hs-rt,.hm-rt{animation:none!important}.hs-body>*{opacity:1;transform:none;animation:none!important}}
 .hm-scroll{display:none}.hm-hero-in{padding-bottom:110px}
+
+.hm-logo{height:58px;width:auto;margin-bottom:22px;filter:drop-shadow(0 0 18px rgba(34,195,230,.6));opacity:0;animation:hmIn .9s cubic-bezier(.2,.8,.2,1) 1.2s forwards}
+body.hm-ready .hm-logo{animation-delay:.05s}
+.hm-hero{min-height:max(100vh,780px)}
+.hm-hero-in{padding-top:130px;padding-bottom:120px}
+.hm-hero .lp-host{z-index:2}
+.hm-hero-in{position:relative;z-index:3}
+.hm-h1{text-shadow:0 8px 34px rgba(0,0,0,.55)}
+.hm-sub{text-shadow:0 2px 14px rgba(0,0,0,.6)}
