@@ -1,0 +1,33 @@
+/* Pages intérieures ROOTS : même univers animé que l'accueil */
+.phero{min-height:clamp(380px,52vh,560px);display:flex;align-items:center;padding-bottom:84px}
+.phero .wrap{max-width:1240px;width:100%}
+.phero h1,.phero p{max-width:34ch}
+.phero p{max-width:54ch}
+.ix-net{position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:.8;pointer-events:none}
+.ix-grid{position:absolute;inset:0;z-index:1;background-image:linear-gradient(rgba(34,195,230,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(34,195,230,.07) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 85% 90% at 70% 50%,#000 10%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse 85% 90% at 70% 50%,#000 10%,transparent 75%);pointer-events:none}
+.ix-glow{position:absolute;right:-10%;top:-30%;width:1000px;height:900px;z-index:1;background:radial-gradient(ellipse at 50% 50%,rgba(34,195,230,.38),rgba(37,99,235,.2) 40%,transparent 68%);filter:blur(30px);animation:hmBreath 8s ease-in-out infinite;pointer-events:none}
+.ix-orbit{position:absolute;right:-120px;top:50%;width:640px;height:640px;margin-top:-320px;z-index:1;pointer-events:none}
+.ix-orbit .ring{position:absolute;inset:0;border-radius:50%;border:1px dashed rgba(143,233,255,.3);animation:ixSpin 60s linear infinite}
+.ix-orbit .ring.r2{inset:90px;border-style:solid;border-color:rgba(143,233,255,.18);animation-duration:42s;animation-direction:reverse}
+.ix-orbit .ring.r3{inset:180px;border-color:rgba(143,233,255,.3);animation-duration:30s}
+.ix-orbit .core{position:absolute;inset:250px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#123a66,#071a33);border:1px solid rgba(143,233,255,.5);box-shadow:0 0 60px rgba(34,195,230,.5),inset 0 0 30px rgba(34,195,230,.25);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;font-size:44px;color:#fff;text-shadow:0 0 20px rgba(34,195,230,.9)}
+.ix-orbit .sat{position:absolute;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(8px);color:#8fe9ff;box-shadow:0 10px 26px rgba(0,0,0,.4),0 0 20px rgba(34,195,230,.25)}
+.ix-orbit .sat svg{width:26px;height:26px;animation:ixSpinR 60s linear infinite}
+.ix-orbit .r2 .sat svg{animation-duration:42s;animation-direction:normal}
+.ix-orbit .r3 .sat svg{animation-duration:30s;animation-direction:reverse}
+@keyframes ixSpin{to{transform:rotate(360deg)}}
+@keyframes ixSpinR{to{transform:rotate(-360deg)}}
+.phero .wrap{z-index:3}
+.phero .kicker,.phero h1,.phero p,.phero .crumb{opacity:0;transform:translateY(16px);animation:hmIn .9s cubic-bezier(.2,.8,.2,1) forwards}
+.phero .crumb{animation-delay:.05s}.phero .kicker{animation-delay:.15s}.phero h1{animation-delay:.25s}.phero p{animation-delay:.4s}
+.phero h1{background:linear-gradient(120deg,#fff 55%,#8fe9ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ix-halo{position:relative}
+.ix-halo::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(380px circle at var(--mx,50%) var(--my,0%),rgba(34,195,230,.18),transparent 55%);opacity:0;transition:opacity .35s}
+.ix-halo:hover::after{opacity:1}
+.ix-halo{transition:transform .4s cubic-bezier(.2,.8,.2,1),box-shadow .4s}
+.ix-halo:hover{transform:translateY(-5px)}
+.sec{position:relative}
+.sec .stitle{letter-spacing:-.025em}
+@media (max-width:1000px){.ix-orbit{right:-260px;opacity:.55}.phero{min-height:340px}}
+@media (max-width:760px){.ix-orbit{display:none}.phero{padding-bottom:60px}}
+@media (prefers-reduced-motion:reduce){.ix-orbit *,.ix-glow{animation:none!important}.phero .kicker,.phero h1,.phero p,.phero .crumb{opacity:1;transform:none;animation:none}}
