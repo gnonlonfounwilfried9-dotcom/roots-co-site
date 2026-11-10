@@ -1756,3 +1756,21 @@ body:has(.rc-panel.show) #rcBtn{opacity:0;pointer-events:none;}
 .wa-mode .sadd{background:#1fa855;border-color:#1fa855;color:#fff;display:inline-flex;align-items:center;gap:7px;box-shadow:none;}
 .wa-mode .sadd:hover{background:#178a45;border-color:#178a45;}
 .wa-mode #bxModalAdd{background:#1fa855;border-color:#1fa855;color:#fff;display:inline-flex;align-items:center;gap:8px;}
+
+/* accueil : colonne droite du hero (evite le vide sur ordinateur) */
+.hero-in{max-width:1240px;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:56px;align-items:center;}
+.hero-txt{min-width:0;}
+.hero-side{display:flex;flex-direction:column;gap:14px;}
+.hs-card{background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.17);border-radius:20px;padding:18px 20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 40px rgba(0,10,30,.28);}
+.hs-k{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin-bottom:12px;}
+.hs-row{display:flex;gap:14px;align-items:center;padding:9px 0;border-top:1px solid rgba(255,255,255,.1);}
+.hs-row:first-of-type{border-top:0;padding-top:2px;}
+.hs-ic{width:42px;height:42px;border-radius:12px;background:rgba(34,195,230,.14);color:var(--cyan);display:flex;align-items:center;justify-content:center;flex:none;}
+.hs-ic svg{width:22px;height:22px;}
+.hs-row b{display:block;color:#fff;font-size:16px;font-weight:700;line-height:1.25;}
+.hs-row small{display:block;color:#b9cade;font-size:13.5px;margin-top:2px;line-height:1.35;}
+.hs-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.hs-chips span{font-size:13.5px;color:#e6f0fa;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);border-radius:99px;padding:6px 13px;font-weight:500;}
+.hs-lg{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;}
+.hs-lg img{width:100%;height:38px;object-fit:contain;background:#fff;border-radius:10px;padding:7px 9px;}
+@media (max-width:1000px){.hero-in{grid-template-columns:1fr;gap:34px;}.hs-lg{grid-template-columns:repeat(3,1fr);}}

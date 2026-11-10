@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tableau de bord &middot; Roots &amp; Co</title>
+<link rel="stylesheet" href="assets/style.css?v=202609252135">
+<script>try{if((localStorage.getItem('rootsco_theme')||'light')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+</head>
+<body class="nohero admin-body">
+
+<header class="adm-top">
+  <a href="index.html" class="logo"><img class="lw" src="assets/img/roots-white.png" alt="ROOTS"><img class="lb" src="assets/img/roots-blue.png" alt="ROOTS"></a>
+  <span class="adm-title">Tableau de bord commandes</span>
+  <button class="adm-theme" id="admTheme" type="button" aria-label="Th&egrave;me clair ou sombre" title="Th&egrave;me clair ou sombre">
+    <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></svg>
+    <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.5 6.5 0 0 0 21 12.8Z"/></svg>
+  </button>
+  <button class="btn btn-line adm-logout" id="admLogout" hidden>Se d&eacute;connecter</button>
+</header>
+<script>
+document.getElementById('admTheme').addEventListener('click',function(){
+  var d=document.documentElement.getAttribute('data-theme')==='dark';
+  if(d)document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme','dark');
+  try{localStorage.setItem('rootsco_theme',d?'light':'dark');}catch(e){}
+});
+</script>
+
+<main class="adm-main">
+
+  <section class="adm-login" id="admLogin">
+    <div class="adm-login-card">
+      <span class="kicker">Acc&egrave;s administrateur</span>
+      <h1 class="stitle">Connexion</h1>
+      <p class="slead">R&eacute;serv&eacute; &agrave; l&rsquo;&eacute;quipe ROOTS. Connectez-vous avec le compte cr&eacute;&eacute;
+      dans Supabase pour voir les commandes de la boutique.</p>
+      <form id="admForm" novalidate>
+        <div class="cf-row"><label>Adresse e-mail <b>*</b>
+          <input type="email" id="admMail" required autocomplete="username" placeholder="vous@roots.ws"></label></div>
+        <div class="cf-row"><label>Mot de passe <b>*</b>
+          <input type="password" id="admPass" required autocomplete="current-password"></label></div>
+        <p class="cf-err" id="admErr" hidden></p>
+        <button class="btn btn-primary adm-login-btn" type="submit">Se connecter</button>
+      </form>
+      <p class="adm-hint" id="admConfigHint" hidden>Le tableau de bord n&rsquo;est pas encore configur&eacute;
+      (assets/supabase-config.js). Une fois le projet Supabase pr&ecirc;t, renseignez l&rsquo;URL et la cl&eacute; publique
+      dans ce fichier.</p>
+    </div>
+  </section>
+
+  <section class="adm-dash" id="admDash" hidden>
+
+    <div class="adm-tabs" id="admTabs">
+      <button class="adm-tab on" data-tab="commandes" type="button">Commandes</button>
+      <button class="adm-tab" data-tab="produits" type="button">Produits</button>
+      <button class="adm-tab" data-tab="clients" type="button">Clients</button>
+      <button class="adm-tab" data-tab="analyse" type="button">Analyse</button>
+      <button class="adm-tab" data-tab="reglages" type="button">R&eacute;glages</button>
+    </div>
+
+    <div class="adm-panel" id="panelCommandes">
+      <div class="adm-stats">
+        <div class="adm-stat"><b id="stAll">0</b><span>Commandes</span></div>
+        <div class="adm-stat"><b id="stNew">0</b><span>Nouvelles</span></div>
+        <div class="adm-stat"><b id="stProg">0</b><span>En cours</span></div>
+        <div class="adm-stat"><b id="stDone">0</b><span>Livr&eacute;es</span></div>
+        <div class="adm-stat adm-stat-wide"><b id="stTotal">0 FCFA</b><span>Chiffre d&rsquo;affaires (commandes non annul&eacute;es)</span></div>
+      </div>
+
+      <div class="adm-bar">
+        <div class="adm-filters" id="admFilters">
+          <button class="adm-filter on" data-f="all">Toutes</button>
+          <button class="adm-filter" data-f="nouveau">Nouvelles</button>
+          <button class="adm-filter" data-f="confirme">Confirm&eacute;es</button>
+          <button class="adm-filter" data-f="en_livraison">En livraison</button>
+          <button class="adm-filter" data-f="livre">Livr&eacute;es</button>
+          <button class="adm-filter" data-f="annule">Annul&eacute;es</button>
+        </div>
+        <input type="search" id="admSearch" class="adm-search" placeholder="Chercher un nom, une ville, une r&eacute;f&eacute;rence&hellip;">
+        <button class="btn btn-line adm-refresh" id="admRefresh">Actualiser</button>
+      </div>
+
+      <div class="adm-bulk">
+        <label class="adm-check-all"><input type="checkbox" id="admCheckAll"> Tout s&eacute;lectionner</label>
+        <button class="btn btn-line adm-del-bulk" id="admDelBulk" type="button" hidden>Supprimer la s&eacute;lection (<span id="admSelCount">0</span>)</button>
+      </div>
+      <p class="adm-empty" id="admEmpty" hidden>Aucune commande pour ce filtre.</p>
+      <div class="adm-list" id="admList"></div>
+    </div>
+
+    <div class="adm-panel" id="panelProduits" hidden>
+      <div class="adm-stats">
+        <div class="adm-stat"><b id="stProdAll">0</b><span>Produits</span></div>
+        <div class="adm-stat"><b id="stProdActive">0</b><span>En vente</span></div>
+        <div class="adm-stat"><b id="stProdLow">0</b><span>Stock bas</span></div>
+      </div>
+      <div class="adm-bar">
+        <input type="search" id="prodSearch" class="adm-search" placeholder="Chercher un produit, une r&eacute;f&eacute;rence&hellip;">
+        <button class="btn btn-primary" id="prodNew" type="button">Nouveau produit</button>
+        <button class="btn btn-line" id="prodImport" type="button">Importer un fichier</button>
+        <button class="btn btn-line" id="prodTemplate" type="button">Mod&egrave;le CSV</button>
+        <button class="btn btn-line adm-refresh" id="prodRefresh" type="button">Actualiser</button>
+        <input type="file" id="prodFile" accept=".csv,text/csv" hidden>
+      </div>
+      <p class="adm-hint" id="prodImportMsg" hidden></p>
+      <p class="adm-hint" id="prodConfigHint" hidden>La table catalogue n&rsquo;existe pas encore.
+      Collez <code>assets/catalog.sql</code> dans Supabase, SQL Editor, puis actualisez.</p>
+      <p class="adm-empty" id="prodEmpty" hidden>Aucun produit.</p>
+      <div class="adm-prod-list" id="prodList"></div>
+    </div>
+
+    <div class="adm-panel" id="panelClients" hidden>
+      <div class="adm-stats">
+        <div class="adm-stat"><b id="clAll">0</b><span>Clients</span></div>
+        <div class="adm-stat"><b id="clVip">0</b><span>VIP</span></div>
+        <div class="adm-stat"><b id="clReg">0</b><span>R&eacute;guliers</span></div>
+        <div class="adm-stat"><b id="clNew">0</b><span>Nouveaux</span></div>
+      </div>
+      <div class="adm-bar">
+        <input type="search" id="clSearch" class="adm-search" placeholder="Chercher un client, une ville, un e-mail&hellip;">
+        <button class="btn btn-line adm-refresh" id="clExport" type="button">Exporter en CSV</button>
+      </div>
+      <p class="adm-empty" id="clEmpty" hidden>Aucun client pour l&rsquo;instant.</p>
+      <div class="adm-cli-list" id="clList"></div>
+    </div>
+
+    <div class="cli-detail" id="cliDetail" hidden>
+      <div class="prod-editor-head">
+        <h2 class="stitle" id="cliName">Client</h2>
+        <button type="button" class="btn btn-line" id="cliBack">Retour</button>
+      </div>
+      <p class="cli-meta" id="cliMeta"></p>
+      <div class="adm-list" id="cliOrders"></div>
+    </div>
+
+    <div class="adm-panel" id="panelAnalyse" hidden>
+      <div class="adm-stats">
+        <div class="adm-stat"><b id="anVisits">0</b><span>Visites (30 jours)</span></div>
+        <div class="adm-stat"><b id="anConv">0 %</b><span>Taux de conversion</span></div>
+        <div class="adm-stat"><b id="anChat">0</b><span>Questions &agrave; l&rsquo;assistant (30 j)</span></div>
+        <div class="adm-stat"><b id="anRev">0 FCFA</b><span>Ventes des 30 jours</span></div>
+      </div>
+      <div class="adm-bar">
+        <button class="btn btn-line adm-refresh" id="anRefresh" type="button">Actualiser</button>
+      </div>
+      <p class="adm-hint" id="anHint" hidden>Le suivi des visites et de l&rsquo;assistant n&rsquo;est pas encore actif.
+      Collez <code>assets/analytics.sql</code> dans Supabase, SQL Editor, puis actualisez.</p>
+      <div class="adm-charts">
+        <div class="adm-chart"><h3>Ventes par jour, 30 derniers jours</h3><canvas id="chVentes" height="150"></canvas></div>
+        <div class="adm-chart"><h3>Visites et commandes, 14 derniers jours</h3><canvas id="chConv" height="150"></canvas></div>
+        <div class="adm-chart"><h3>Produits les plus command&eacute;s</h3><canvas id="chTop" height="180"></canvas></div>
+        <div class="adm-chart"><h3>Commandes par statut</h3><canvas id="chStatut" height="180"></canvas></div>
+      </div>
+    </div>
+
+    <div class="adm-panel" id="panelReglages" hidden>
+      <p class="adm-hint" id="rgHint" hidden>Les tables de r&eacute;glages n&rsquo;existent pas encore.
+      Collez <code>assets/roles.sql</code> puis <code>assets/settings.sql</code> dans Supabase, SQL Editor, puis actualisez.</p>
+
+      <div class="rg-card">
+        <h3>S&eacute;curit&eacute; de mon compte</h3>
+        <p class="rg-lead">Ajoutez un second facteur : un code &agrave; six chiffres depuis une application
+        d&rsquo;authentification, en plus du mot de passe.</p>
+        <div id="mfaState"></div>
+        <button class="btn btn-primary" id="mfaStart" type="button">S&eacute;curiser mon compte</button>
+        <div id="mfaEnroll" hidden>
+          <p class="rg-lead">Scannez ce code dans Google Authenticator, Authy ou &eacute;quivalent, puis
+          entrez le code affich&eacute;.</p>
+          <div id="mfaQr"></div>
+          <p class="rg-secret" id="mfaSecret"></p>
+          <div class="cf-2">
+            <label>Code &agrave; six chiffres<input type="text" id="mfaCode" inputmode="numeric" maxlength="6"></label>
+            <span></span>
+          </div>
+          <button class="btn btn-primary" id="mfaVerify" type="button">Valider</button>
+          <button class="btn btn-line" id="mfaCancel" type="button">Annuler</button>
+        </div>
+        <p class="cf-err" id="mfaErr" hidden></p>
+      </div>
+
+      <div class="rg-card">
+        <h3>&Eacute;quipe interne</h3>
+        <p class="rg-lead">Administrateur : tout. Manager : commandes, produits, clients. Support : commandes.
+        Pour ajouter une personne, cr&eacute;ez d&rsquo;abord son compte dans Supabase, Authentication, Users,
+        puis collez son identifiant ici.</p>
+        <div class="rg-list" id="staffList"></div>
+        <form id="staffForm" class="rg-add">
+          <input type="text" id="sfUid" placeholder="User UID (Supabase)" required>
+          <input type="text" id="sfNom" placeholder="Nom">
+          <select id="sfRole"><option value="support">Support</option><option value="manager">Manager</option><option value="admin">Administrateur</option></select>
+          <button class="btn btn-primary" type="submit">Ajouter</button>
+        </form>
+        <p class="cf-err" id="staffErr" hidden></p>
+      </div>
+
+      <div class="rg-card">
+        <h3>TVA et devises</h3>
+        <form id="paramForm" class="rg-params">
+          <label>TVA (pourcentage)<input type="number" id="pTva" step="0.01" min="0"></label>
+          <label>1 EUR en FCFA<input type="number" id="pEur" step="0.001" min="0"></label>
+          <label>1 USD en FCFA<input type="number" id="pUsd" step="0.001" min="0"></label>
+          <button class="btn btn-primary" type="submit">Enregistrer</button>
+        </form>
+        <p class="cf-err" id="paramErr" hidden></p>
+      </div>
+
+      <div class="rg-card">
+        <h3>Zones et tarifs de livraison</h3>
+        <div class="rg-list" id="zoneList"></div>
+        <form id="zoneForm" class="rg-add">
+          <input type="text" id="zfNom" placeholder="Nom de la zone" required>
+          <input type="text" id="zfPays" placeholder="Pays">
+          <input type="number" id="zfTarif" placeholder="Tarif FCFA" min="0">
+          <input type="text" id="zfDelai" placeholder="D&eacute;lai">
+          <button class="btn btn-primary" type="submit">Ajouter</button>
+        </form>
+        <p class="cf-err" id="zoneErr" hidden></p>
+      </div>
+
+      <div class="rg-card">
+        <h3>Journal des actions</h3>
+        <div class="rg-log" id="auditList"></div>
+      </div>
+    </div>
+
+    <div class="prod-editor" id="prodEditor" hidden>
+      <form id="prodForm" novalidate>
+        <div class="prod-editor-head">
+          <h2 class="stitle" id="prodEditTitle">Nouveau produit</h2>
+          <button type="button" class="btn btn-line" id="prodCancel">Annuler</button>
+        </div>
+        <div class="cf-row"><label>R&eacute;f&eacute;rence <b>*</b>
+          <input type="text" id="pfRef" required placeholder="Ex. RTS_2026360025"></label></div>
+        <div class="cf-row"><label>Nom <b>*</b>
+          <input type="text" id="pfNom" required></label></div>
+        <div class="cf-2">
+          <label>Cat&eacute;gorie
+            <select id="pfCat"></select></label>
+          <label>Stock
+            <input type="number" id="pfStock" min="0" value="0"></label>
+        </div>
+        <div class="cf-2">
+          <label>Prix HT en FCFA <b>*</b>
+            <input type="number" id="pfPrix" min="0" required></label>
+          <label>Seuil d&rsquo;alerte stock
+            <input type="number" id="pfSeuil" min="0" value="3"></label>
+        </div>
+        <p class="prod-ht" id="pfHt">TTC (18%) : &mdash;</p>
+        <div class="cf-row"><label>Fiche technique (une ligne)
+          <input type="text" id="pfSpec" placeholder="16 pouces, Core i5, 16 Go, 512 Go SSD&hellip;"></label></div>
+        <div class="cf-row"><label>Description
+          <textarea id="pfDesc" rows="4"></textarea></label></div>
+        <div class="cf-row"><label>Image (adresse ou chemin)
+          <input type="text" id="pfImg" placeholder="assets/produits/DC16250.png"></label></div>
+        <label class="cf-check"><input type="checkbox" id="pfActif" checked> En vente sur la boutique</label>
+        <p class="cf-err" id="pfErr" hidden></p>
+        <div class="prod-editor-foot">
+          <button type="submit" class="btn btn-primary" id="pfSave">Enregistrer</button>
+          <button type="button" class="btn btn-ghost2" id="pfDelete" hidden>Supprimer ce produit</button>
+        </div>
+      </form>
+    </div>
+
+  </section>
+
+</main>
+
+<template id="admRowTpl">
+  <article class="adm-row">
+    <div class="adm-row-head">
+      <input type="checkbox" class="adm-check" aria-label="S&eacute;lectionner cette commande">
+      <div class="adm-row-who">
+        <strong class="adm-name"></strong>
+        <span class="adm-city"></span>
+        <span class="adm-date"></span>
+      </div>
+      <div class="adm-row-amt">
+        <strong class="adm-amt"></strong>
+        <select class="adm-status">
+          <option value="nouveau">Nouvelle</option>
+          <option value="confirme">Confirm&eacute;e</option>
+          <option value="en_livraison">En livraison</option>
+          <option value="livre">Livr&eacute;e</option>
+          <option value="annule">Annul&eacute;e</option>
+        </select>
+      </div>
+      <button class="adm-toggle" type="button" aria-label="D&eacute;tails">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+    </div>
+    <div class="track-bar">
+      <div class="track-fill"></div>
+      <span class="track-lbl"></span>
+    </div>
+    <div class="adm-row-body" hidden>
+      <div class="adm-row-g">
+        <div><h5>Articles</h5><div class="adm-items"></div></div>
+        <div><h5>Contact</h5><p class="adm-contact"></p></div>
+        <div><h5>Livraison</h5><p class="adm-ship"></p></div>
+        <div><h5>Paiement</h5><p class="adm-pay"></p></div>
+      </div>
+      <p class="adm-note" hidden></p>
+      <div class="adm-suivi">
+        <h5>Suivi du colis</h5>
+        <ol class="suivi-steps"></ol>
+        <div class="suivi-add">
+          <select class="suivi-etape">
+            <option value="En pr&eacute;paration">En pr&eacute;paration</option>
+            <option value="Exp&eacute;di&eacute;e">Exp&eacute;di&eacute;e</option>
+            <option value="Arriv&eacute;e au point local">Arriv&eacute;e au point local</option>
+            <option value="En livraison">En livraison</option>
+            <option value="Livr&eacute;e">Livr&eacute;e</option>
+          </select>
+          <input type="text" class="suivi-note" placeholder="Pr&eacute;cision (facultatif)">
+          <button type="button" class="btn btn-line suivi-btn">Ajouter l&rsquo;&eacute;tape</button>
+        </div>
+        <label class="suivi-eta">Livraison estim&eacute;e le
+          <input type="date" class="suivi-date"></label>
+      </div>
+      <div class="adm-row-foot">
+        <span class="adm-ref"></span>
+        <button class="adm-del" type="button">Supprimer cette commande</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="assets/supabase-config.js?v=202609252135"></script>
+<script src="assets/suivi-etapes.js?v=202609252135"></script><script src="assets/admin.js?v=202609252135"></script>
+</body>
+</html>
