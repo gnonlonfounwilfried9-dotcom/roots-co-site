@@ -30,8 +30,9 @@
     var loop = document.createElement('div'); loop.className = 'lp-host';
     hero.insertBefore(loop, hero.firstChild); hero.insertBefore(glow, hero.firstChild); hero.insertBefore(grid, hero.firstChild); hero.insertBefore(net, hero.firstChild);
     if (window.rootsNet) window.rootsNet(net, { max: 80, density: 15000, link: 130 });
-    var KIND = { 'import-export.html': 'routes', 'blog.html': 'news', 'contact.html': 'radar', 'a-propos.html': 'globe', 'references.html': 'logos' }[path] || 'loop';
-    if (KIND === 'routes' && window.rootsRoutes) window.rootsRoutes(loop);
+    var KIND = { 'import-export.html': 'cargo', 'blog.html': 'news', 'contact.html': 'chat', 'a-propos.html': 'globe', 'references.html': 'logos' }[path] || 'loop';
+    if (KIND === 'cargo' && window.rootsCargo) window.rootsCargo(loop);
+    else if (KIND === 'chat' && window.rootsChat) window.rootsChat(loop);
     else if (KIND === 'news' && window.rootsNewsWall) window.rootsNewsWall(loop);
     else if (KIND === 'radar' && window.rootsRadar) window.rootsRadar(loop);
     else if (KIND === 'globe' && window.rootsGlobe) window.rootsGlobe(loop);

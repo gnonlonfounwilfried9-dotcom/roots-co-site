@@ -79,4 +79,30 @@
     function row(cls, list) { var h = ''; for (var r = 0; r < 2; r++) list.forEach(function (s) { h += '<span class="lr-t"><img src="' + s + '" alt=""></span>'; }); return '<div class="lr-row ' + cls + '"><div class="lr-tr">' + h + '</div></div>'; }
     host.innerHTML = row('a', imgs) + row('b', imgs.slice().reverse());
   };
+
+  /* Import-export : un port en activité, des conteneurs qui défilent, un navire, un camion, un avion */
+  window.rootsCargo = function (host) {
+    host.classList.add('sx-host'); host.innerHTML = '';
+    var cols = ['#0f4a7a', '#22c3e6', '#2563eb', '#0c7c9c', '#154577', '#5aa7d6'];
+    function lane(cls, n, off) { var h = ''; for (var r = 0; r < 2; r++) for (var i = 0; i < n; i++) { var c = cols[(i + off) % cols.length]; h += '<span class="cg-c" style="background:' + c + ';width:' + (74 + ((i * 17 + off) % 4) * 12) + 'px"><i></i></span>'; } return '<div class="cg-lane ' + cls + '"><div class="cg-tr">' + h + '</div></div>'; }
+    var ship = '<svg viewBox="0 0 120 56" fill="none" stroke="#8fe9ff" stroke-width="2" stroke-linejoin="round"><path d="M6 36h108l-14 16H22z" fill="rgba(34,195,230,.25)"/><path d="M26 36V22h22v14M54 36V14h18v22M78 36V26h16v10"/></svg>';
+    var truck = '<svg viewBox="0 0 110 48" fill="none" stroke="#8fe9ff" stroke-width="2" stroke-linejoin="round"><path d="M4 10h62v26H4z" fill="rgba(34,195,230,.25)"/><path d="M66 18h22l16 12v6H66z"/><circle cx="24" cy="40" r="6" fill="#06142a"/><circle cx="86" cy="40" r="6" fill="#06142a"/></svg>';
+    var plane = '<svg viewBox="0 0 90 40" fill="none" stroke="#8fe9ff" stroke-width="2" stroke-linejoin="round"><path d="M4 22l38-4L60 4h8L58 18l24 2v4l-24 2 10 14h-8L42 26 4 28z" fill="rgba(34,195,230,.25)"/></svg>';
+    host.innerHTML = lane('top', 12, 0) + lane('bot', 12, 2) +
+      '<div class="cg-plane">' + plane + '<em></em></div><div class="cg-truck">' + truck + '</div><div class="cg-ship">' + ship + '</div>' +
+      '<svg class="cg-wave" viewBox="0 0 1200 40" preserveAspectRatio="none"><path d="M0 20 Q50 0 100 20 T200 20 T300 20 T400 20 T500 20 T600 20 T700 20 T800 20 T900 20 T1000 20 T1100 20 T1200 20" fill="none" stroke="rgba(143,233,255,.45)" stroke-width="2"/></svg>';
+  };
+
+  /* Contact : une conversation qui se déroule en boucle, demande puis réponse */
+  window.rootsChat = function (host) {
+    host.classList.add('sx-host'); host.innerHTML = '';
+    var L = ['Bonjour, nous voulons équiper nos bureaux.', 'Une vingtaine de postes et trois imprimantes.', 'Parfait, envoyez le devis.'];
+    var R = ['Bonjour ! Dites-nous ce qu\'il vous faut.', 'Noté. Votre devis arrive sous 48 heures.', 'Devis envoyé. Une visite cette semaine ?'];
+    function card(side, arr, who, delay0) {
+      var h = '<div class="ch-card ' + side + '"><div class="ch-head"><b></b><span>' + who + '</span></div>';
+      arr.forEach(function (m, k) { h += '<div class="ch-b" style="--d:' + (delay0 + k * 6) + 's"><span class="ch-dots"><i></i><i></i><i></i></span><p>' + m + '</p></div>'; });
+      return h + '</div>';
+    }
+    host.innerHTML = card('l', L, 'Vous', 0) + card('r', R, 'ROOTS', 3) + '<div class="ch-mail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></div>';
+  };
 })();

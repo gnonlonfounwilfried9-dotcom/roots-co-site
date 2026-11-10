@@ -67,3 +67,17 @@ body.hm-ready .hm-logo{animation-delay:.05s}
 
 .hm-map{height:440px;margin-bottom:calc((var(--s,1) - 1) * 440px)}
 .hm-hub{top:218px}
+
+.hm-hero-in{padding-bottom:96px}
+.hm-hero{min-height:auto}
+.hm-dark:not(.hm-end){padding:76px 0}
+.hm-head{margin-bottom:38px}
+.hm-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:60px}
+.hm-kpis>div{position:relative;padding:22px 24px;border-radius:22px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.14);overflow:hidden}
+.hm-kpis>div::before{content:"";position:absolute;left:0;top:0;height:3px;width:100%;background:linear-gradient(90deg,#22c3e6,#8fe9ff,transparent);transform:scaleX(.3);transform-origin:left;animation:kpiBar 4s ease-in-out infinite alternate}
+@keyframes kpiBar{to{transform:scaleX(1)}}
+.hm-kpis b{display:block;font-family:'Sora',sans-serif;font-size:44px;font-weight:800;line-height:1;color:#fff}
+.hm-kpis small{display:block;margin-top:8px;font-size:13.5px;color:#9fb6cf;letter-spacing:.03em}
+@media (max-width:760px){.hm-kpis{grid-template-columns:repeat(2,1fr)}.hm-kpis b{font-size:34px}}
+
+.hm-dark>canvas.ix-net,.hm-light>canvas.ix-net{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.5;pointer-events:none}
