@@ -21,6 +21,7 @@
   };
   function svg(n) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + P[n] + '</svg>'; }
   window.rootsIcon = svg; window.rootsIcons = Object.keys(P);
+  window.rootsIconAdd = function (m) { for (var k in m) P[k] = m[k]; };
 
   /* Boucle : des éléments tournent sans fin autour du contenu, qui reste au centre */
   window.rootsLoop = function (host, items, o) {
@@ -55,7 +56,7 @@
     if (!sec || sec.querySelector(':scope > .lv')) return;
     var lv = document.createElement('div'); lv.className = 'lv ' + (dark ? 'lv-d' : 'lv-l');
     var h = '<i class="lv-b b1"></i><i class="lv-b b2"></i><i class="lv-b b3"></i>';
-    var names = window.rootsIcons, k;
+    var names = window.rootsIconSet || window.rootsIcons, k;
     for (k = 0; k < 9; k++) {
       var nm = names[(k * 3 + (sec.offsetTop % 7)) % names.length], left = (6 + k * 11 + (k % 2) * 4) % 96, dur = 26 + (k * 7) % 22, del = -((k * 5) % 24), size = 34 + (k * 9) % 30;
       h += '<span class="lv-i" style="left:' + left + '%;width:' + size + 'px;height:' + size + 'px;animation-duration:' + dur + 's;animation-delay:' + del + 's">' + svg(nm) + '</span>';

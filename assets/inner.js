@@ -30,11 +30,15 @@
     var loop = document.createElement('div'); loop.className = 'lp-host';
     hero.insertBefore(loop, hero.firstChild); hero.insertBefore(glow, hero.firstChild); hero.insertBefore(grid, hero.firstChild); hero.insertBefore(net, hero.firstChild);
     if (window.rootsNet) window.rootsNet(net, { max: 80, density: 15000, link: 130 });
-    var KIND = { 'import-export.html': 'cargo', 'blog.html': 'news', 'contact.html': 'chat', 'a-propos.html': 'globe', 'references.html': 'logos' }[path] || 'loop';
+    var KIND = { 'import-export.html': 'cargo', 'blog.html': 'news', 'contact.html': 'chat', 'a-propos.html': 'globe', 'references.html': 'logos', 'savoir-faire.html': 'layers', 'formations.html': 'learn', 'solaire.html': 'solar' }[path] || (/^partenaire-/.test(path) ? 'brand' : 'loop');
     if (KIND === 'cargo' && window.rootsCargo) window.rootsCargo(loop);
     else if (KIND === 'chat' && window.rootsChat) window.rootsChat(loop);
     else if (KIND === 'news' && window.rootsNewsWall) window.rootsNewsWall(loop);
     else if (KIND === 'radar' && window.rootsRadar) window.rootsRadar(loop);
+    else if (KIND === 'layers' && window.rootsLayers) window.rootsLayers(loop);
+    else if (KIND === 'learn' && window.rootsLearn) window.rootsLearn(loop);
+    else if (KIND === 'solar' && window.rootsSolar) window.rootsSolar(loop);
+    else if (KIND === 'brand' && window.rootsBrand) window.rootsBrand(loop);
     else if (KIND === 'globe' && window.rootsGlobe) window.rootsGlobe(loop);
     else if (KIND === 'logos' && window.rootsLogoRows) {
       var li = Array.prototype.slice.call(document.querySelectorAll('.rwtile img')).map(function (im) { return im.getAttribute('src'); }).slice(0, 12);

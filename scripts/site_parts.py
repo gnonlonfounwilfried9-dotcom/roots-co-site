@@ -64,8 +64,7 @@ def footer_html(base=""):
         # colonne 4 : entreprise
         '<div class="fcol"><h5 data-en="Company">Entreprise</h5><ul>'
         '<li><a href="%(b)sa-propos.html" data-en="About">&Agrave; propos</a></li>'
-        '<li><a href="%(b)scontact.html" data-en="Contact">Contact</a></li>'
-        '<li><a href="%(b)scontact.html#recrutement" data-en="Careers">Recrutement</a></li></ul></div>'
+        '<li><a href="%(b)scontact.html" data-en="Contact">Contact</a></li></ul></div>'
         # colonne 5 : nous joindre (coordonnees protegees)
         '<div class="fcol"><h5 data-en="Reach us">Nous joindre</h5><ul class="fcontact">'
         '<li><span class="fi">%(mail)s</span>%(rmail)s</li>'

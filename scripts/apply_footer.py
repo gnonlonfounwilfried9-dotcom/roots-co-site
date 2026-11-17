@@ -38,7 +38,7 @@ for f in sorted(glob.glob(os.path.join(ROOT, "*.html"))):
                       '<span>&Eacute;tude, panneaux, onduleurs, batteries</span></a><a href="formations.html" data-en="Training"><strong>Formations</strong><span>Windows Server, Office, Sophos UTM, Odoo</span></a>', 1)
     if 'href="savoir-faire.html"' not in head_part:
         h = h.replace('<span>Windows Server, Office, Sophos UTM, Odoo</span></a>',
-                      '<span>Windows Server, Office, Sophos UTM, Odoo</span></a><a href="savoir-faire.html" data-en="Know-how"><strong>Savoir faire</strong><span>Services, formations, produits, recrutement</span></a>', 1)
+                      '<span>Windows Server, Office, Sophos UTM, Odoo</span></a><a href="savoir-faire.html" data-en="Know-how"><strong>Savoir faire</strong><span>Services, formations, produits, 15 marques</span></a>', 1)
         h = re.sub(r'(<a href="index\.html" class="home-link"[^>]*>[^<]*</a>)', lambda m: m.group(1) + '<a href="savoir-faire.html" class="home-link" data-en="Know-how">Savoir faire</a>', h, count=1)
 
     # meta de partage (aperçu du lien : logo ROOTS)
