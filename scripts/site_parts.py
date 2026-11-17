@@ -52,7 +52,9 @@ def footer_html(base=""):
         '<li><a href="%(b)sindex.html" data-en="Home">Accueil</a></li>'
         '<li><a href="%(b)sinformatique.html" data-en="IT and Technology">Informatique et technologie</a></li>'
         '<li><a href="%(b)simport-export.html" data-en="Import-export and Logistics">Import-export et logistique</a></li>'
+        '<li><a href="%(b)ssolaire.html" data-en="Solar energy">&Eacute;nergie solaire</a></li>'
         '<li><a href="%(b)sformations.html" data-en="Training">Formations</a></li>'
+        '<li><a href="%(b)ssavoir-faire.html" data-en="Know-how">Savoir faire</a></li>'
         '<li><a href="%(b)sblog.html" data-en="News">Actualit&eacute;s</a></li></ul></div>'
         # colonne 3 : partenaires
         '<div class="fcol"><h5 data-en="Partners">Partenaires</h5><ul>'

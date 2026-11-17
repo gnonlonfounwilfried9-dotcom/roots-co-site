@@ -27,11 +27,19 @@ for f in sorted(glob.glob(os.path.join(ROOT, "*.html"))):
     if "assets/shield.js" not in h:
         h = re.sub(r'(<script src="assets/nav\.js[^"]*"></script>)', r'\1<script src="assets/shield.js"></script>', h, count=1)
 
-    # lien Formations dans le tiroir (groupe Solutions)
-    if 'href="formations.html"' not in h.split('<footer')[0]:
-        h = h.replace('<span>Mat&eacute;riel, r&eacute;seau, s&eacute;curit&eacute;, ERP, maintenance</span></a></div>',
+    # liens Formations, Energie solaire, Savoir faire dans le tiroir (groupe Solutions) et Savoir faire dans la barre du haut
+    head_part = h.split('<footer')[0]
+    if 'href="solaire.html"' not in head_part:
+        h = h.replace('<span>Mat&eacute;riel, r&eacute;seau, s&eacute;curit&eacute;, ERP, maintenance</span></a>',
                       '<span>Mat&eacute;riel, r&eacute;seau, s&eacute;curit&eacute;, ERP, maintenance</span></a>'
-                      '<a href="formations.html" data-en="Training"><strong>Formations</strong><span>Windows Server, Office, Sophos UTM, Odoo</span></a></div>', 1)
+                      '<a href="solaire.html" data-en="Solar energy"><strong>&Eacute;nergie solaire</strong><span>&Eacute;tude, panneaux, onduleurs, batteries</span></a>', 1)
+    if 'href="formations.html"' not in head_part:
+        h = h.replace('<span>&Eacute;tude, panneaux, onduleurs, batteries</span></a>',
+                      '<span>&Eacute;tude, panneaux, onduleurs, batteries</span></a><a href="formations.html" data-en="Training"><strong>Formations</strong><span>Windows Server, Office, Sophos UTM, Odoo</span></a>', 1)
+    if 'href="savoir-faire.html"' not in head_part:
+        h = h.replace('<span>Windows Server, Office, Sophos UTM, Odoo</span></a>',
+                      '<span>Windows Server, Office, Sophos UTM, Odoo</span></a><a href="savoir-faire.html" data-en="Know-how"><strong>Savoir faire</strong><span>Services, formations, produits, recrutement</span></a>', 1)
+        h = re.sub(r'(<a href="index\.html" class="home-link"[^>]*>[^<]*</a>)', lambda m: m.group(1) + '<a href="savoir-faire.html" class="home-link" data-en="Know-how">Savoir faire</a>', h, count=1)
 
     # meta de partage (aperçu du lien : logo ROOTS)
     if 'property="og:image"' not in h:

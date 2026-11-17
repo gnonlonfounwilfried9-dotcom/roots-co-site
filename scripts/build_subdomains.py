@@ -115,6 +115,16 @@ SUBS = {
            ("wrench", "Maintenance", "Contrat de maintenance et intervention sur site."),
            ("gear", "Infog&eacute;rance", "Parc informatique et photocopieurs pris en charge.")],
     main="informatique.html", main_label="Voir la page Informatique et technologie"),
+ "solaire": dict(img="engineer.jpg", kick="&Eacute;nergie solaire", noindex=False,
+    h1="L&rsquo;&eacute;nergie solaire au service de votre activit&eacute;",
+    lead="Alimenter vos bureaux, vos serveurs, vos sites isol&eacute;s et votre vid&eacute;osurveillance avec une &eacute;nergie propre, continue et ma&icirc;tris&eacute;e.",
+    cards=[("gear", "&Eacute;tude des besoins", "Relev&eacute; de votre consommation et de l&rsquo;autonomie souhait&eacute;e."),
+           ("erp", "Panneaux, onduleurs, batteries", "Une installation compl&egrave;te, dimensionn&eacute;e au plus juste."),
+           ("server", "Alimentation de l&rsquo;informatique", "Serveurs, baies r&eacute;seau et postes de travail aliment&eacute;s en continu."),
+           ("cam", "Sites isol&eacute;s et vid&eacute;osurveillance", "Cam&eacute;ras, alarmes et points d&rsquo;acc&egrave;s l&agrave; o&ugrave; le r&eacute;seau &eacute;lectrique n&rsquo;arrive pas."),
+           ("wrench", "Installation et maintenance", "Pose, mise en service et suivi depuis Lom&eacute; et Cotonou."),
+           ("globe", "Un seul interlocuteur", "Informatique et &eacute;nergie par la m&ecirc;me &eacute;quipe.")],
+    main="solaire.html", main_label="Voir la page &Eacute;nergie solaire"),
  "shop": dict(img="office.jpg", kick="Boutique", noindex=True,
     h1="Notre boutique en ligne est en pr&eacute;paration",
     lead="Pour acheter du mat&eacute;riel, demandez un devis : nous revenons vite avec une proposition adapt&eacute;e.",
@@ -197,6 +207,7 @@ Chaque dossier de ce zip porte le meme nom que le dossier racine du sous-domaine
   esn/            -> esn.roots-co.fr
   import-export/  -> import-export.roots-co.fr
   infrastructure/ -> infrastructure.roots-co.fr
+  solaire/        -> solaire.roots-co.fr
   intranet/       -> intranet.roots-co.fr   (page noindex, a proteger par mot de passe cPanel : Repertoires proteges)
   shop/           -> shop.roots-co.fr       (page noindex, boutique en preparation)
 A CREER dans cPanel (Domaines, Sous-domaines), avec le dossier du meme nom :
@@ -204,7 +215,6 @@ A CREER dans cPanel (Domaines, Sous-domaines), avec le dossier du meme nom :
   technologie/    -> technologie.roots-co.fr
   infogerance/    -> infogerance.roots-co.fr
   odoo/           -> odoo.roots-co.fr
-Pas de page pour solaire.roots-co.fr tant que son contenu n'est pas decide.
 
 POUR CHAQUE SOUS-DOMAINE
 1. Copier index.html et .htaccess dans le dossier racine du sous-domaine (remplacer l'existant, voir plus bas).
