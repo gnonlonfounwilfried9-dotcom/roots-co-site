@@ -141,7 +141,7 @@ la clé "service_role" de Supabase (différente, jamais utilisée dans ce projet
 
 ## 9. Contacts et identifiants métier (non secrets, déjà publics sur le site)
 
-- E-mail : sales@roots.ws
+- E-mail : contact@roots-co.fr
 - Téléphone/WhatsApp : +228 93 07 87 87 (Togo), +229 99 56 52 52 (Bénin)
 - Villes : Lomé, Cotonou, + présence France et États-Unis
 - Domaines existants du client (non branchés sur ce site pour l'instant) : roots.services, roots.ws,

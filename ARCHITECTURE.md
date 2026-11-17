@@ -147,7 +147,7 @@ Six points bloquants remontes par l'equipe apres test de www.roots-co.fr, tous t
   `notifier-admin` -> e-mail a l'equipe (ADMIN_EMAILS) + accuse de reception au client (Resend). Secret
   partage dans la table privee `interne_config` et le secret Edge `NOTIF_SECRET` (valeur jamais dans le depot).
 - **Devis** : le formulaire de contact enregistre la demande dans la table `devis` (plus de WhatsApp), reference
-  `DV-...`, champ anti-robot cache. Secours : si l'enregistrement echoue, lien mailto pre-rempli vers sales@roots.ws.
+  `DV-...`, champ anti-robot cache. Secours : si l'enregistrement echoue, lien mailto pre-rempli vers contact@roots-co.fr.
 - **Lien de validation "localhost"** : reglage Supabase (Authentication > URL Configuration > Site URL),
   pas du code. `emailRedirectTo` ajoute dans `shop.js` et `account.js`.
 - **Presentation** : ouverture de la boutique allegee (encart "Comment lire les prix", bloc "Ce que ce statut

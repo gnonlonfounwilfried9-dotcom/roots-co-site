@@ -172,19 +172,24 @@ function initCarousel(root){
   var box=document.getElementById('quoteForm'); if(!box) return;
   var btn=box.querySelector('[data-send]'); if(!btn) return;
   var err=document.getElementById('quoteErr'), ok=document.getElementById('quoteOk');
+  var T0=Date.now();
   function v(n){var el=box.querySelector('[name='+n+']');return el?el.value.trim():'';}
   function fail(t){ if(err){err.hidden=false;err.textContent=t;} }
   /* secours si la base ne repond pas : la meme demande, pre-remplie, par e-mail */
   function failMail(){
     if(!err) return;
-    var body='Demande de devis\n\nNom : '+v('name')+'\nE-mail : '+v('email')+'\nTéléphone : '+v('tel')+'\nSociété : '+v('company')+'\n\nBesoin :\n'+v('need');
+    var body='Demande de devis ('+(v('subject')||'')+')\n\nNom : '+v('name')+'\nE-mail : '+v('email')+'\nTéléphone : '+v('tel')+'\nSociété : '+v('company')+'\n\nBesoin :\n'+v('need');
     err.hidden=false;
-    err.innerHTML='Envoi automatique indisponible pour le moment. <a href="mailto:sales@roots.ws?subject='
+    var to=(window.rootsMail&&window.rootsMail())||''; err.innerHTML='Envoi automatique indisponible pour le moment. <a href="mailto:'+to+'?subject='
       +encodeURIComponent('Demande de devis : '+v('name'))+'&body='+encodeURIComponent(body)+'">Envoyer cette demande par e-mail</a>.';
   }
   btn.addEventListener('click',function(){
     if(err) err.hidden=true;
-    if(v('website')) return;
+    if(v('website')) return;                                   // piege a robots : champ cache rempli
+    if(Date.now()-T0<4000) return fail('Merci de patienter quelques secondes avant d\u2019envoyer.');   // formulaire rempli trop vite
+    try{ var qs=JSON.parse(localStorage.getItem('rootsco_q')||'[]').filter(function(t){return Date.now()-t<1800000;});
+      if(qs.length>=3) return fail('Plusieurs demandes ont d\u00e9j\u00e0 \u00e9t\u00e9 envoy\u00e9es depuis cet appareil. R\u00e9essayez dans une demi-heure ou \u00e9crivez-nous sur WhatsApp.'); }catch(e0){}
+    if((v('need').match(/https?:\/\/|www\./gi)||[]).length>1) return fail('Merci de ne pas coller plusieurs liens dans votre demande.');
     var mail=v('email');
     if(!v('name')) return fail('Indiquez votre nom.');
     if(!mail||mail.indexOf('@')<1||mail.lastIndexOf('.')<mail.indexOf('@')) return fail('Indiquez une adresse e-mail valide.');
@@ -196,10 +201,11 @@ function initCarousel(root){
     btn.disabled=true;
     fetch(cfg.url+'/rest/v1/devis',{method:'POST',headers:{'apikey':cfg.anonKey,'Authorization':'Bearer '+cfg.anonKey,
       'Content-Type':'application/json','Prefer':'return=minimal'},
-      body:JSON.stringify({ref:ref,nom:v('name'),email:mail,tel:v('tel')||null,societe:v('company')||null,besoin:v('need'),page:location.pathname})
+      body:JSON.stringify({ref:ref,nom:v('name'),email:mail,tel:v('tel')||null,societe:v('company')||null,besoin:(v('subject')?'['+v('subject')+'] ':'')+v('need'),page:location.pathname})
     }).then(function(r){
       btn.disabled=false;
       if(!r.ok) return failMail();
+      try{ var q2=JSON.parse(localStorage.getItem('rootsco_q')||'[]'); q2.push(Date.now()); localStorage.setItem('rootsco_q',JSON.stringify(q2)); }catch(e1){}
       [].slice.call(box.querySelectorAll('.field, [data-send], .formnote')).forEach(function(el){el.style.display='none';});
       var rf=document.getElementById('quoteRef'); if(rf) rf.textContent=ref;
       if(ok) ok.hidden=false;

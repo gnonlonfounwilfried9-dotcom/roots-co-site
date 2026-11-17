@@ -1,0 +1,7 @@
+# ROOTS & Co : sous-domaine statique (Apache / cPanel)
+Options -Indexes
+DirectoryIndex index.html
+AddDefaultCharset UTF-8
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [L,R=301]

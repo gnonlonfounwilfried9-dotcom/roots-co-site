@@ -1,6 +1,6 @@
 /* ROOTS - boutique : panier, filtres, recherche, tri, fiche detaillee, commande */
 (function () {
-var K = 'roots_cart', XOF = 655.957, MAIL = 'sales@roots.ws';
+var K = 'roots_cart', XOF = 655.957, MAIL = 'contact@roots-co.fr';
 var NL = String.fromCharCode(10);
 
 /* la commande part toujours vers le tableau de bord (decision reunion du 2026-09-16 :

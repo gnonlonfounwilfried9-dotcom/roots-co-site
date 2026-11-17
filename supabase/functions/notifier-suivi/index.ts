@@ -3,7 +3,7 @@
 //   supabase functions deploy notifier-suivi
 // Secrets a definir (Supabase, Edge Functions, Secrets) :
 //   RESEND_API_KEY   = cle API du compte Resend (https://resend.com, gratuit < 3000/mois)
-//   MAIL_FROM        = adresse d'envoi verifiee, ex. "Roots & Co <commandes@roots.ws>"
+//   MAIL_FROM        = adresse d'envoi verifiee, ex. "Roots & Co <contact@roots-co.fr>"
 //
 // Tant que RESEND_API_KEY n'est pas defini, la fonction repond "ok" sans rien envoyer :
 // le tableau de bord continue de fonctionner normalement.
