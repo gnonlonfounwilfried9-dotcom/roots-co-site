@@ -208,9 +208,9 @@ def build_savoir_faire():
               '<div class="sfpg2">%s</div><div class="sfpbtn"><a class="btn btn-red" href="partenaires.html">Voir tous les partenaires</a></div></div></section>') % plog
     s_co = ('<section class="sec grid" id="coordonnees"><div class="wrap"><div class="cinfo sfco3">'
             '<div class="ci" data-fx="rise"><span class="ic">%s</span><div><h4>Lom&eacute;</h4><p>Hountigom&eacute;, route de l&rsquo;A&eacute;roport, non loin de la pharmacie de l&rsquo;a&eacute;roport.</p></div></div>'
-            '<div class="ci" data-fx="rise" style="--d:.1s"><span class="ic">%s</span><div><h4>E-mail</h4><p>%s</p></div></div>'
-            '<div class="ci" data-fx="rise" style="--d:.2s"><span class="ic">%s</span><div><h4>T&eacute;l&eacute;phone</h4><p>%s</p></div></div></div></div></section>'
-            % (sp.ICON_PIN, sp.ICON_MAIL, sp.reveal_mail(), sp.ICON_TEL, sp.reveal_tel()))
+            '<div class="ci" data-fx="rise" style="--d:.1s"><span class="ic">%s</span><div><h4>Cotonou, France, &Eacute;tats-Unis</h4><p>Quatre implantations pour vous servir.</p></div></div>'
+            '<div class="ci" data-fx="rise" style="--d:.2s"><span class="ic">%s</span><div><h4>Une question ?</h4><p><a class="btn btn-primary" href="contact.html">Faire une demande</a></p></div></div></div></div></section>'
+            % (sp.ICON_PIN, sp.ICON_PIN, sp.ICON_MAIL))
     post = tpl[tpl.rindex('<section class="sec tint"><div class="wrap"><div class="ctaband"'):]
     page = tpl[:a] + hero + s_serv + s_form + s_prod + s_part + s_co + post
     page = page.replace('<script src="assets/inner.js', '<script src="assets/sf.js"></script><script src="assets/inner.js', 1)

@@ -1,0 +1,17 @@
+/* ROOTS : police (17/11/2026). Texte en Manrope : hauteur d'x 0,54 contre 0,42 pour EB Garamond, a taille egale le texte parait 30 % plus grand.
+   Les grands titres gardent EB Garamond pour l'identite de la marque. */
+:root{
+  --sans:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --head:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --serif:'EB Garamond',Garamond,Georgia,serif;
+}
+body{font-family:var(--sans);font-size:17px;line-height:1.62;font-weight:500;letter-spacing:0}
+button,input,select,textarea{font-family:var(--sans)}
+h1,h2,.stitle,.hm-h1,.hm-head h2,.phero h1,.pghero h1,.ctaband h2,.hm-end h2,.sfx-p h3,.sf-h .stitle,.hm-k+h2{font-family:var(--serif);font-weight:700;letter-spacing:-.01em}
+h3,h4,h5,.card h3,.sff h4,.sfc h4{font-family:var(--sans);font-weight:700;letter-spacing:-.005em}
+.kicker,.hm-k,.sfx-p .sfx-rel span{font-family:var(--sans)}
+.nav .home-link,.nav-links a,.drawer-nav a strong{font-family:var(--sans);font-weight:600}
+.btn{font-family:var(--sans);font-weight:700;letter-spacing:.01em}
+p,li{font-size:max(1em,16.5px)}
+.slead{font-size:19px;line-height:1.6}
+small{font-size:14px}

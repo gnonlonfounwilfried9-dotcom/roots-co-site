@@ -1,0 +1,9 @@
+---
+# Modele de .cpanel.yml : a copier a la racine du depot sous le nom .cpanel.yml
+# Remplacer CPANELUSER par le nom d'utilisateur cPanel.
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/CPANELUSER/public_html/
+    - /bin/mkdir -p $DEPLOYPATH/assets
+    - /bin/cp -f *.html $DEPLOYPATH
+    - /usr/bin/rsync -a --delete --exclude='*.sql' assets/ $DEPLOYPATH/assets/

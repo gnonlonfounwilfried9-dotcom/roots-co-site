@@ -65,11 +65,10 @@ def footer_html(base=""):
         '<div class="fcol"><h5 data-en="Company">Entreprise</h5><ul>'
         '<li><a href="%(b)sa-propos.html" data-en="About">&Agrave; propos</a></li>'
         '<li><a href="%(b)scontact.html" data-en="Contact">Contact</a></li></ul></div>'
-        # colonne 5 : nous joindre (coordonnees protegees)
-        '<div class="fcol"><h5 data-en="Reach us">Nous joindre</h5><ul class="fcontact">'
-        '<li><span class="fi">%(mail)s</span>%(rmail)s</li>'
-        '<li><span class="fi">%(tel)s</span>%(rtel)s</li>'
+        # colonne 5 : nous contacter (aucune coordonnee affichee : la demande passe par le formulaire guide)
+        '<div class="fcol"><h5 data-en="Contact us">Nous contacter</h5><ul class="fcontact">'
+        '<li class="fcta"><a class="btn btn-primary fbtn" href="%(b)scontact.html" data-en="Make a request">Faire une demande</a></li>'
         '<li><span class="fi">%(pin)s</span><span data-en="Lome, Cotonou">Lom&eacute;, Cotonou</span></li>'
         '<li><span class="fi">%(pin)s</span><span data-en="France, United States">France, &Eacute;tats-Unis</span></li></ul></div>'
         '</div><div class="foot-bottom"><span>&copy; 2026 Roots &amp; Co. <span data-en="All rights reserved.">Tous droits r&eacute;serv&eacute;s.</span></span></div></div></footer>'
-    ) % dict(b=b, mail=ICON_MAIL, tel=ICON_TEL, pin=ICON_PIN, rmail=reveal_mail(), rtel=reveal_tel())
+    ) % dict(b=b, pin=ICON_PIN)

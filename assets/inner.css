@@ -22,3 +22,5 @@
 .ix-cta>.wrap{position:relative;z-index:1}
 @media (max-width:760px){.phero{min-height:420px;padding-bottom:60px}}
 @media (prefers-reduced-motion:reduce){.ix-glow{animation:none!important}.phero .kicker,.phero h1,.phero p,.phero .crumb{opacity:1;transform:none;animation:none}}
+
+/* type-scale 2026-11-17 */
