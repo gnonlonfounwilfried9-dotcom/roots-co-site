@@ -1,0 +1,184 @@
+[
+ {
+  "name": "DELL PRO TOWER QCT1250-N",
+  "spec": "Processeur : Intel Core i3-14100 – 4 cœurs – 4,7 GHz | RAM : 8 Go | Stockage : 512 Go | Système : Ubuntu (Linux) | Format : Tower | Garantie : 1 an",
+  "ref": "487781-QCT1250",
+  "reg": 724.5,
+  "promo": 672.75
+ },
+ {
+  "name": "DELL PRO TOWER QCT1250",
+  "spec": "Processeur : Intel Core i5-14500 | RAM : 8 Go | Stockage : 512 Go | Système : Windows 11 Pro | Format : Tower | Garantie : 1 an",
+  "ref": "452608-QCT1250",
+  "reg": 918.85,
+  "promo": 867.1
+ },
+ {
+  "name": "DELL PRO TOWER-N",
+  "spec": "Processeur : Intel Core i5-14500 – 14 cœurs – 5,0 GHz | RAM : 8 Go | Stockage : 512 Go | Système : Ubuntu (Linux) | Format : Tower | Garantie : 1 an",
+  "ref": "452610-QCT1250",
+  "reg": 803.85,
+  "promo": 752.1
+ },
+ {
+  "name": "DELL PRO SLIM QCS1250",
+  "spec": "Processeur : Intel Core Ultra 5 235 – 14 cœurs – 5,0 GHz | RAM : 16 Go | Stockage : 512 Go | Système : Windows 11 Pro | Format : Slim | Garantie : 1 an",
+  "ref": "451568-QCS1250",
+  "reg": 1052.25,
+  "promo": 945.3
+ },
+ {
+  "name": "DELL PRO SLIM QCS1250-N",
+  "spec": "Processeur : Intel Core Ultra 5 235 – 14 cœurs – 5,0 GHz | RAM : 16 Go | Stockage : 512 Go | Système : Ubuntu (Linux) | Format : Slim | Garantie : 1 an",
+  "ref": "451488-QCS1250",
+  "reg": 918.85,
+  "promo": 811.9
+ },
+ {
+  "name": "DELL PRO TOWER PLUS QBT1250-N",
+  "spec": "Processeur : Intel Core Ultra 5 235 – 14 cœurs – 5,0 GHz | RAM : 8 Go | Stockage : 512 Go | Système : Ubuntu (Linux) | Format : Tower Plus | Garantie : 1 an",
+  "ref": "451668-QBT1250",
+  "reg": 851.0,
+  "promo": 744.05
+ },
+ {
+  "name": "DELL PRO TOWER QVT1260",
+  "spec": "Processeur : Intel Core i3-14100 – 4 cœurs – 4,7 GHz | RAM : 8 Go | Stockage : 512 Go | Système : Windows 11 Pro | Format : Tower | Connectivité : Wi-Fi + Bluetooth | Garantie : 1 an",
+  "ref": "451601-QVT1260",
+  "reg": 672.75,
+  "promo": 608.35
+ },
+ {
+  "name": "DELL PRO 13 P",
+  "spec": "Processeur : Intel Core Ultra 5 236V – 8 cœurs – 4,7 GHz | RAM : 16 Go | Stockage : 512 Go | Écran : 13,3\" | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 3 ans",
+  "ref": "488561-PA13250",
+  "reg": 1730.75,
+  "promo": 1591.6
+ },
+ {
+  "name": "DELL PRO 14 PREMIUM",
+  "spec": "Processeur : Intel Core Ultra 5 238V – 8 cœurs – 4,7 GHz | RAM : 32 Go | Stockage : 512 Go | Écran : 14\" | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 3 ans",
+  "ref": "495624-PA14250",
+  "reg": 1874.5,
+  "promo": 1745.7
+ },
+ {
+  "name": "DELL 14 PLUS",
+  "spec": "Processeur : Intel Core Ultra 5 256V – 8 cœurs – 4,8 GHz | RAM : 16 Go | Stockage : 512 Go | Écran : 14\" | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 1 an",
+  "ref": "504225-DB14250",
+  "reg": 1263.85,
+  "promo": 1156.9
+ },
+ {
+  "name": "DELL PRO 14 PREMIUM",
+  "spec": "Processeur : Intel Core Ultra 7 266V – 8 cœurs – 5,0 GHz | RAM : 16 Go | Stockage : 512 Go | Écran : 14\" | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 3 ans",
+  "ref": "495625-PA14250",
+  "reg": 1903.25,
+  "promo": 1774.45
+ },
+ {
+  "name": "DELL PRO 15",
+  "spec": "Processeur : Intel Core i5-1334U – 10 cœurs – 4,60 GHz | RAM : 16 Go | Stockage : 1 To | Écran : 15,6\" | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 1 an",
+  "ref": "491059-PV15250",
+  "reg": 1098.25,
+  "promo": 991.3
+ },
+ {
+  "name": "DELL PRO 15",
+  "spec": "Processeur : Intel Core i5-1334U – 10 cœurs – 4,60 GHz | RAM : 16 Go | Stockage : 512 Go | Écran : 15,6\" | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 1 an",
+  "ref": "491062-PV15250",
+  "reg": 1052.25,
+  "promo": 945.3
+ },
+ {
+  "name": "DELL PRO 16",
+  "spec": "Processeur : Intel Core i5-120U – 10 cœurs – 5,0 GHz | RAM : 16 Go | Stockage : 512 Go | Écran : 16\" | Système : Ubuntu (Linux) | Connectivité : Wi-Fi + Bluetooth | Garantie : 1 an",
+  "ref": "495628-PC16250",
+  "reg": 1086.75,
+  "promo": 990.15
+ },
+ {
+  "name": "DELL PRO 16",
+  "spec": "Processeur : Intel Core Ultra 5 120U – 10 cœurs – 5,0 GHz | RAM : 16 Go | Stockage : 512 Go | Écran : 16\" | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 1 an",
+  "ref": "503550-PC16250",
+  "reg": 1207.5,
+  "promo": 1110.9
+ },
+ {
+  "name": "DELL PRO 16",
+  "spec": "Processeur : Intel Core Ultra 5 235U – 12 cœurs – 4,9 GHz | RAM : 32 Go | Stockage : 512 Go | Écran : 16\" | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 1 an",
+  "ref": "495626-PC16250",
+  "reg": 1546.75,
+  "promo": 1450.15
+ },
+ {
+  "name": "DELL PRO 14 ESSENTIAL",
+  "spec": "Processeur : Intel Core i3-100U – 6 cœurs – 4,7 GHz | RAM : 8 Go | Stockage : 512 Go | Écran : 14\" | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 2 ans",
+  "ref": "715988-PV14250",
+  "reg": 793.5,
+  "promo": 686.55
+ },
+ {
+  "name": "DELL PRO 14 ESSENTIAL-N",
+  "spec": "Processeur : Intel Core i3-100U – 6 cœurs – 4,7 GHz | RAM : 8 Go | Stockage : 512 Go | Écran : 14\" | Système : Ubuntu (Linux) | Connectivité : Wi-Fi + Bluetooth | Garantie : 2 ans",
+  "ref": "715987-PV14250",
+  "reg": 688.85,
+  "promo": 581.9
+ },
+ {
+  "name": "DELL PRO 14 ESSENTIAL",
+  "spec": "Processeur : Intel Core i5-220U – 10 cœurs – 5GHz | RAM : 16 Go | Stockage : 512 Go | Écran : 14\" | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 1 an",
+  "ref": "715985-PV14250",
+  "reg": 1017.75,
+  "promo": 910.8
+ },
+ {
+  "name": "DELL 14 P",
+  "spec": "Processeur : Intel Core Ultra 7 255H – 16 cœurs – 5,1 GHz | RAM : 16 Go | Stockage : 512 Go + 1 To | Écran : 14,5\" | Carte graphique : 6 Go (mémoire) | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 1 an",
+  "ref": "505183-DA14250",
+  "reg": 2369.0,
+  "promo": 2240.2
+ },
+ {
+  "name": "DELL 14 P",
+  "spec": "Processeur : Intel Core Ultra 7 255H – 16 cœurs – 5,1 GHz | RAM : 32 Go | Stockage : 1 To | Écran : 14,5\" | Carte graphique : 6 Go (mémoire) | Système : Windows 11 Pro | Connectivité : Wi-Fi + Bluetooth | Garantie : 1 an",
+  "ref": "504937-DA14250",
+  "reg": 3317.75,
+  "promo": 3188.95
+ },
+ {
+  "name": "DELL POWEREDGE R260",
+  "spec": "Processeur : Intel Xeon 6 Performance 6315P (4C/4T, 2,8 GHz, 55 W) | RAM : 16 Go UDIMM 5600 MT/s ECC | Système : Sans OS | Format : Rack 1U | Châssis 3,5\" jusqu'à 2 HDD câblés (RAID logiciel) | Alim. 200-240 V (HLAC) | iDRAC9 | Garantie pièces 12 mois (Smart Selection)",
+  "ref": "1038225320-R260",
+  "reg": 3335.0,
+  "promo": 2743.9
+ },
+ {
+  "name": "DELL POWEREDGE T360",
+  "spec": "Processeur : Intel Xeon 6 Performance 6315P (4C/4T, 2,8 GHz, 55 W) | RAM : 16 Go UDIMM 5600 MT/s ECC | Stockage : 2 To SATA 7.2K 3,5\" hot-plug | Système : Sans OS | Format : Tour | PERC H355 | Châssis 3,5\" jusqu'à 8 disques hot-plug | Alim. hot-plug | iDRAC9 Enterprise | Garantie pièces 12 mois (Smart Selection SPL)",
+  "ref": "1038225532-T360",
+  "reg": 3795.0,
+  "promo": 3527.05
+ },
+ {
+  "name": "DELL POWEREDGE R360",
+  "spec": "Processeur : Intel Xeon 6 Performance 6315P (4C/4T, 2,8 GHz, 55 W) | RAM : 16 Go UDIMM 5600 MT/s ECC | Stockage : 2 To SATA 7.2K 3,5\" hot-plug | Système : Sans OS | Format : Rack 1U | PERC H355 (front) | Châssis 3,5\" jusqu'à 4 disques hot-plug | iDRAC9 | ProSupport | Garantie pièces 12 mois (Smart Selection SPL)",
+  "ref": "1038225371-R360",
+  "reg": 3795.0,
+  "promo": 3096.95
+ },
+ {
+  "name": "DELL POWEREDGE T160",
+  "spec": "Processeur : Intel Xeon 6 Performance 6315P (4C/4T, 2,8 GHz, 55 W) | RAM : 16 Go UDIMM 5600 MT/s ECC | Système : Sans OS | Format : Tour | Châssis 3,5\" jusqu'à 3 HDD câblés + 2×2,5\" | Alim. 300 W | Broadcom 5720 2× 1GbE | iDRAC9 Enterprise | TPM 2.0 | Garantie pièces 12 mois (Smart Selection)",
+  "ref": "1038225244-T160",
+  "reg": 2886.5,
+  "promo": 2672.6
+ },
+ {
+  "name": "DELL POWEREDGE T160",
+  "spec": "Processeur : Xeon 6 6315P 4C/4T | RAM : 16 Go | Châssis 3,5 câblé (3 HDD + 2×2,5) | PSU 300W | Smart Selection",
+  "ref": "1038225245-T160",
+  "reg": 2886.5,
+  "promo": 2672.6
+ }
+]

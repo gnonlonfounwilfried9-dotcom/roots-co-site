@@ -15,3 +15,17 @@ h3,h4,h5,.card h3,.sff h4,.sfc h4{font-family:var(--sans);font-weight:700;letter
 p,li{font-size:max(1em,16.5px)}
 .slead{font-size:19px;line-height:1.6}
 small{font-size:14px}
+
+/* ---------------------------------------------------------------- LIEN DANS LA NAVIGATION (toutes les pages) */
+.nav .bf-link{position:relative;color:#04121f!important;background:var(--cyan,#22c3e6);padding:7px 14px;border-radius:99px;font-weight:800;letter-spacing:.02em;animation:bfNav 2.4s ease-in-out infinite}
+.nav .bf-link::before{content:"";position:absolute;inset:-3px;border-radius:99px;border:1.5px solid var(--cyan,#22c3e6);opacity:0;animation:bfNavR 2.4s ease-out infinite}
+@keyframes bfNav{50%{transform:translateY(-2px)}}
+@keyframes bfNavR{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.25)}}
+
+
+.drawer-bf{display:block;border:1px solid var(--cyan,#22c3e6);border-radius:14px;background:rgba(34,195,230,.1)}
+.drawer-bf strong{color:var(--cyan,#22c3e6)}
+.hm-cta .btn-bf{position:relative;background:transparent;color:#d5f7ff;border:1.5px solid var(--cyan,#22c3e6);box-shadow:0 0 0 0 rgba(34,195,230,.6);animation:bfCta 2.2s ease-out infinite}
+.hm-cta .btn-bf:hover{background:var(--cyan,#22c3e6);color:#04121f}
+@keyframes bfCta{to{box-shadow:0 0 0 16px rgba(34,195,230,0)}}
+@media (prefers-reduced-motion:reduce){.nav .bf-link,.nav .bf-link::before,.hm-cta .btn-bf{animation:none}}

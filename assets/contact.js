@@ -133,5 +133,8 @@
 
   /* arrivee avec un type connu : contact.html#devis, #aide, #form, #part, #impex, #autre */
   var h = (location.hash || '').replace('#', '');
+  /* demande venue de la page Black Friday : message deja rempli (voir assets/bf.js) */
+  var bfMsg = ''; try { bfMsg = sessionStorage.getItem('rootsBF') || ''; sessionStorage.removeItem('rootsBF'); } catch (e) { }
+  if (bfMsg) { var mm = $('#cfMsg'); if (mm) mm.value = bfMsg; if (!TYPES[h]) h = 'devis'; }
   if (TYPES[h]) choose(h);
 })();
