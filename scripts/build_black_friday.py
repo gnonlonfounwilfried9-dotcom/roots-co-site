@@ -23,6 +23,8 @@ IMG = {
     "pro14": "assets/produits/dell-pro-14.png",
     "xps": "assets/produits/dell-xps-14.png",
     "rack": "assets/produits/dell-poweredge-server.png",
+    "t160": "assets/produits/dell-poweredge-t160.png",
+    "t360": "assets/produits/dell-poweredge-t360.png",
     "hp": "assets/produits/hp-pro-tower-290-g9.png",
 }
 IMGMAP = {
@@ -33,7 +35,7 @@ IMGMAP = {
     "495628": "pro14", "503550": "pro14", "495626": "pro14",
     "505183": "xps", "504937": "xps",
     "1038225320": "rack", "1038225371": "rack",
-    "1038225532": "tower_srv", "1038225244": "tower_srv", "1038225245": "tower_srv",
+    "1038225532": "t360", "1038225244": "t160", "1038225245": "t160",
 }
 KEYEN = {"Processeur": "Processor", "RAM": "Memory", "Stockage": "Storage", "Écran": "Screen", "Système": "System",
          "Format": "Form factor", "Garantie": "Warranty", "Connectivité": "Connectivity", "Carte graphique": "Graphics",
