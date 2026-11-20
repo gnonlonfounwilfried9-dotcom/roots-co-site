@@ -82,14 +82,9 @@ def cat_of(name, spec):
 
 def load():
     items = json.load(io.open(os.path.join(ROOT, "scripts", "bf_items.json"), encoding="utf-8"))
-    merged, seen = [], {}
+    merged = []
     for it in items:
-        key = (it["name"], it["reg"], it["promo"])
-        if cat_of(it["name"], it["spec"]) == "server" and key in seen:
-            seen[key]["refs"].append(it["ref"])  # meme serveur, meme prix : une seule carte, deux references
-            continue
-        it["refs"] = [it["ref"]]
-        seen[key] = it
+        it['refs'] = [it['ref']]  # un article par ligne du dossier, les deux T160 restent separes
         merged.append(it)
     for it in merged:
         it["cat"] = cat_of(it["name"], it["spec"])
